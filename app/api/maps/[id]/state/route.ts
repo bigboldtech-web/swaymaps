@@ -91,6 +91,8 @@ export async function PUT(req: Request, { params }: Params) {
           mapId: params.id,
           sourceNodeId: edge.sourceId,
           targetNodeId: edge.targetId,
+          sourceHandle: edge.sourceHandle ?? null,
+          targetHandle: edge.targetHandle ?? null,
           label: edge.label ?? null,
           noteId: edge.noteId ?? null
         }))

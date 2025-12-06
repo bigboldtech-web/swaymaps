@@ -13,6 +13,7 @@ interface NoteInspectorProps {
   onUpdateMeta: (meta: MapNodeMeta) => void;
   onUpdateEdge: (edge: MapEdgeMeta) => void;
   onUpdateNodeColor: (color: string) => void;
+  onFocusNode?: (nodeId: string) => void;
   onNoSelectionMessage?: string;
 }
 
@@ -72,7 +73,14 @@ function renderLine(line: string, index: number) {
   }
 
   return (
-    <p key={index} className="text-sm leading-relaxed text-slate-800">
+    <p
+      key={index}
+      className={`text-sm leading-relaxed break-words break-all ${
+        typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+          ? "text-slate-100"
+          : "text-slate-800"
+      }`}
+    >
       {parts.length ? parts : line}
     </p>
   );
@@ -88,6 +96,7 @@ export default function NoteInspector({
   onUpdateMeta,
   onUpdateEdge,
   onUpdateNodeColor,
+  onFocusNode,
   onNoSelectionMessage
 }: NoteInspectorProps) {
   const [draft, setDraft] = React.useState<Note | null>(selectedNote);
@@ -159,10 +168,37 @@ export default function NoteInspector({
     onUpdateEdge(next);
   };
 
+  const handleEdgeTypeChange = (edgeType: MapEdgeMeta["edgeType"]) => {
+    if (!edgeDraft) return;
+    const next = { ...edgeDraft, edgeType };
+    setEdgeDraft(next);
+    onUpdateEdge(next);
+  };
+
+  const pinLabel = React.useMemo(() => {
+    if (!metaDraft) return "";
+    const pinTag = metaDraft.tags.find((t) => t.startsWith("__pin:"));
+    return pinTag ? pinTag.replace("__pin:", "") : "";
+  }, [metaDraft]);
+
+  const handlePinChange = (value: string) => {
+    if (!metaDraft) return;
+    const cleaned = metaDraft.tags.filter((t) => !t.startsWith("__pin:"));
+    const nextTags = value.trim() ? [...cleaned, `__pin:${value.trim()}`] : cleaned;
+    const nextMeta = { ...metaDraft, tags: nextTags };
+    setMetaDraft(nextMeta);
+    onUpdateMeta(nextMeta);
+  };
+
+  const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+  const shell = isDark ? "bg-[#040915] text-slate-100 border-[#0f172a]" : "bg-white text-slate-900 border-slate-200";
+  const muted = isDark ? "text-slate-400" : "text-slate-600";
+  const input = isDark ? "border-[#0f172a] bg-[#0b1422] text-slate-100" : "border-slate-200 bg-white text-slate-800";
+
   if (!draft && !edgeNoteDraft) {
     return (
-      <div className="flex h-full flex-col items-center justify-center px-6 text-center text-slate-600">
-        <div className="text-lg font-semibold text-slate-900">No node selected</div>
+      <div className={`flex h-full flex-col items-center justify-center px-6 text-center ${muted}`}>
+        <div className="text-lg font-semibold">{onNoSelectionMessage ? "Notice" : "No node selected"}</div>
         <p className="text-sm">
           {onNoSelectionMessage ?? "Click a node on the map to view or edit its note."}
         </p>
@@ -172,30 +208,38 @@ export default function NoteInspector({
 
   if (edgeNoteDraft && edgeDraft) {
     return (
-      <div className="flex h-full flex-col gap-4 p-4">
+      <div className={`flex h-full flex-col gap-4 p-4 ${shell}`}>
         <div>
-          <div className="text-xs uppercase tracking-wide text-slate-500">Edge label</div>
+          <div className={`text-xs uppercase tracking-wide ${muted}`}>Edge label</div>
           <input
-            className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-900 outline-none ring-0 focus:border-slate-300 focus:bg-white"
+            className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold outline-none ring-0 focus:border-sky-500 ${input}`}
             value={edgeDraft.label ?? ""}
             onChange={(e) => handleEdgeLabelChange(e.target.value)}
             placeholder="Relationship label"
           />
         </div>
 
+        {/* Edge type is controlled globally via settings; keep info text only */}
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-500">Title</label>
+          <label className={`text-xs uppercase tracking-wide ${muted}`}>Edge style</label>
+          <div className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold shadow-sm ${input}`}>
+            Controlled in Settings (Gradient/Solid)
+          </div>
+        </div>
+
+        <div>
+          <label className={`text-xs uppercase tracking-wide ${muted}`}>Title</label>
           <input
-            className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-900 outline-none ring-0 focus:border-slate-300 focus:bg-white"
+            className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold outline-none ring-0 focus:border-sky-500 ${input}`}
             value={edgeNoteDraft.title}
             onChange={(e) => updateEdgeNote({ title: e.target.value })}
           />
         </div>
 
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-500">Tags</label>
+          <label className={`text-xs uppercase tracking-wide ${muted}`}>Tags</label>
           <input
-            className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-300 focus:bg-white"
+            className={`mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
             placeholder="ops, vendor, priority"
             value={edgeNoteDraft.tags.join(", ")}
             onChange={(e) => updateEdgeNote({ tags: parseTagsInput(e.target.value) })}
@@ -204,7 +248,9 @@ export default function NoteInspector({
             {edgeNoteDraft.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] uppercase tracking-wide text-slate-600"
+                className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] uppercase tracking-wide ${
+                  isDark ? "border-slate-700 bg-slate-800 text-slate-200" : "border-slate-200 bg-white text-slate-600"
+                }`}
               >
                 {tag}
               </span>
@@ -213,14 +259,14 @@ export default function NoteInspector({
         </div>
 
         <div className="flex flex-1 flex-col gap-2">
-          <label className="text-xs uppercase tracking-wide text-slate-500">Content</label>
+          <label className={`text-xs uppercase tracking-wide ${muted}`}>Content</label>
           <textarea
-            className="min-h-[150px] flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-300"
+            className={`min-h-[150px] flex-1 rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
             value={edgeNoteDraft.content}
             onChange={(e) => updateEdgeNote({ content: e.target.value })}
           />
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-            <div className="text-xs uppercase tracking-wide text-slate-500">Preview</div>
+          <div className={`rounded-lg border p-3 ${isDark ? "border-[#0f172a] bg-[#0b1422]" : "border-slate-200 bg-slate-50"}`}>
+            <div className={`text-xs uppercase tracking-wide ${muted}`}>Preview</div>
             <div className="mt-2 space-y-2">
               {edgeNoteDraft.content.split("\n").map((line, idx) => renderLine(line, idx))}
             </div>
@@ -230,49 +276,122 @@ export default function NoteInspector({
     );
   }
 
+  const baseDefaults: Record<NonNullable<MapNodeMeta["kind"]>, string> = {
+    person: "#38bdf8",
+    system: "#22c55e",
+    process: "#fbbf24",
+    generic: "#6366f1"
+  };
+
+  const darkenColor = (hex: string, factor = 0.85) => {
+    const h = hex.replace("#", "");
+    if (h.length !== 6) return hex;
+    const num = parseInt(h, 16);
+    const r = Math.max(0, Math.floor(((num >> 16) & 255) * factor));
+    const g = Math.max(0, Math.floor(((num >> 8) & 255) * factor));
+    const b = Math.max(0, Math.floor((num & 255) * factor));
+    return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+  };
+
+  const pastelize = (hex: string, mix = 0.8) => {
+    const h = hex.replace("#", "");
+    if (h.length !== 6) return hex;
+    const num = parseInt(h, 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    const blend = (channel: number) =>
+      Math.round(channel * (1 - mix) + 255 * mix)
+        .toString(16)
+        .padStart(2, "0");
+    return `#${blend(r)}${blend(g)}${blend(b)}`;
+  };
+
+  const currentBaseColor =
+    metaDraft?.kind ? metaDraft.color || baseDefaults[metaDraft.kind] : undefined;
+  const grayHex = "#9ca3af";
+  const paletteColors = [
+    "#3b82f6",
+    "#22c55e",
+    "#f59e0b",
+    "#ec4899",
+    "#8b5cf6",
+    "#ef4444",
+    "#0ea5e9",
+    "#f97316",
+    "#6366f1",
+    "#14b8a6",
+    grayHex
+  ];
+
   return (
-    <div className="flex h-full flex-col gap-4 p-4">
+    <div className={`flex h-full flex-col gap-4 p-4 ${shell}`}>
       {metaDraft && (
-        <div>
-          <label className="text-xs uppercase tracking-wide text-slate-500">Type label</label>
-          <input
-            className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-900 outline-none ring-0 focus:border-slate-300 focus:bg-white"
-            value={metaDraft.kindLabel}
-            onChange={(e) => handleKindLabelChange(e.target.value)}
-          />
-        </div>
+        <>
+          <div>
+            <label className={`text-xs uppercase tracking-wide ${muted}`}>Type label</label>
+            <input
+              className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold outline-none ring-0 focus:border-sky-500 ${input}`}
+              value={metaDraft.kindLabel}
+              onChange={(e) => handleKindLabelChange(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <div className={`text-xs uppercase tracking-wide ${muted}`}>Pin label</div>
+            <input
+              className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold outline-none ring-0 focus:border-sky-500 ${input}`}
+              value={pinLabel}
+              onChange={(e) => handlePinChange(e.target.value)}
+              placeholder="e.g., Critical path"
+            />
+            {pinLabel && (
+              <div className={`mt-1 text-xs ${muted}`}>Use Pins dropdown to focus</div>
+            )}
+          </div>
+        </>
       )}
 
       {metaDraft && (
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-500">Node color</label>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {["#dbeafe", "#dcfce7", "#fef9c3", "#fee2e2", "#f3f4f6"].map((color) => (
+          <label className={`text-xs uppercase tracking-wide ${muted}`}>Node color</label>
+          <div className="mt-2 grid grid-cols-11 gap-2">
+            {paletteColors.map((color) => {
+              const display = isDark ? darkenColor(color) : color === grayHex ? color : pastelize(color);
+              const active = (currentBaseColor ?? "") === color;
+              return (
               <button
-                key={color}
-                className={`h-7 w-7 rounded-full border ${metaDraft.color === color ? "border-blue-500 ring-2 ring-blue-300" : "border-slate-200"}`}
-                style={{ backgroundColor: color }}
-                onClick={() => handleColorChange(color)}
-                aria-label={`Set color ${color}`}
-              />
-            ))}
+                  key={color}
+                  className={`h-7 w-7 rounded-full border ${
+                    active
+                      ? "border-blue-500 ring-2 ring-blue-300"
+                      : isDark
+                      ? "border-slate-700"
+                      : "border-slate-200"
+                  }`}
+                  style={{ backgroundColor: display }}
+                  onClick={() => handleColorChange(color)}
+                  aria-label={`Set color ${color}`}
+                />
+              );
+            })}
           </div>
         </div>
       )}
 
       <div>
-        <label className="text-xs uppercase tracking-wide text-slate-500">Title</label>
+        <label className={`text-xs uppercase tracking-wide ${muted}`}>Title</label>
         <input
-          className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-900 outline-none ring-0 focus:border-slate-300 focus:bg-white"
+          className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold outline-none ring-0 focus:border-sky-500 ${input}`}
           value={draft.title}
           onChange={(e) => updateNote({ title: e.target.value })}
         />
       </div>
 
       <div>
-        <label className="text-xs uppercase tracking-wide text-slate-500">Tags</label>
+        <label className={`text-xs uppercase tracking-wide ${muted}`}>Tags</label>
         <input
-          className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-300 focus:bg-white"
+          className={`mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
           placeholder="ops, vendor, priority"
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
@@ -282,7 +401,9 @@ export default function NoteInspector({
           {draft.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] uppercase tracking-wide text-slate-600"
+              className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] uppercase tracking-wide ${
+                isDark ? "border-slate-700 bg-slate-800 text-slate-200" : "border-slate-200 bg-white text-slate-600"
+              }`}
             >
               {tag}
             </span>
@@ -291,21 +412,21 @@ export default function NoteInspector({
       </div>
 
       <div className="flex flex-1 flex-col gap-2">
-        <label className="text-xs uppercase tracking-wide text-slate-500">Content</label>
+        <label className={`text-xs uppercase tracking-wide ${muted}`}>Content</label>
         <textarea
-          className="min-h-[150px] flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-slate-300"
+          className={`min-h-[150px] flex-1 rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
           value={draft.content}
           onChange={(e) => updateNote({ content: e.target.value })}
         />
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <div className="text-xs uppercase tracking-wide text-slate-500">Preview</div>
+        <div className={`rounded-lg border p-3 ${isDark ? "border-[#0f172a] bg-[#0b1422]" : "border-slate-200 bg-slate-50"}`}>
+          <div className={`text-xs uppercase tracking-wide ${muted}`}>Preview</div>
           <div className="mt-2 space-y-2">
             {draft.content.split("\n").map((line, idx) => renderLine(line, idx))}
           </div>
         </div>
       </div>
 
-      <div className="text-xs text-slate-500">
+      <div className={`text-xs ${muted}`}>
         Updated at: {new Date(draft.updatedAt).toLocaleString()}
       </div>
     </div>

@@ -5,7 +5,7 @@ import { Space_Grotesk } from "next/font/google";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Decode Map",
+  title: "SwayMaps",
   description: "Visualize people, features, processes, systems, and issues."
 };
 

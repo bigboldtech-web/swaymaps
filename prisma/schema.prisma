@@ -30,6 +30,7 @@ model Workspace {
   owner     User               @relation("WorkspaceOwner", fields: [ownerId], references: [id])
   ownerId   String
   members   WorkspaceMember[]
+  invites   WorkspaceInvite[]
   maps      DecodeMap[]
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
@@ -113,8 +114,10 @@ model MapEdge {
   mapId         String
   sourceNode    MapNode   @relation("SourceNode", fields: [sourceNodeId], references: [id])
   sourceNodeId  String
+  sourceHandle  String?
   targetNode    MapNode   @relation("TargetNode", fields: [targetNodeId], references: [id])
   targetNodeId  String
+  targetHandle  String?
   label         String?
   note          Note?     @relation("EdgeNote", fields: [noteId], references: [id])
   noteId        String?   @unique

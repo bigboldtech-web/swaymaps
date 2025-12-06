@@ -86,6 +86,8 @@ async function ensureSeed() {
             mapId: createdMap.id,
             sourceNodeId: edge.sourceId,
             targetNodeId: edge.targetId,
+            sourceHandle: edge.sourceHandle ?? null,
+            targetHandle: edge.targetHandle ?? null,
             label: edge.label ?? null,
             noteId: edge.noteId ?? null
           }))
@@ -167,21 +169,22 @@ export async function POST(req: Request) {
   }
 
   try {
-    if (ownerUserId) {
-      const owner = await prisma.user.findUnique({ where: { id: ownerUserId } });
-      if (owner?.plan === "free") {
-        const count = await prisma.decodeMap.count({ where: { ownerId: ownerUserId } });
-        if (count >= 1) {
-          return NextResponse.json({ error: "Free plan allows 1 map. Upgrade to add more." }, { status: 403 });
-        }
+    const creatorId = session.user.id as string; // force creator to be current user
+    const owner = await prisma.user.findUnique({ where: { id: creatorId } });
+    if (owner?.plan === "free") {
+      const count = await prisma.decodeMap.count({
+        where: { OR: [{ ownerId: creatorId }, { ownerId: null }] }
+      });
+      if (count >= 1) {
+        return NextResponse.json({ error: "Free plan allows 1 map. Upgrade to add more." }, { status: 403 });
       }
-      if (workspaceId) {
-        const membership = await prisma.workspaceMember.findFirst({
-          where: { workspaceId, userId: session.user.id as string }
-        });
-        if (!membership || (membership.role !== "owner" && membership.role !== "admin")) {
-          return NextResponse.json({ error: "Insufficient role to create maps." }, { status: 403 });
-        }
+    }
+    if (workspaceId) {
+      const membership = await prisma.workspaceMember.findFirst({
+        where: { workspaceId, userId: session.user.id as string }
+      });
+      if (!membership || (membership.role !== "owner" && membership.role !== "admin")) {
+        return NextResponse.json({ error: "Insufficient role to create maps." }, { status: 403 });
       }
     }
 
@@ -189,18 +192,19 @@ export async function POST(req: Request) {
       data: {
         name,
         description,
-        ownerId: ownerUserId ?? null,
+        ownerId: creatorId,
         workspaceId: workspaceId ?? null
       }
     });
 
     return NextResponse.json({ ...prismaMapToDomain(created), workspaceId });
   } catch (err) {
-    console.error("Prisma create map failed, using fallback", err);
-    if (ownerUserId) {
-      const owner = memoryUsers.find((u) => u.id === ownerUserId);
+    console.error("Prisma create map failed", err);
+    const creatorId = session?.user?.id as string | undefined;
+    if (creatorId) {
+      const owner = memoryUsers.find((u) => u.id === creatorId);
       if (owner?.plan === "free") {
-        const count = memoryMaps.filter((m) => m.ownerUserId === ownerUserId).length;
+        const count = memoryMaps.filter((m) => m.ownerUserId === creatorId || m.ownerUserId == null).length;
         if (count >= 1) {
           return NextResponse.json({ error: "Free plan allows 1 map. Upgrade to add more." }, { status: 403 });
         }
@@ -211,7 +215,7 @@ export async function POST(req: Request) {
       id,
       name,
       description,
-      ownerUserId: ownerUserId ?? null,
+      ownerUserId: creatorId ?? null,
       sharedUserIds: [],
       workspaceId: workspaceId ?? memoryWorkspaces[0]?.id ?? null,
       createdAt: new Date().toISOString(),

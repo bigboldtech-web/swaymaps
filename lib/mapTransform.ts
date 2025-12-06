@@ -66,6 +66,8 @@ export function prismaEdgeToDomain(edge: MapEdge): MapEdgeMeta {
     id: edge.id,
     sourceId: edge.sourceNodeId,
     targetId: edge.targetNodeId,
+    sourceHandle: edge.sourceHandle ?? null,
+    targetHandle: edge.targetHandle ?? null,
     label: edge.label ?? undefined,
     noteId: edge.noteId ?? undefined
   };
@@ -76,7 +78,9 @@ export function domainEdgeToPrisma(meta: MapEdgeMeta, mapId: string): Omit<MapEd
     id: meta.id,
     mapId,
     sourceNodeId: meta.sourceId,
+    sourceHandle: meta.sourceHandle ?? null,
     targetNodeId: meta.targetId,
+    targetHandle: meta.targetHandle ?? null,
     label: meta.label ?? null,
     noteId: meta.noteId ?? null
   };
@@ -101,6 +105,8 @@ export function prismaUserToDomain(user: User) {
   return {
     id: user.id,
     name: user.name,
-    color: user.color ?? undefined
+    email: user.email,
+    color: user.color ?? undefined,
+    plan: (user as any).plan ?? "free"
   };
 }

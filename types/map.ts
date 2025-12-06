@@ -23,9 +23,12 @@ export interface Note {
 export interface MapEdgeMeta {
   id: string;
   sourceId: string; // node id
+  sourceHandle: string | null;
   targetId: string; // node id
+  targetHandle: string | null;
   label?: string;
   noteId?: string | null;
+  edgeType?: "default" | "smoothstep" | "straight" | "step";
 }
 
 export interface DecodeMap {
