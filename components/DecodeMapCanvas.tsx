@@ -17,14 +17,19 @@ import ReactFlow, {
   OnConnectStart,
   OnEdgesChange,
   OnNodesChange,
-  OnEdgeClick,
-  OnEdgeUpdate,
-  OnNodeClick,
+  OnEdgeUpdateFunc,
   Position,
   useReactFlow,
   ReactFlowProvider,
   BaseEdge,
-  getSmoothStepPath
+  getSmoothStepPath,
+  getBezierPath,
+  getStraightPath,
+  EdgeMouseHandler,
+  NodeMouseHandler,
+  ConnectionMode,
+  ConnectionLineType,
+  EdgeLabelRenderer
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { MapEdgeMeta, MapNodeMeta } from "../types/map";
@@ -41,27 +46,45 @@ const kindStyles: Record<
 > = {
   person: {
     bg: "bg-sky-50",
+    border: "border border-sky-200",
     text: "text-sky-900",
     pill: "bg-sky-100 text-sky-700 border border-sky-200"
   },
   system: {
     bg: "bg-emerald-50",
+    border: "border border-emerald-200",
     text: "text-emerald-900",
     pill: "bg-emerald-100 text-emerald-700 border border-emerald-200"
   },
   process: {
     bg: "bg-amber-50",
+    border: "border border-amber-200",
     text: "text-amber-900",
     pill: "bg-amber-100 text-amber-800 border border-amber-200"
   },
   generic: {
     bg: "bg-white",
+    border: "border border-slate-200",
     text: "text-slate-900",
     pill: "bg-slate-100 text-slate-700 border border-slate-200"
   }
 };
 
 const grayHex = "#9ca3af";
+type EdgeShape = "smoothstep" | "default" | "straight" | "step";
+
+const edgePathForType = (type: EdgeShape, props: EdgeProps<FlowEdgeData>) => {
+  switch (type) {
+    case "straight":
+      return getStraightPath(props);
+    case "default":
+      return getBezierPath(props);
+    case "step":
+    case "smoothstep":
+    default:
+      return getSmoothStepPath(props);
+  }
+};
 
 function GradientEdge({
   id,
@@ -76,20 +99,29 @@ function GradientEdge({
   data
 }: EdgeProps<FlowEdgeData>) {
   const { getNode } = useReactFlow();
-  const sourceNode = getNode?.(data?.meta.sourceId);
-  const targetNode = getNode?.(data?.meta.targetId);
+  const sourceNode = data?.meta.sourceId ? getNode?.(data.meta.sourceId) : undefined;
+  const targetNode = data?.meta.targetId ? getNode?.(data.meta.targetId) : undefined;
   const defaultColor = "#38bdf8";
   const fromColor = (sourceNode?.data as FlowNodeData | undefined)?.meta.color ?? defaultColor;
   const toColor = (targetNode?.data as FlowNodeData | undefined)?.meta.color ?? defaultColor;
 
-  const [edgePath] = getSmoothStepPath({
+  const edgeShape = (data?.meta?.edgeType as EdgeShape) || (props.type as EdgeShape) || "smoothstep";
+  const [edgePath, labelX, labelY] = edgePathForType(edgeShape, {
+    id,
     sourceX,
     sourceY,
     targetX,
     targetY,
     sourcePosition,
-    targetPosition
-  });
+    targetPosition,
+    markerEnd,
+    style,
+    data
+  } as EdgeProps<FlowEdgeData>);
+  const label = data?.meta?.label;
+  const isDark =
+    typeof document !== "undefined" &&
+    document.documentElement.classList.contains("dark");
 
   return (
     <>
@@ -104,8 +136,23 @@ function GradientEdge({
         path={edgePath}
         markerEnd={markerEnd}
         style={{ ...(style || {}), stroke: `url(#grad-${id})`, strokeWidth: (style as any)?.strokeWidth ?? 1.6 }}
-        className="edge-glow"
       />
+      {label && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: "absolute",
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              pointerEvents: "none"
+            }}
+            className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${
+              isDark ? "bg-[#0b1422] text-slate-100" : "bg-white text-slate-800"
+            }`}
+          >
+            {label}
+          </div>
+        </EdgeLabelRenderer>
+      )}
     </>
   );
 }
@@ -115,19 +162,38 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
     typeof document !== "undefined" &&
     document.documentElement.classList.contains("dark");
   const strokeColor = (props.style as any)?.stroke || (isDark ? "#ffffff" : "#0f172a");
-  const [edgePath] = getSmoothStepPath(props);
+  const edgeShape = (props.data as any)?.meta?.edgeType || (props.type as EdgeShape) || "smoothstep";
+  const [edgePath, labelX, labelY] = edgePathForType(edgeShape as EdgeShape, props);
+  const label = (props.data as any)?.meta?.label as string | undefined;
   return (
-    <BaseEdge
-      id={props.id}
-      path={edgePath}
-      markerEnd={props.markerEnd}
-      style={{
-        ...(props.style || {}),
-        stroke: strokeColor,
-        strokeWidth: (props.style as any)?.strokeWidth ?? 1.6
-      }}
-      className="edge-glow"
-    />
+    <>
+      <BaseEdge
+        id={props.id}
+        path={edgePath}
+        markerEnd={props.markerEnd}
+        style={{
+          ...(props.style || {}),
+          stroke: strokeColor,
+          strokeWidth: (props.style as any)?.strokeWidth ?? 1.6
+        }}
+      />
+      {label && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: "absolute",
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY - 8}px)`,
+              pointerEvents: "none"
+            }}
+            className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${
+              isDark ? "bg-[#0b1422] text-slate-100" : "bg-white text-slate-800"
+            }`}
+          >
+            {label}
+          </div>
+        </EdgeLabelRenderer>
+      )}
+    </>
   );
 };
 
@@ -292,13 +358,13 @@ const nodeTypes = { decodeNode: DecodeNode };
 interface DecodeMapCanvasProps {
   nodes: Node<FlowNodeData>[];
   edges: Edge<FlowEdgeData>[];
-  onNodesChange: OnNodesChange<FlowNodeData>;
-  onEdgesChange: OnEdgesChange<FlowEdgeData>;
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
   onSelectNode: (meta: MapNodeMeta) => void;
   onSelectEdge: (edge: FlowEdgeData) => void;
   onClearSelection: () => void;
   onConnectEdge: (connection: Connection) => void;
-  onEdgeUpdate?: OnEdgeUpdate<FlowEdgeData>;
+  onEdgeUpdate?: OnEdgeUpdateFunc<FlowEdgeData>;
   onCreateNodeAt?: (
     position: { x: number; y: number },
     from: { nodeId: string; handleId?: string }
@@ -307,6 +373,7 @@ interface DecodeMapCanvasProps {
   theme?: "light" | "dark";
   useGradientEdges?: boolean;
   onViewportCenterChange?: (center: { x: number; y: number }) => void;
+  readOnly?: boolean;
 }
 
 export default function DecodeMapCanvas({
@@ -323,7 +390,8 @@ export default function DecodeMapCanvas({
   focusNodeId,
   theme = "light",
   useGradientEdges = false,
-  onViewportCenterChange
+  onViewportCenterChange,
+  readOnly = false
 }: DecodeMapCanvasProps) {
   return (
     <ReactFlowProvider>
@@ -342,6 +410,7 @@ export default function DecodeMapCanvas({
         theme={theme}
         useGradientEdges={useGradientEdges}
         onViewportCenterChange={onViewportCenterChange}
+        readOnly={readOnly}
       />
     </ReactFlowProvider>
   );
@@ -362,7 +431,8 @@ function CanvasBody(props: DecodeMapCanvasProps) {
     focusNodeId,
     theme = "light",
     useGradientEdges = false,
-    onViewportCenterChange
+    onViewportCenterChange,
+    readOnly = false
   } = props;
 
   const isDark = theme === "dark";
@@ -386,7 +456,7 @@ function CanvasBody(props: DecodeMapCanvasProps) {
     [isDark]
   );
 
-  const handleNodeClick: OnNodeClick<FlowNodeData> = (_, node) => {
+  const handleNodeClick: NodeMouseHandler = (_, node) => {
     onSelectNode((node.data as FlowNodeData).meta);
   };
 
@@ -399,17 +469,17 @@ function CanvasBody(props: DecodeMapCanvasProps) {
     connectFrom.current = null;
   };
 
-  const handleEdgeClick: OnEdgeClick<FlowEdgeData> = (_, edge) => {
-    onSelectEdge(edge.data);
+  const handleEdgeClick: EdgeMouseHandler = (_, edge) => {
+    onSelectEdge(edge.data as FlowEdgeData);
   };
 
-  const handleEdgeUpdate: OnEdgeUpdate<FlowEdgeData> = (oldEdge, newConnection) => {
+  const handleEdgeUpdate: OnEdgeUpdateFunc = (oldEdge, newConnection) => {
     onEdgeUpdate?.(oldEdge, newConnection);
     return true;
   };
 
   const handleConnectStart: OnConnectStart = (_, params) => {
-    connectFrom.current = { nodeId: params.nodeId ?? "", handleId: params.handleId };
+    connectFrom.current = { nodeId: params.nodeId ?? "", handleId: params.handleId ?? undefined };
   };
 
   const handleConnectEnd: OnConnectEnd = (event) => {
@@ -473,9 +543,11 @@ function CanvasBody(props: DecodeMapCanvasProps) {
       width: 240,
       height: 80
     };
+    const width = (rect as any).width ?? 0;
+    const height = (rect as any).height ?? 0;
     reactFlowInstance.setCenter(
-      rect.x + (rect.width ?? 0) / 2,
-      rect.y + (rect.height ?? 0) / 2,
+      rect.x + width / 2,
+      rect.y + height / 2,
       {
         zoom: 1.2,
         duration: 500
@@ -506,7 +578,7 @@ function CanvasBody(props: DecodeMapCanvasProps) {
         selectionOnDrag={false}
         selectNodesOnDrag={false}
         edgeUpdaterRadius={16}
-        connectionMode="loose"
+        connectionMode={ConnectionMode.Loose}
         snapToGrid
         snapGrid={[10, 10]}
         connectionLineStyle={{
@@ -514,12 +586,16 @@ function CanvasBody(props: DecodeMapCanvasProps) {
           strokeWidth: 2.4,
           pointerEvents: "none"
         }}
-        connectionLineType="smoothstep"
+        connectionLineType={ConnectionLineType.SmoothStep}
         isValidConnection={() => true}
         nodeTypes={nodeTypes}
-        edgeTypes={useGradientEdges ? { smoothstep: GradientEdge } : { smoothstep: BasicEdge }}
-        nodesConnectable
-        nodesDraggable
+        edgeTypes={
+          useGradientEdges
+            ? { smoothstep: GradientEdge, default: GradientEdge, straight: GradientEdge, step: GradientEdge }
+            : { smoothstep: BasicEdge, default: BasicEdge, straight: BasicEdge, step: BasicEdge }
+        }
+        nodesConnectable={!readOnly}
+        nodesDraggable={!readOnly}
         nodesFocusable
         edgesFocusable
         elementsSelectable

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -79,6 +79,7 @@ model DecodeMap {
   id           String      @id @default(cuid())
   name         String
   description  String?
+  publicShareId String?    @unique
   owner        User?       @relation("MapOwner", fields: [ownerId], references: [id])
   ownerId      String?
   workspace    Workspace?  @relation(fields: [workspaceId], references: [id])

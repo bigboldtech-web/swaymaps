@@ -9,7 +9,8 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
   useEdgesState,
-  useNodesState
+  useNodesState,
+  MarkerType
 } from "reactflow";
 import DecodeMapCanvas, {
   FlowEdgeData,
@@ -17,16 +18,18 @@ import DecodeMapCanvas, {
 } from "../components/DecodeMapCanvas";
 import NoteInspector from "../components/NoteInspector";
 import { Sidebar, MapListItem } from "../components/Sidebar";
-import { AdminPanel } from "../components/AdminPanel";
 import { UpgradeModal } from "../components/UpgradeModal";
 import { InviteModal } from "../components/InviteModal";
 import { MembersModal } from "../components/MembersModal";
 import { SettingsModal } from "../components/SettingsModal";
+import { AiAssistantModal } from "../components/AiAssistantModal";
+import { ShareModal } from "../components/ShareModal";
 import { ConfirmDialog, InputDialog } from "../components/Dialogs";
 import { DecodeMap, MapEdgeMeta, MapNodeMeta, Note, NodeKind, User, Workspace } from "../types/map";
+import { AiBrainstormPlan, AiMode } from "../types/ai";
 import { initialMaps, initialUsers, initialWorkspaces } from "../data/initialData";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type FlowNode = Node<FlowNodeData>;
 type FlowEdge = Edge<FlowEdgeData>;
@@ -69,8 +72,9 @@ function toFlowEdges(edges: MapEdgeMeta[]): FlowEdge[] {
       ...edge,
       sourceHandle: sanitizeHandle(edge.sourceHandle, "source"),
       targetHandle: sanitizeHandle(edge.targetHandle, "target"),
-      edgeType: "smoothstep"
+      edgeType: edge.edgeType ?? "smoothstep"
     };
+    const flowType = fixedMeta.edgeType ?? "smoothstep";
 
     return {
       id: fixedMeta.id,
@@ -79,11 +83,11 @@ function toFlowEdges(edges: MapEdgeMeta[]): FlowEdge[] {
       sourceHandle: fixedMeta.sourceHandle ?? undefined,
       targetHandle: fixedMeta.targetHandle ?? undefined,
       label: fixedMeta.label ?? "",
-      type: "smoothstep",
-      className: "edge-glow",
-      style: { strokeWidth: 1.6 },
-      data: { meta: fixedMeta }
-    };
+          type: flowType,
+          className: "edge-glow",
+          style: { strokeWidth: 1.6 },
+          data: { meta: fixedMeta }
+        };
   });
 }
 
@@ -104,9 +108,112 @@ const withCommentArray = (note: Note): Note => ({
   comments: note.comments ?? []
 });
 
+const normalizeTitle = (title: string) => title.trim().toLowerCase();
+
+const ideaKindToNodeKind = (kind?: string): NodeKind => {
+  if (!kind) return "generic";
+  const normalized = kind.toLowerCase();
+  if (normalized.includes("person") || normalized.includes("stakeholder")) return "person";
+  if (normalized.includes("system") || normalized.includes("platform") || normalized.includes("tool")) return "system";
+  if (normalized.includes("process") || normalized.includes("workflow")) return "process";
+  return "generic";
+};
+
+const positionForIndex = (idx: number, origin: { x: number; y: number }) => {
+  const spacingX = baseX + 80;
+  const spacingY = baseY + 40;
+  return {
+    x: origin.x + (idx % 3) * spacingX,
+    y: origin.y + Math.floor(idx / 3) * spacingY
+  };
+};
+
+const planToGraph = (
+  plan: AiBrainstormPlan,
+  opts?: {
+    existingTitles?: Map<string, string>;
+    origin?: { x: number; y: number };
+    existingEdges?: Set<string>;
+  }
+) => {
+  const nodes: MapNodeMeta[] = [];
+  const notes: Note[] = [];
+  const edges: MapEdgeMeta[] = [];
+  const titleToId = new Map<string, string>(opts?.existingTitles ?? []);
+  const origin = opts?.origin ?? { x: 120, y: 120 };
+  const ideas = (plan.nodes ?? []).filter((n) => n?.title).slice(0, 12);
+
+  ideas.forEach((idea, idx) => {
+    const normalized = normalizeTitle(idea.title);
+    if (titleToId.has(normalized)) return;
+    const id = crypto.randomUUID ? crypto.randomUUID() : `node-${Date.now()}-${idx}`;
+    const noteId = crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}-${idx}`;
+    const kind = ideaKindToNodeKind(idea.kind);
+    const tags = (idea.tags ?? []).slice(0, 6);
+    const content =
+      idea.note?.trim() ||
+      idea.summary?.trim() ||
+      `AI generated idea for ${plan.title ?? "this board"}.`;
+    const position = positionForIndex(idx, origin);
+
+    nodes.push({
+      id,
+      kind,
+      kindLabel: kind.charAt(0).toUpperCase() + kind.slice(1),
+      title: idea.title.trim(),
+      tags,
+      noteId,
+      color: defaultColorForKind(kind),
+      position
+    });
+    notes.push({
+      id: noteId,
+      title: idea.title.trim(),
+      tags,
+      content,
+      comments: [],
+      createdAt: now(),
+      updatedAt: now()
+    });
+    titleToId.set(normalized, id);
+  });
+
+  (plan.edges ?? []).forEach((edgeIdea, idx) => {
+    if (!edgeIdea?.source || !edgeIdea?.target) return;
+    const sourceId = titleToId.get(normalizeTitle(edgeIdea.source));
+    const targetId = titleToId.get(normalizeTitle(edgeIdea.target));
+    if (!sourceId || !targetId || sourceId === targetId) return;
+    const key = `${sourceId}>${targetId}>${edgeIdea.label ?? ""}`;
+    if (opts?.existingEdges?.has(key)) return;
+    if (opts?.existingEdges) opts.existingEdges.add(key);
+    edges.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : `edge-${Date.now()}-${idx}`,
+      sourceId,
+      targetId,
+      sourceHandle: null,
+      targetHandle: null,
+      label: edgeIdea.label ?? "",
+      noteId: null,
+      edgeType: "smoothstep"
+    });
+  });
+
+  return { nodes, edges, notes };
+};
+
 export default function Page() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [shareToken, setShareToken] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return new URLSearchParams(window.location.search).get("share");
+  });
+  useEffect(() => {
+    const token = searchParams?.get("share");
+    setShareToken(token ?? null);
+  }, [searchParams]);
+  const shareMode = !!shareToken;
   const [mapSummaries, setMapSummaries] = useState<MapListItem[]>([]);
   const [activeMap, setActiveMap] = useState<DecodeMap | null>(null);
   const [activeMapId, setActiveMapId] = useState<string | null>(null);
@@ -117,7 +224,6 @@ export default function Page() {
     return window.localStorage.getItem("decode-workspace-id");
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showAdmin, setShowAdmin] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
@@ -162,19 +268,32 @@ export default function Page() {
   const [viewportCenter, setViewportCenter] = useState<{ x: number; y: number } | null>(null);
   const [focusMenuOpen, setFocusMenuOpen] = useState(false);
   const focusMenuRef = useRef<HTMLDivElement | null>(null);
-  const [shareMenuOpen, setShareMenuOpen] = useState(false);
-  const shareMenuRef = useRef<HTMLDivElement | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [showTraining, setShowTraining] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     return window.localStorage.getItem("sway-training-dismissed") !== "true";
   });
   const [trainingStep, setTrainingStep] = useState(0);
+  const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiEnabled, setAiEnabled] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    const stored = window.localStorage.getItem("decode-ai-enabled");
+    return stored === "false" ? false : true;
+  });
+  const [aiKey, setAiKey] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem("decode-ai-key") ?? "";
+  });
+  const [shareLoaded, setShareLoaded] = useState<boolean>(() => !shareMode);
+  const [shareAccess, setShareAccess] = useState<"public" | "restricted">("restricted");
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (!shareMode && status === "unauthenticated") {
       router.push("/auth/signin");
     }
-  }, [status, router]);
+  }, [status, router, shareMode]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -195,6 +314,26 @@ export default function Page() {
   }, [useGradientEdges]);
 
   useEffect(() => {
+    if (!aiEnabled && showAiAssistant) {
+      setShowAiAssistant(false);
+    }
+  }, [aiEnabled, showAiAssistant]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("decode-ai-enabled", aiEnabled ? "true" : "false");
+  }, [aiEnabled]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!aiKey) {
+      window.localStorage.removeItem("decode-ai-key");
+      return;
+    }
+    window.localStorage.setItem("decode-ai-key", aiKey);
+  }, [aiKey]);
+
+  useEffect(() => {
     if (typeof window === "undefined") return;
     if (workspaceId) {
       window.localStorage.setItem("decode-workspace-id", workspaceId);
@@ -203,27 +342,90 @@ export default function Page() {
     }
   }, [workspaceId]);
 
+  useEffect(() => {
+    if (!shareMode || !shareToken) return;
+    const loadShare = async () => {
+      setShareLoaded(false);
+      try {
+        const res = await fetch(`/api/public/maps/${shareToken}`);
+        if (!res.ok) {
+          setToast("This shared board is not available.");
+          setShareLoaded(true);
+          return;
+        }
+        const data = await res.json();
+        const map: DecodeMap = {
+          ...data.map,
+          notes: (data.map.notes ?? []).map(withCommentArray)
+        };
+        setActiveMap(map);
+        setActiveMapId(map.id);
+        setShareAccess(map.publicShareId ? "public" : "restricted");
+        setNodes(toFlowNodes(map.nodes, handleUpdateMeta));
+        setEdges(toFlowEdges(map.edges));
+        setMapSummaries([
+          {
+            id: map.id,
+            name: map.name,
+            nodeCount: map.nodes.length,
+            ownerName: data.ownerName ?? "Shared board",
+            ownerUserId: map.ownerUserId,
+            publicShareId: map.publicShareId ?? null,
+            workspaceId: map.workspaceId
+          }
+        ]);
+        setWorkspaces([]);
+        setUsers([]);
+        setCurrentUserId(null);
+      } catch (err) {
+        console.error("Failed to load shared map", err);
+        setToast("Could not load shared board.");
+      } finally {
+        setShareLoaded(true);
+      }
+    };
+    loadShare();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shareMode, shareToken]);
+
   // Update edge stroke color when theme changes so arrows adapt without reload.
   useEffect(() => {
     const stroke = theme === "dark" ? "#cbd5e1" : "#0f172a";
     setEdges((prev) =>
-      prev.map((edge) => ({
-        ...edge,
-        style: (() => {
-          const next = { ...(edge.style || {}) };
-          next.strokeWidth = 1.6;
-          if (useGradientEdges) {
-            delete (next as any).stroke;
-          } else {
-            (next as any).stroke = stroke;
-          }
-          return next;
-        })(),
-        markerEnd: edge.markerEnd ? { ...edge.markerEnd, color: theme === "dark" ? "#fff" : "#000" } : edge.markerEnd,
-        type: "smoothstep",
-        className: "edge-glow",
-        data: { meta: { ...edge.data.meta, edgeType: "smoothstep" } }
-      }))
+      prev.map((edge) => {
+        const meta: MapEdgeMeta = {
+          ...(edge.data?.meta ?? {
+            id: edge.id,
+            sourceId: edge.source,
+            targetId: edge.target,
+            sourceHandle: edge.sourceHandle ?? null,
+            targetHandle: edge.targetHandle ?? null,
+            label: typeof edge.label === "string" ? edge.label : undefined,
+            noteId: ((edge.data as any)?.meta?.noteId as string | undefined) ?? null
+          }),
+          edgeType: "smoothstep"
+        };
+        return {
+          ...edge,
+          style: (() => {
+            const next = { ...(edge.style || {}) };
+            next.strokeWidth = 1.6;
+            if (useGradientEdges) {
+              delete (next as any).stroke;
+            } else {
+              (next as any).stroke = stroke;
+            }
+            return next;
+          })(),
+          markerEnd:
+            edge.markerEnd && typeof edge.markerEnd === "object"
+              ? { ...edge.markerEnd, color: theme === "dark" ? "#fff" : "#000" }
+              : edge.markerEnd,
+          type: edge.data?.meta?.edgeType ?? edge.type ?? "smoothstep",
+          className: "edge-glow",
+          data: { meta }
+        };
+      })
     );
   }, [theme, setEdges, useGradientEdges]);
 
@@ -235,12 +437,24 @@ export default function Page() {
         nextStyle.strokeWidth = 1.6;
         if (useGradientEdges) delete (nextStyle as any).stroke;
         else nextStyle.stroke = theme === "dark" ? "#cbd5e1" : "#0f172a";
+        const meta: MapEdgeMeta = {
+          ...(edge.data?.meta ?? {
+            id: edge.id,
+            sourceId: edge.source,
+            targetId: edge.target,
+            sourceHandle: edge.sourceHandle ?? null,
+            targetHandle: edge.targetHandle ?? null,
+            label: typeof edge.label === "string" ? edge.label : undefined,
+            noteId: ((edge.data as any)?.meta?.noteId as string | undefined) ?? null
+          }),
+          edgeType: edge.data?.meta?.edgeType ?? edge.type ?? "smoothstep"
+        };
         return {
           ...edge,
-          type: "smoothstep",
+          type: meta.edgeType ?? "smoothstep",
           className: "edge-glow",
           style: nextStyle,
-          data: { meta: { ...edge.data.meta, edgeType: "smoothstep" } }
+          data: { meta }
         };
       })
     );
@@ -256,6 +470,7 @@ export default function Page() {
   }, [useGradientEdges, theme]);
 
   useEffect(() => {
+    if (shareMode) return;
     if (status !== "authenticated") return;
     const load = async () => {
       try {
@@ -267,6 +482,7 @@ export default function Page() {
           nodeCount: m.nodeCount ?? 0,
           ownerName: m.ownerName,
           ownerUserId: m.ownerUserId,
+          publicShareId: m.publicShareId ?? null,
           workspaceId: m.workspaceId
         }));
         if (maps.length === 0) throw new Error("No maps from API");
@@ -278,10 +494,10 @@ export default function Page() {
         setWorkspaces(workspacesFromApi);
         const storedWorkspaceId =
           typeof window !== "undefined" ? window.localStorage.getItem("decode-workspace-id") : null;
-        const defaultWorkspace =
-          workspacesFromApi.find((ws: Workspace) =>
-            ws.members?.some((m: any) => m.userId === firstUserId)
-          ) ?? workspacesFromApi[0] ?? null;
+    const defaultWorkspace =
+      workspacesFromApi.find((ws: Workspace) =>
+        ws.members?.some((m: any) => m.userId === firstUserId)
+      ) ?? workspacesFromApi[0] ?? null;
         const chosenWorkspace =
           (storedWorkspaceId && workspacesFromApi.find((ws) => ws.id === storedWorkspaceId)) ||
           defaultWorkspace;
@@ -298,6 +514,7 @@ export default function Page() {
           nodeCount: m.nodes.length,
           ownerName: initialUsers.find((u) => u.id === m.ownerUserId)?.name ?? "Owner",
           ownerUserId: m.ownerUserId,
+          publicShareId: (m as any).publicShareId ?? null,
           workspaceId: m.workspaceId
         }));
         setMapSummaries(maps);
@@ -322,6 +539,7 @@ export default function Page() {
             notes: (active.notes ?? []).map(withCommentArray)
           };
           setActiveMap(normalized);
+          setShareAccess(normalized.publicShareId ? "public" : "restricted");
           setNodes(toFlowNodes(normalized.nodes ?? [], handleUpdateMeta));
           setEdges(toFlowEdges(normalized.edges ?? []));
         }
@@ -331,17 +549,19 @@ export default function Page() {
   }, [status]);
 
   useEffect(() => {
-    if (session?.user?.id) {
-      setCurrentUserId(session.user.id as string);
+    if (shareMode) return;
+    const userId = (session as any)?.user?.id as string | undefined;
+    if (userId) {
+      setCurrentUserId(userId);
       const ws = workspaces.find((w) =>
-        w.members.some((m) => m.userId === session.user?.id)
+        w.members.some((m) => m.userId === userId)
       );
       if (ws && !workspaceId) setWorkspaceId(ws.id);
     }
-  }, [session?.user?.id, workspaces, workspaceId]);
+  }, [session, workspaces, workspaceId, shareMode]);
 
   useEffect(() => {
-    if (!activeMapId) return;
+    if (!activeMapId || shareMode) return;
     const loadMap = async () => {
       try {
         const res = await fetch(`/api/maps/${activeMapId}/full`);
@@ -352,6 +572,7 @@ export default function Page() {
           notes: (data.map.notes ?? []).map(withCommentArray)
         };
         setActiveMap(map);
+        setShareAccess(map.publicShareId ? "public" : "restricted");
         setNodes(toFlowNodes(map.nodes, handleUpdateMeta));
         setEdges(toFlowEdges(map.edges));
         setSelectedNodeId(null);
@@ -364,13 +585,15 @@ export default function Page() {
             notes: (local.notes ?? []).map(withCommentArray)
           };
           setActiveMap(normalized);
+          setShareAccess(normalized.publicShareId ? "public" : "restricted");
           setNodes(toFlowNodes(normalized.nodes, handleUpdateMeta));
           setEdges(toFlowEdges(normalized.edges));
         }
       }
     };
     loadMap();
-  }, [activeMapId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMapId, shareMode]);
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -463,10 +686,14 @@ export default function Page() {
     () => mapSummaries.filter((m) => m.ownerUserId === currentUserId).length,
     [mapSummaries, currentUserId]
   );
-const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
+  const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
 
   const ownedWorkspaceCount = useMemo(
-    () => workspaces.filter((w) => w.ownerId === currentUserId).length,
+    () =>
+      workspaces.filter((w) => {
+        const owner = (w as any).ownerId ?? w.ownerUserId;
+        return owner === currentUserId;
+      }).length,
     [workspaces, currentUserId]
   );
   const workspaceCreationBlocked = isFreePlan && ownedWorkspaceCount >= 1;
@@ -504,28 +731,37 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   const currentEdgesMeta = React.useCallback(
     () =>
       edges.map((e) => {
-        return {
-          ...e.data.meta,
-          sourceHandle: sanitizeHandle(e.data.meta.sourceHandle),
-          targetHandle: sanitizeHandle(e.data.meta.targetHandle),
-          edgeType: e.data.meta.edgeType ?? "smoothstep"
+        const meta: MapEdgeMeta = {
+          ...(e.data?.meta ?? {
+            id: e.id,
+            sourceId: e.source,
+            targetId: e.target,
+            sourceHandle: e.sourceHandle ?? null,
+            targetHandle: e.targetHandle ?? null,
+            label: typeof e.label === "string" ? e.label : undefined,
+            noteId: ((e.data as any)?.meta?.noteId as string | undefined) ?? null
+          }),
+          edgeType: e.data?.meta?.edgeType ?? "smoothstep"
         };
+        meta.sourceHandle = sanitizeHandle(meta.sourceHandle, "source");
+        meta.targetHandle = sanitizeHandle(meta.targetHandle, "target");
+        return meta;
       }),
     [edges]
   );
 
   useEffect(() => {
-    if (!activeMap) return;
+    if (!activeMap || shareMode) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
       persistState(activeMap.id, {
         nodes,
-        edges: edges.map((e) => e.data.meta),
+        edges: currentEdgesMeta(),
         notes: activeMap.notes
       });
     }, 600);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodes, edges, activeMap?.notes, activeMap?.id]);
+  }, [nodes, edges, activeMap?.notes, activeMap?.id, currentEdgesMeta]);
 
   useEffect(() => {
     if (!activeMap) return;
@@ -533,12 +769,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
       ...node.data.meta,
       position: node.position
     }));
-    const mappedEdges = edges.map((edge) => ({
-      ...edge.data.meta,
-      sourceHandle: edge.data.meta.sourceHandle ?? null,
-      targetHandle: edge.data.meta.targetHandle ?? null,
-      edgeType: "smoothstep"
-    }));
+    const mappedEdges = currentEdgesMeta();
     setActiveMap((prev) =>
       prev
         ? {
@@ -550,7 +781,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
         : prev
     );
     syncMapSummaryCounts(activeMap.id, mappedNodes.length);
-  }, [nodes, edges]);
+  }, [nodes, edges, currentEdgesMeta]);
 
   const syncMapSummaryCounts = (mapId: string, nodeCount: number) => {
     setMapSummaries((prev) =>
@@ -559,6 +790,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleConnectEdge = (connection: Connection) => {
+    if (shareMode) return;
     if (!connection.source || !connection.target || !activeMap) return;
     // If the user starts from a target handle, swap direction so the arrow points from drag-start to drop-end.
     let sourceId = connection.source;
@@ -596,11 +828,11 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
           target: meta.targetId,
           sourceHandle: meta.sourceHandle ?? undefined,
           targetHandle: meta.targetHandle ?? undefined,
-      type: "smoothstep",
-      markerEnd: { type: "arrowclosed", color: theme === "dark" ? "#fff" : "#000" },
-      className: "edge-glow",
-      data: { meta }
-    },
+          type: meta.edgeType ?? "smoothstep",
+          markerEnd: { type: MarkerType.ArrowClosed, color: theme === "dark" ? "#fff" : "#000" },
+          className: "edge-glow",
+          data: { meta }
+        },
         eds
       )
     );
@@ -622,6 +854,11 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleSelectEdge = (edgeData: FlowEdgeData) => {
+    if (shareMode) {
+      setSelectedEdgeId(edgeData.meta.id);
+      setSelectedNodeId(null);
+      return;
+    }
     const meta = edgeData.meta;
     setSelectedEdgeId(meta.id);
     setSelectedNodeId(null);
@@ -659,6 +896,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleNoteChange = (updated: Note) => {
+    if (shareMode) return;
     if (!activeMap) return;
     const normalizedNote = withCommentArray(updated);
     setActiveMap((prev) =>
@@ -684,6 +922,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleUpdateTags = (tags: string[]) => {
+    if (shareMode) return;
     if (!selectedMeta || !activeMap) return;
     setActiveMap((prev) =>
       prev
@@ -706,6 +945,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleUpdateMeta = (meta: MapNodeMeta) => {
+    if (shareMode) return;
     if (!activeMap) return;
     setActiveMap((prev) =>
       prev
@@ -729,10 +969,11 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleUpdateEdge = (edge: MapEdgeMeta) => {
+    if (shareMode) return;
     if (!activeMap) return;
     const finalEdge = {
       ...edge,
-      edgeType: edge.edgeType ?? (useGradientEdges ? "gradient" : "basic")
+      edgeType: edge.edgeType ?? "smoothstep"
     };
     setActiveMap((prev) =>
       prev
@@ -749,7 +990,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
           ? {
               ...e,
               label: finalEdge.label ?? "",
-              type: "smoothstep",
+              type: finalEdge.edgeType ?? "smoothstep",
               sourceHandle: finalEdge.sourceHandle ?? e.sourceHandle,
               targetHandle: finalEdge.targetHandle ?? e.targetHandle,
               className: "edge-glow",
@@ -761,6 +1002,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleEdgeUpdate = (oldEdge: FlowEdge, newConnection: Connection) => {
+    if (shareMode) return;
     let sourceId = newConnection.source ?? oldEdge.source;
     let targetId = newConnection.target ?? oldEdge.target;
     let sourceHandle = newConnection.sourceHandle ?? oldEdge.sourceHandle ?? null;
@@ -775,12 +1017,20 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
     targetHandle = sanitizeHandle(targetHandle, "target");
 
     const updatedMeta: MapEdgeMeta = {
-      ...(oldEdge.data.meta as MapEdgeMeta),
+      ...((oldEdge.data?.meta as MapEdgeMeta) ?? {
+        id: oldEdge.id,
+        sourceId: oldEdge.source,
+        targetId: oldEdge.target,
+        sourceHandle: oldEdge.sourceHandle ?? null,
+        targetHandle: oldEdge.targetHandle ?? null,
+        label: typeof oldEdge.label === "string" ? oldEdge.label : undefined,
+        noteId: ((oldEdge.data as any)?.meta?.noteId as string | undefined) ?? null
+      }),
       sourceId,
       targetId,
       sourceHandle,
       targetHandle,
-      edgeType: "smoothstep"
+      edgeType: (oldEdge.data as any)?.meta?.edgeType ?? "smoothstep"
     };
     setEdges((eds) =>
       eds.map((edge) =>
@@ -792,7 +1042,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
               sourceHandle: updatedMeta.sourceHandle ?? undefined,
               targetHandle: updatedMeta.targetHandle ?? undefined,
               data: { meta: updatedMeta },
-              type: "smoothstep"
+              type: updatedMeta.edgeType ?? "smoothstep"
             }
           : edge
       )
@@ -813,6 +1063,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleUpdateNodeColor = (color: string) => {
+    if (shareMode) return;
     if (!selectedMeta) return;
     handleUpdateMeta({ ...selectedMeta, color });
   };
@@ -886,6 +1137,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleAddNode = () => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
     if (!activeMap) {
       if (currentRole === "viewer" || currentRole === "editor") {
         setToast("Only owners/admins can create maps in this workspace.");
@@ -896,7 +1151,8 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
         setShowUpgrade(true);
         return;
       }
-      const ownerId = session?.user?.id ?? currentUserId ?? users[0]?.id;
+      const ownerId =
+        ((session as any)?.user?.id as string | undefined) ?? currentUserId ?? users[0]?.id;
       setInputDialog({
         open: true,
         title: "Name this board to add a node",
@@ -921,6 +1177,8 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
             edges: [],
             notes: [],
             ownerUserId: ownerId ?? null,
+            sharedUserIds: [],
+            publicShareId: map.publicShareId ?? null,
             workspaceId: workspaceForMap,
             createdAt: map.createdAt ?? now(),
             updatedAt: now()
@@ -952,30 +1210,256 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
     addNodeToMap(activeMap);
   };
 
-  const handleShareMap = () => {
+  const publicViewLink = (shareId?: string | null) =>
+    shareId ? `${window.location.origin}?share=${shareId}` : null;
+
+  const ensurePublicShare = async (): Promise<string | null> => {
+    if (!activeMap) return null;
+    if (activeMap.publicShareId) return activeMap.publicShareId;
+    if (currentRole === "viewer" || currentRole === "editor") {
+      setToast("Only owners/admins can enable public view.");
+      return null;
+    }
+    const res = await fetch(`/api/maps/${activeMap.id}/share`, { method: "POST" });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setToast(data.error ?? "Could not enable sharing.");
+      return null;
+    }
+    const data = await res.json();
+    const shareId = data.shareId as string;
+    setActiveMap((prev) => (prev ? { ...prev, publicShareId: shareId } : prev));
+    setMapSummaries((prev) => prev.map((m) => (m.id === activeMap.id ? { ...m, publicShareId: shareId } : m)));
+    setShareAccess("public");
+    return shareId;
+  };
+
+  const handleCopyShareLink = async () => {
     if (!activeMap) {
-      setToast("No map to share");
+      setToast("No board to share");
       return;
     }
-    const link = `${window.location.origin}?map=${activeMap.id}`;
+    const link =
+      activeMap.publicShareId && publicViewLink(activeMap.publicShareId)
+        ? publicViewLink(activeMap.publicShareId)
+        : `${window.location.origin}?map=${activeMap.id}`;
     try {
       navigator.clipboard?.writeText(link);
-      setToast("Share link copied");
+      setToast("Link copied");
     } catch {
       alert(link);
     }
   };
 
-  const handleEmailShare = () => {
-    if (!activeMap) {
-      setToast("No map to share");
+  const handleDisablePublicLink = async () => {
+    if (!activeMap || !activeMap.publicShareId) {
+      setToast("No public link to disable.");
       return;
     }
-    const link = `${window.location.origin}?map=${activeMap.id}`;
-    const subject = encodeURIComponent(`SwayMaps board: ${activeMap.name ?? ""}`);
-    const body = encodeURIComponent(`Take a look at this map:\n\n${link}`);
-    window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
-    setShareMenuOpen(false);
+    if (currentRole === "viewer" || currentRole === "editor") {
+      setToast("Only owners/admins can disable public view.");
+      return;
+    }
+    const res = await fetch(`/api/maps/${activeMap.id}/share`, { method: "DELETE" });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setToast(data.error ?? "Could not disable public link.");
+      return;
+    }
+    setActiveMap((prev) => (prev ? { ...prev, publicShareId: null } : prev));
+    setMapSummaries((prev) => prev.map((m) => (m.id === activeMap.id ? { ...m, publicShareId: null } : m)));
+    setShareAccess("restricted");
+    setToast("Public link disabled");
+  };
+
+  const buildAiContext = (map: DecodeMap) => {
+    const nodeTitles = new Map<string, string>();
+    map.nodes.forEach((n) => nodeTitles.set(n.id, n.title));
+    return {
+      title: map.name,
+      description: map.description ?? "",
+      nodes: map.nodes.slice(0, 14).map((node) => {
+        const note = map.notes.find((n) => n.id === node.noteId);
+        return {
+          title: node.title,
+          kind: node.kind,
+          tags: node.tags.slice(0, 6),
+          note: (note?.content ?? "").slice(0, 400)
+        };
+      }),
+      edges: map.edges.slice(0, 24).map((edge) => ({
+        source: nodeTitles.get(edge.sourceId) ?? edge.sourceId,
+        target: nodeTitles.get(edge.targetId) ?? edge.targetId,
+        label: edge.label ?? ""
+      }))
+    };
+  };
+
+  const createMapFromAiPlan = async (plan: AiBrainstormPlan, prompt: string, mapName?: string) => {
+    if (currentRole === "viewer" || currentRole === "editor") {
+      setToast("Only owners/admins can create maps in this workspace.");
+      throw new Error("Only owners/admins can create maps in this workspace.");
+    }
+    if (mapCreationBlocked) {
+      setToast("Free plan allows 1 map. Upgrade to create more.");
+      setShowUpgrade(true);
+      throw new Error("Free plan allows 1 map. Upgrade to create more.");
+    }
+    const ownerId = ((session as any)?.user?.id as string | undefined) ?? currentUserId ?? users[0]?.id;
+    const finalName = (mapName?.trim() || plan.title || prompt || "AI board").slice(0, 80);
+    const res = await fetch("/api/maps", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: finalName,
+        description: plan.summary?.slice(0, 260) ?? "",
+        ownerUserId: ownerId ?? undefined,
+        workspaceId
+      })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error ?? "Could not create map. Please try again.");
+    }
+    const created = await res.json();
+    const content = planToGraph(plan);
+    const normalizedNotes = content.notes.map(withCommentArray);
+    const flowNodes = toFlowNodes(content.nodes, handleUpdateMeta);
+    const flowEdges = toFlowEdges(content.edges);
+    const workspaceForMap = workspaceId ?? created.workspaceId ?? null;
+
+    const newMap: DecodeMap = {
+      id: created.id,
+      name: finalName,
+      description: plan.summary ?? created.description ?? "",
+      ownerUserId: ownerId ?? undefined,
+      sharedUserIds: [],
+      publicShareId: created.publicShareId ?? null,
+      workspaceId: workspaceForMap,
+      nodes: content.nodes,
+      edges: content.edges,
+      notes: normalizedNotes,
+      createdAt: created.createdAt ?? now(),
+      updatedAt: now()
+    };
+
+    setMapSummaries((prev) => [
+      {
+        id: created.id,
+        name: finalName,
+        nodeCount: content.nodes.length,
+        ownerName: users.find((u) => u.id === ownerId)?.name,
+        ownerUserId: ownerId ?? undefined,
+        publicShareId: created.publicShareId ?? null,
+        workspaceId: workspaceForMap ?? undefined
+      },
+      ...prev
+    ]);
+    setActiveMapId(created.id);
+    setActiveMap(newMap);
+    setNodes(flowNodes);
+    setEdges(flowEdges);
+    setSelectedNodeId(content.nodes[0]?.id ?? null);
+    setSelectedEdgeId(null);
+    persistState(created.id, { nodes: flowNodes, edges: content.edges, notes: normalizedNotes });
+  };
+
+  const applyAiPlanToExisting = async (plan: AiBrainstormPlan) => {
+    if (!activeMap) throw new Error("Open a board to add ideas.");
+    if (currentRole === "viewer") {
+      throw new Error("You need edit access to add AI ideas to this board.");
+    }
+    const existingTitles = new Map<string, string>();
+    activeMap.nodes.forEach((n) => existingTitles.set(normalizeTitle(n.title), n.id));
+    const existingEdges = new Set(
+      activeMap.edges.map((e) => `${e.sourceId}>${e.targetId}>${e.label ?? ""}`)
+    );
+    const origin = viewportCenter ?? { x: 140, y: 140 };
+    const content = planToGraph(plan, {
+      existingTitles,
+      origin,
+      existingEdges
+    });
+    if (content.nodes.length === 0 && content.edges.length === 0) {
+      throw new Error("AI ideas matched existing nodes. Try a different angle.");
+    }
+
+    const flowNodesToAdd = toFlowNodes(content.nodes, handleUpdateMeta);
+    const flowEdgesToAdd = toFlowEdges(content.edges);
+    const nextNodes = [...nodes, ...flowNodesToAdd];
+    const nextEdgesMeta = [...activeMap.edges, ...content.edges];
+    const nextEdges = [...edges, ...flowEdgesToAdd];
+    const nextNotes = [...activeMap.notes, ...content.notes.map(withCommentArray)];
+    const nextMap: DecodeMap = {
+      ...activeMap,
+      description: activeMap.description ?? plan.summary ?? "",
+      nodes: [...activeMap.nodes, ...content.nodes],
+      edges: nextEdgesMeta,
+      notes: nextNotes,
+      updatedAt: now()
+    };
+
+    setActiveMap(nextMap);
+    setNodes(nextNodes);
+    setEdges(nextEdges);
+    setSelectedNodeId(content.nodes[0]?.id ?? selectedNodeId);
+    setSelectedEdgeId(null);
+    syncMapSummaryCounts(activeMap.id, nextMap.nodes.length);
+    persistState(activeMap.id, { nodes: nextNodes, edges: nextEdgesMeta, notes: nextNotes });
+  };
+
+  const handleAiGenerate = async ({ prompt, mode, mapName }: { prompt: string; mode: AiMode; mapName?: string }) => {
+    setAiError(null);
+    if (!aiEnabled) {
+      setAiError("Enable AI in Settings to use the assistant.");
+      return;
+    }
+    if (!prompt.trim()) {
+      setAiError("Prompt is required.");
+      return;
+    }
+    if (mode === "expand-board" && !activeMap) {
+      setAiError("Open a board to add AI ideas.");
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const body: any = { prompt, mode };
+      if (mode === "expand-board" && activeMap) {
+        body.mapContext = buildAiContext(activeMap);
+      }
+      if (aiKey) {
+        body.apiKey = aiKey;
+      }
+      const res = await fetch("/api/ai/brainstorm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error ?? "AI request failed. Please try again.");
+      }
+
+      const plan: AiBrainstormPlan = data.plan;
+      if (!plan?.nodes?.length) {
+        throw new Error("AI did not return any ideas. Try a more specific prompt.");
+      }
+
+      if (mode === "expand-board" && activeMap) {
+        await applyAiPlanToExisting(plan);
+        setToast("AI added ideas to your board");
+      } else {
+        await createMapFromAiPlan(plan, prompt, mapName);
+        setToast("AI created a new board");
+      }
+      setShowAiAssistant(false);
+    } catch (err: any) {
+      setAiError(err?.message ?? "AI request failed. Check your OpenAI key.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   // Shortcut: "N" to add a new node (ignored when typing in inputs).
@@ -999,14 +1483,11 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   }, [handleAddNode]);
 
   useEffect(() => {
-    if (!focusMenuOpen && !shareMenuOpen) return;
+    if (!focusMenuOpen) return;
     const handleOutside = (e: MouseEvent | TouchEvent) => {
       const target = e.target as HTMLElement | null;
       if (focusMenuRef.current && target && !focusMenuRef.current.contains(target)) {
         setFocusMenuOpen(false);
-      }
-      if (shareMenuRef.current && target && !shareMenuRef.current.contains(target)) {
-        setShareMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleOutside, true);
@@ -1015,7 +1496,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
       document.removeEventListener("mousedown", handleOutside, true);
       document.removeEventListener("touchstart", handleOutside, true);
     };
-  }, [focusMenuOpen, shareMenuOpen]);
+  }, [focusMenuOpen]);
 
   const trainingSteps = [
     {
@@ -1116,6 +1597,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
     position: { x: number; y: number },
     from: { nodeId: string; handleId?: string }
   ) => {
+    if (shareMode) return;
     if (!activeMap) return;
     // Create node then edge; ensure edge targets a valid handle on the new node.
     const id = crypto.randomUUID ? crypto.randomUUID() : `node-${Date.now()}`;
@@ -1172,14 +1654,14 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
         id: edgeId,
         source: edgeMeta.sourceId,
         target: edgeMeta.targetId,
-      sourceHandle: edgeMeta.sourceHandle ?? undefined,
-      targetHandle: edgeMeta.targetHandle ?? undefined,
-      type: "smoothstep",
-      animated: true,
-      markerEnd: { type: "arrowclosed", color: theme === "dark" ? "#fff" : "#000" },
-      className: "edge-glow",
-      data: { meta: edgeMeta }
-    }
+        sourceHandle: edgeMeta.sourceHandle ?? undefined,
+        targetHandle: edgeMeta.targetHandle ?? undefined,
+        type: edgeMeta.edgeType ?? "smoothstep",
+        animated: true,
+        markerEnd: { type: MarkerType.ArrowClosed, color: theme === "dark" ? "#fff" : "#000" },
+        className: "edge-glow",
+        data: { meta: edgeMeta }
+      }
     ]);
     setSelectedNodeId(id);
     setSelectedEdgeId(null);
@@ -1187,11 +1669,15 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleCreateMap = () => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
     if (currentRole === "viewer" || currentRole === "editor") {
       setToast("Only owners/admins can create maps in this workspace.");
       return;
     }
-    const ownerId = session?.user?.id ?? currentUserId ?? users[0]?.id;
+    const ownerId = ((session as any)?.user?.id as string | undefined) ?? currentUserId ?? users[0]?.id;
     if (mapCreationBlocked) {
       setToast("Free plan allows 1 map. Upgrade to create more.");
       setShowUpgrade(true);
@@ -1221,6 +1707,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
             nodeCount: 0,
             ownerName: users.find((u) => u.id === ownerId)?.name,
             ownerUserId: ownerId ?? undefined,
+            publicShareId: map.publicShareId ?? null,
             workspaceId: workspaceId ?? map.workspaceId
           },
           ...prev
@@ -1232,6 +1719,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleDeleteMap = async (id: string) => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
     if (currentRole === "viewer" || currentRole === "editor") {
       setToast("Only owners/admins can delete maps.");
       return;
@@ -1261,6 +1752,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleCreateUser = async (name?: string, color?: string) => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
     const finalName = name ?? "";
     setInputDialog({
       open: true,
@@ -1282,6 +1777,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleCreateWorkspace = () => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
     if (workspaceCreationBlocked) {
       setToast("Free plan allows 1 workspace. Upgrade to add more.");
       setShowUpgrade(true);
@@ -1310,6 +1809,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleRenameWorkspace = (id: string) => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
     const current = workspaces.find((w) => w.id === id)?.name ?? "";
     setInputDialog({
       open: true,
@@ -1333,6 +1836,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleDeleteWorkspace = async (id: string) => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
     try {
       await fetch(`/api/workspaces/${id}`, { method: "DELETE" });
     } catch {
@@ -1354,6 +1861,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
   };
 
   const handleRenameMap = async (id: string) => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
     const current = mapSummaries.find((m) => m.id === id)?.name ?? activeMap?.name ?? "";
     setInputDialog({
       open: true,
@@ -1419,10 +1930,17 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
     setToast("Member removed");
   };
 
-  if (status === "loading") {
+  if (!shareMode && status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-600">
         Loading...
+      </div>
+    );
+  }
+  if (shareMode && !shareLoaded) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+        Loading shared board...
       </div>
     );
   }
@@ -1434,22 +1952,31 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
           maps={mapsForWorkspace}
           activeMapId={activeMapId}
           onSelectMap={(id) => setActiveMapId(id)}
-          onCreateMap={handleCreateMap}
-          onDeleteMap={handleDeleteMap}
+          onCreateMap={shareMode ? () => setToast("View-only share. Sign in to edit.") : handleCreateMap}
+          onDeleteMap={shareMode ? () => setToast("View-only share. Sign in to edit.") : handleDeleteMap}
           onClose={() => setSidebarOpen(false)}
-          createDisabled={mapCreationBlocked}
+          createDisabled={mapCreationBlocked || shareMode}
           disabledMapIds={disabledMapIds}
           planLabel={users.find((u) => u.id === currentUserId)?.plan ?? "free"}
-          onInvite={currentWorkspace ? () => setShowInvite(true) : undefined}
-          onSettings={() => {
-            setShowSettings(true);
-          }}
-          onMembers={() => setShowMembers(true)}
-          onTraining={() => {
-            setShowTraining(true);
-            setTrainingStep(0);
-          }}
-          onUpgrade={() => setShowUpgrade(true)}
+          onInvite={!shareMode && currentWorkspace ? () => setShowInvite(true) : undefined}
+          onSettings={
+            shareMode
+              ? undefined
+              : () => {
+                  setShowSettings(true);
+                }
+          }
+          onAdmin={shareMode ? undefined : () => router.push("/admin")}
+          onMembers={!shareMode ? () => setShowMembers(true) : undefined}
+          onTraining={
+            shareMode
+              ? undefined
+              : () => {
+                  setShowTraining(true);
+                  setTrainingStep(0);
+                }
+          }
+          onUpgrade={!shareMode ? () => setShowUpgrade(true) : undefined}
           authLabel={session ? "Sign out" : "Sign in"}
           onAuthClick={() => (session ? handleSignOut() : signIn())}
           onEmbedMap={(id) => {
@@ -1493,11 +2020,12 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
                 theme === "dark" ? "text-slate-100" : "text-slate-900"
               }`}
               value={activeMap?.name ?? ""}
+              disabled={shareMode}
               onChange={(e) =>
                 setActiveMap((prev) => (prev ? { ...prev, name: e.target.value } : prev))
               }
               onBlur={async (e) => {
-                if (!activeMap) return;
+                if (!activeMap || shareMode) return;
                 const newName = e.target.value.trim();
                 if (!newName) return;
                 await fetch(`/api/maps/${activeMap.id}`, {
@@ -1561,6 +2089,26 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
                 </div>
               )}
               <button
+                className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold shadow-sm transition ${
+                  theme === "dark"
+                    ? `text-white ${aiEnabled ? "bg-sky-700 hover:bg-sky-600" : "bg-slate-700/70"}`
+                    : aiEnabled
+                      ? "bg-gradient-to-r from-sky-500 to-indigo-500 text-white hover:from-sky-400 hover:to-indigo-400"
+                      : "bg-slate-200 text-slate-500"
+                } ${aiEnabled ? "" : "cursor-not-allowed opacity-60"}`}
+                onClick={() => {
+                  setAiError(null);
+                  if (!aiEnabled) {
+                    setToast("AI is disabled. Enable it in Settings.");
+                    return;
+                  }
+                  setShowAiAssistant(true);
+                }}
+                disabled={!aiEnabled}
+              >
+                ✨ AI Assist
+              </button>
+              <button
                 className={`rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition ${
                   theme === "dark" ? "bg-slate-700 hover:bg-slate-600" : "bg-slate-900 hover:bg-slate-800"
                 }`}
@@ -1568,57 +2116,21 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
               >
                 Add Node (N)
               </button>
-              <div className="relative" ref={shareMenuRef}>
-                <button
-                  className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold shadow-sm transition ${
-                    !activeMap
-                      ? theme === "dark"
-                        ? "cursor-not-allowed border-slate-800 bg-[#0b1422] text-slate-500 opacity-60"
-                        : "cursor-not-allowed border-slate-200 bg-white text-slate-400 opacity-60"
-                      : theme === "dark"
-                        ? "border-slate-700 bg-[#0b1422] text-slate-100 hover:border-slate-600"
-                        : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
-                  }`}
-                  onClick={() => activeMap && setShareMenuOpen((v) => !v)}
-                  disabled={!activeMap}
-                >
-                  Share
-                  <span
-                    className={`text-xs text-slate-400 transition ${shareMenuOpen ? "rotate-180" : ""}`}
-                  >
-                    &#9662;
-                  </span>
-                </button>
-                {shareMenuOpen && (
-                  <div
-                    className={`absolute right-0 z-50 mt-2 w-48 rounded-md border shadow-lg ${
-                      theme === "dark"
-                        ? "border-slate-800 bg-slate-900 text-slate-100"
-                        : "border-slate-200 bg-white text-slate-800"
-                    }`}
-                  >
-                    <button
-                      className={`block w-full px-3 py-2 text-left text-sm transition ${
-                        theme === "dark" ? "hover:bg-slate-800" : "hover:bg-slate-100"
-                      }`}
-                      onClick={() => {
-                        handleShareMap();
-                        setShareMenuOpen(false);
-                      }}
-                    >
-                      Copy link
-                    </button>
-                    <button
-                      className={`block w-full px-3 py-2 text-left text-sm transition ${
-                        theme === "dark" ? "hover:bg-slate-800" : "hover:bg-slate-100"
-                      }`}
-                      onClick={handleEmailShare}
-                  >
-                    Share via email
-                  </button>
-                </div>
-              )}
-            </div>
+              <button
+                className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold shadow-sm transition ${
+                  !activeMap
+                    ? theme === "dark"
+                      ? "cursor-not-allowed border-slate-800 bg-[#0b1422] text-slate-500 opacity-60"
+                      : "cursor-not-allowed border-slate-200 bg-white text-slate-400 opacity-60"
+                    : theme === "dark"
+                      ? "border-slate-700 bg-[#0b1422] text-slate-100 hover:border-slate-600"
+                      : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
+                }`}
+                onClick={() => activeMap && setShowShareModal(true)}
+                disabled={!activeMap}
+              >
+                Share
+              </button>
             </div>
           </div>
         </header>
@@ -1646,6 +2158,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
                 theme={theme}
                 useGradientEdges={useGradientEdges}
                 onViewportCenterChange={setViewportCenter}
+                readOnly={shareMode}
               />
             </div>
           </div>
@@ -1673,6 +2186,21 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
           )}
         </main>
       </div>
+      {showAiAssistant && (
+        <AiAssistantModal
+          open={showAiAssistant}
+          canExpand={!!activeMap}
+          loading={aiLoading}
+          error={aiError}
+          defaultMode={activeMap ? "expand-board" : "new-board"}
+          defaultMapName={activeMap ? activeMap.name : ""}
+          onClose={() => {
+            setShowAiAssistant(false);
+            setAiError(null);
+          }}
+          onRun={handleAiGenerate}
+        />
+      )}
       {showInvite && workspaceId && (
         <InviteModal
           onInvite={async (email, role) => {
@@ -1688,6 +2216,32 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
             setToast("Invite sent");
           }}
           onClose={() => setShowInvite(false)}
+        />
+      )}
+      {showShareModal && activeMap && (
+        <ShareModal
+          open={showShareModal}
+          mapName={activeMap.name}
+          ownerName={
+            activeMap.ownerUserId
+              ? users.find((u) => u.id === activeMap.ownerUserId)?.name ?? "Owner"
+              : "Owner"
+          }
+          access={shareAccess}
+          shareMode={shareMode}
+          onClose={() => setShowShareModal(false)}
+          onCopyLink={() => {
+            handleCopyShareLink();
+            setShowShareModal(false);
+          }}
+          onMakePublic={() => {
+            ensurePublicShare();
+            setShareAccess("public");
+          }}
+          onMakeRestricted={() => {
+            handleDisablePublicLink();
+            setShareAccess("restricted");
+          }}
         />
       )}
       {showMembers && currentWorkspace && (
@@ -1762,6 +2316,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
           onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
           useGradientEdges={useGradientEdges}
           onToggleGradientEdges={() => setUseGradientEdges((v) => !v)}
+          aiEnabled={aiEnabled}
+          aiKey={aiKey}
+          onToggleAiEnabled={(enabled) => setAiEnabled(enabled)}
+          onChangeAiKey={(key) => setAiKey(key)}
           onClose={() => setShowSettings(false)}
         />
       )}

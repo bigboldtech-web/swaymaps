@@ -5,7 +5,8 @@ import { prisma } from "../../../lib/prisma";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = (session as any)?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
   const { name } = body ?? {};
@@ -16,9 +17,9 @@ export async function POST(req: Request) {
   const workspace = await prisma.workspace.create({
     data: {
       name,
-      ownerId: session.user.id as string,
+      ownerId: userId as string,
       members: {
-        create: { userId: session.user.id as string, role: "owner" }
+        create: { userId: userId as string, role: "owner" }
       }
     },
     include: { members: true }

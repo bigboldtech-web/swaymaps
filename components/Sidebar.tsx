@@ -9,6 +9,7 @@ export interface MapListItem {
   nodeCount: number;
   ownerName?: string;
   ownerUserId?: string;
+  publicShareId?: string | null;
   workspaceId?: string;
 }
 
@@ -31,6 +32,7 @@ interface SidebarProps {
   onRename?: (id: string) => void;
   onMembers?: () => void;
   onTraining?: () => void;
+  onAdmin?: () => void;
   search?: string;
   onSearchChange?: (val: string) => void;
   theme?: "light" | "dark";
@@ -58,6 +60,7 @@ export function Sidebar({
   onRename,
   onMembers,
   onTraining,
+  onAdmin,
   search,
   onSearchChange,
   createDisabled = false,
@@ -307,6 +310,16 @@ export function Sidebar({
               onClick={onTraining}
             >
               Training
+            </button>
+          )}
+          {onAdmin && (
+            <button
+              className={`w-full text-left text-sm font-semibold transition ${
+                isDark ? "text-amber-300 hover:text-amber-200" : "text-amber-600 hover:text-amber-700"
+              }`}
+              onClick={onAdmin}
+            >
+              Admin panel
             </button>
           )}
           {onSettings && (

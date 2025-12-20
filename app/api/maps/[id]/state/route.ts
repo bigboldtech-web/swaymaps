@@ -19,7 +19,8 @@ type IncomingNode = {
 
 export async function PUT(req: Request, { params }: Params) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = (session as any)?.user?.id;
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -41,8 +42,7 @@ export async function PUT(req: Request, { params }: Params) {
       return NextResponse.json({ error: "Map not found" }, { status: 404 });
     }
 
-    const role =
-      map.workspace?.members.find((m) => m.userId === session.user.id)?.role ?? "viewer";
+    const role = map.workspace?.members.find((m) => m.userId === userId)?.role ?? "viewer";
     if (role === "viewer") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }

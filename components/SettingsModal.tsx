@@ -21,6 +21,10 @@ interface SettingsModalProps {
   useGradientEdges: boolean;
   onToggleGradientEdges: () => void;
   workspaceCreateDisabled?: boolean;
+  aiEnabled: boolean;
+  aiKey: string;
+  onToggleAiEnabled: (enabled: boolean) => void;
+  onChangeAiKey: (key: string) => void;
   onClose: () => void;
 }
 
@@ -42,6 +46,10 @@ export function SettingsModal({
   useGradientEdges,
   onToggleGradientEdges,
   workspaceCreateDisabled = false,
+  aiEnabled,
+  aiKey,
+  onToggleAiEnabled,
+  onChangeAiKey,
   onClose
 }: SettingsModalProps) {
   const members = workspace?.members ?? [];
@@ -187,6 +195,38 @@ export function SettingsModal({
               >
                 Cancel subscription
               </button>
+            </div>
+          </div>
+
+          <div className={`rounded-2xl border ${panel} p-4 space-y-3`}>
+            <div className={`flex items-center justify-between text-sm font-semibold ${dark ? "text-slate-100" : "text-slate-700"}`}>
+              <span>AI Assistant</span>
+              <label className="flex items-center gap-2 text-xs font-semibold">
+                <input
+                  type="checkbox"
+                  checked={aiEnabled}
+                  onChange={(e) => onToggleAiEnabled(e.target.checked)}
+                  className="h-4 w-4"
+                />
+                {aiEnabled ? "Enabled" : "Disabled"}
+              </label>
+            </div>
+            <div className="space-y-2 text-sm">
+              <label className={`text-xs uppercase tracking-wide ${dark ? "text-slate-400" : "text-slate-500"}`}>
+                OpenAI API Key (kept in your browser)
+              </label>
+              <input
+                type="password"
+                className={`w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
+                placeholder="sk-..."
+                value={aiKey}
+                onChange={(e) => onChangeAiKey(e.target.value)}
+                disabled={!aiEnabled}
+              />
+              <p className={`text-xs ${dark ? "text-slate-400" : "text-slate-600"}`}>
+                Paste your key to use AI. If left blank, the workspace uses the server key (if configured).
+                Toggle off to avoid sending prompts to OpenAI.
+              </p>
             </div>
           </div>
         </div>

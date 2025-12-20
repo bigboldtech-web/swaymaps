@@ -22,8 +22,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
   try {
+    const emailSuffix = Date.now().toString(36);
+    const email = `${emailSuffix}@demo.local`;
     const user = await prisma.user.create({
-      data: { name, color: color ?? null }
+      data: {
+        name,
+        color: color ?? null,
+        email,
+        passwordHash: "placeholder"
+      }
     });
     return NextResponse.json(prismaUserToDomain(user));
   } catch (err) {

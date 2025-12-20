@@ -6,6 +6,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 import bcrypt from "bcryptjs";
 
+const memoryMaps = initialMaps.map((m) => JSON.parse(JSON.stringify(m)));
+const memoryUsers = [...initialUsers];
+const memoryWorkspaces = [...initialWorkspaces];
+
 async function ensureSeed() {
   try {
     const mapCount = await prisma.decodeMap.count();
@@ -103,7 +107,8 @@ async function ensureSeed() {
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = (session as any)?.user?.id;
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -112,7 +117,7 @@ export async function GET() {
     const maps = await prisma.decodeMap.findMany({
       where: {
         workspace: {
-          members: { some: { userId: session.user.id as string } }
+          members: { some: { userId: userId as string } }
         }
       },
       include: {
@@ -133,6 +138,7 @@ export async function GET() {
       id: map.id,
       name: map.name,
       description: map.description ?? "",
+      publicShareId: (map as any).publicShareId ?? null,
       ownerUserId: map.ownerId ?? undefined,
       ownerName: map.owner?.name ?? "Unknown",
       workspaceId: map.workspaceId ?? undefined,
@@ -146,7 +152,7 @@ export async function GET() {
       maps: response,
       users: (await prisma.user.findMany()).map(prismaUserToDomain),
       workspaces: await prisma.workspace.findMany({
-        where: { members: { some: { userId: session.user.id as string } } },
+        where: { members: { some: { userId: userId as string } } },
         include: { members: true }
       })
     });
@@ -158,7 +164,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = (session as any)?.user?.id;
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -169,7 +176,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const creatorId = session.user.id as string; // force creator to be current user
+    const creatorId = userId as string; // force creator to be current user
     const owner = await prisma.user.findUnique({ where: { id: creatorId } });
     if (owner?.plan === "free") {
       const count = await prisma.decodeMap.count({
@@ -181,7 +188,7 @@ export async function POST(req: Request) {
     }
     if (workspaceId) {
       const membership = await prisma.workspaceMember.findFirst({
-        where: { workspaceId, userId: session.user.id as string }
+        where: { workspaceId, userId: userId as string }
       });
       if (!membership || (membership.role !== "owner" && membership.role !== "admin")) {
         return NextResponse.json({ error: "Insufficient role to create maps." }, { status: 403 });
@@ -200,7 +207,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ...prismaMapToDomain(created), workspaceId });
   } catch (err) {
     console.error("Prisma create map failed", err);
-    const creatorId = session?.user?.id as string | undefined;
+    const creatorId = userId as string | undefined;
     if (creatorId) {
       const owner = memoryUsers.find((u) => u.id === creatorId);
       if (owner?.plan === "free") {

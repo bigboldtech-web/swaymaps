@@ -10,7 +10,8 @@ interface Params {
 
 export async function GET(_req: Request, { params }: Params) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = (session as any)?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const map = await prisma.decodeMap.findUnique({
       where: { id: params.id },
@@ -19,9 +20,7 @@ export async function GET(_req: Request, { params }: Params) {
     if (!map) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    const isMember = map.workspace
-      ? map.workspace.members.some((m) => m.userId === session.user.id)
-      : true;
+    const isMember = map.workspace ? map.workspace.members.some((m) => m.userId === userId) : true;
     if (!isMember) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     return NextResponse.json(prismaMapToDomain(map));
   } catch (err) {
@@ -32,7 +31,8 @@ export async function GET(_req: Request, { params }: Params) {
 
 export async function PUT(req: Request, { params }: Params) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = (session as any)?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const body = await req.json().catch(() => ({}));
   const { name, description, ownerUserId } = body ?? {};
   try {
@@ -53,7 +53,8 @@ export async function PUT(req: Request, { params }: Params) {
 
 export async function DELETE(_req: Request, { params }: Params) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = (session as any)?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     const map = await prisma.decodeMap.findUnique({ where: { id: params.id } });
     if (!map) {

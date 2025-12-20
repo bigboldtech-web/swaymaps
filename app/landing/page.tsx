@@ -6,7 +6,7 @@ import { InteractiveLandingDemo } from "../../components/InteractiveLandingDemo"
 import { FeatureShowcases } from "../../components/FeatureShowcases";
 
 export default function LandingPage() {
-  const [expandedFaq, setExpandedFaq] = useState(null);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 overflow-x-hidden scroll-smooth">
       {/* Sticky Navigation */}
@@ -136,63 +136,6 @@ export default function LandingPage() {
           <section className="space-y-6">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 shadow-lg shadow-slate-900/40">
               <InteractiveLandingDemo />
-            </div>
-          </section>
-
-          {/* Training nudges */}
-          <section className="space-y-6 rounded-2xl border border-slate-800 bg-slate-900/40 p-6 shadow-lg shadow-slate-900/40">
-            <div className="flex flex-col gap-2">
-              <div className="text-sm font-semibold uppercase tracking-wide text-sky-200">Training nudges</div>
-              <h2 className="text-3xl font-bold text-slate-50">Learn SwayMaps inside the app</h2>
-              <p className="text-slate-300">
-                Built-in guidance shows up while you map—no docs hunting. Nudges trigger as you pin nodes, share, or add notes.
-              </p>
-            </div>
-            <div className="grid gap-4 lg:grid-cols-3">
-              {[
-                {
-                  title: "Start a map",
-                  body: "On first load, nudges point to the Add Node button and canvas panning. Finish a 3-step checklist to unlock sharing.",
-                  badge: "Minute 1"
-                },
-                {
-                  title: "Pin & focus",
-                  body: "When you add pins, a nudge shows how to focus views and copy share links so incident leads can jump in fast.",
-                  badge: "Minute 3"
-                },
-                {
-                  title: "Share & comment",
-                  body: "After you invite or export, tips show how to leave structured comments, tag owners, and keep notes tidy.",
-                  badge: "Minute 5"
-                }
-              ].map((item) => (
-                <div key={item.title} className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs font-semibold text-sky-200">{item.badge}</div>
-                    <div className="h-2 w-2 rounded-full bg-emerald-400" title="Guided"></div>
-                  </div>
-                  <div className="mt-2 text-base font-semibold text-slate-100">{item.title}</div>
-                  <p className="mt-2 text-sm text-slate-300">{item.body}</p>
-                </div>
-              ))}
-            </div>
-            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                <div className="text-sm font-semibold text-slate-100">What users see</div>
-                <ul className="mt-3 space-y-2 text-sm text-slate-300">
-                  <li>• Inline bubbles over buttons to explain actions</li>
-                  <li>• Progress tracker (0/3 steps) that disappears when done</li>
-                  <li>• Contextual tips when a new feature is opened (pins, share, comments)</li>
-                </ul>
-              </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4">
-                <div className="text-sm font-semibold text-slate-100">Rollout plan</div>
-                <ul className="mt-3 space-y-2 text-sm text-slate-300">
-                  <li>• Default on for new workspaces</li>
-                  <li>• Toggle in Settings → Training nudges</li>
-                  <li>• Short “Show me” link replays the guided steps</li>
-                </ul>
-              </div>
             </div>
           </section>
 

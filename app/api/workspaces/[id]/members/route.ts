@@ -31,7 +31,8 @@ async function authorize(params: Params, sessionUserId?: string) {
 
 export async function PUT(req: Request, params: Params) {
   const session = await getServerSession(authOptions);
-  const auth = await authorize(params, session?.user?.id as string | undefined);
+  const sessionUserId = (session as any)?.user?.id as string | undefined;
+  const auth = await authorize(params, sessionUserId);
   if ("error" in auth) return auth.error;
   const { workspace } = auth;
 
@@ -67,7 +68,8 @@ export async function PUT(req: Request, params: Params) {
 
 export async function DELETE(req: Request, params: Params) {
   const session = await getServerSession(authOptions);
-  const auth = await authorize(params, session?.user?.id as string | undefined);
+  const sessionUserId = (session as any)?.user?.id as string | undefined;
+  const auth = await authorize(params, sessionUserId);
   if ("error" in auth) return auth.error;
   const { workspace } = auth;
 

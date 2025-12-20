@@ -88,9 +88,9 @@ const vendorNotes: Note[] = [
 ];
 
 const vendorEdges: MapEdgeMeta[] = [
-  { id: "edge-1", sourceId: "node-1", targetId: "node-2", label: "owns" },
-  { id: "edge-2", sourceId: "node-2", targetId: "node-3", label: "supports" },
-  { id: "edge-3", sourceId: "node-3", targetId: "node-4", label: "feeds" }
+  { id: "edge-1", sourceId: "node-1", targetId: "node-2", sourceHandle: null, targetHandle: null, label: "owns" },
+  { id: "edge-2", sourceId: "node-2", targetId: "node-3", sourceHandle: null, targetHandle: null, label: "supports" },
+  { id: "edge-3", sourceId: "node-3", targetId: "node-4", sourceHandle: null, targetHandle: null, label: "feeds" }
 ];
 
 const supportNodes: MapNodeMeta[] = [
@@ -154,9 +154,9 @@ const supportNotes: Note[] = [
 ];
 
 const supportEdges: MapEdgeMeta[] = [
-  { id: "s-edge-1", sourceId: "s-node-1", targetId: "s-node-2", label: "uses" },
-  { id: "s-edge-2", sourceId: "s-node-1", targetId: "s-node-3", label: "runs" },
-  { id: "s-edge-3", sourceId: "s-node-2", targetId: "s-node-3", label: "documents" }
+  { id: "s-edge-1", sourceId: "s-node-1", targetId: "s-node-2", sourceHandle: null, targetHandle: null, label: "uses" },
+  { id: "s-edge-2", sourceId: "s-node-1", targetId: "s-node-3", sourceHandle: null, targetHandle: null, label: "runs" },
+  { id: "s-edge-3", sourceId: "s-node-2", targetId: "s-node-3", sourceHandle: null, targetHandle: null, label: "documents" }
 ];
 
 export const initialUsers: User[] = [

@@ -11,7 +11,8 @@ interface Params {
 
 export async function POST(req: Request, { params }: Params) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = (session as any)?.user?.id;
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -27,13 +28,13 @@ export async function POST(req: Request, { params }: Params) {
   });
   if (!workspace) return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
 
-  const callerRole = workspace.members.find((m) => m.userId === session.user.id)?.role ?? "viewer";
+  const callerRole = workspace.members.find((m) => m.userId === userId)?.role ?? "viewer";
   if (callerRole !== "owner" && callerRole !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Free plan restriction: can only invite viewers
-  const inviter = await prisma.user.findUnique({ where: { id: session.user.id as string } });
+  const inviter = await prisma.user.findUnique({ where: { id: userId as string } });
   if (inviter?.plan === "pro") {
     return NextResponse.json({ error: "Pro plan is single-user. Upgrade to Team to invite members." }, { status: 403 });
   }
@@ -63,7 +64,7 @@ export async function POST(req: Request, { params }: Params) {
       email: email.toLowerCase(),
       workspaceId: params.id,
       role: effectiveRole,
-      inviterUserId: session.user.id as string,
+      inviterUserId: userId as string,
       expiresAt
     }
   });

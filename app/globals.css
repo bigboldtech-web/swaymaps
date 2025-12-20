@@ -4,11 +4,12 @@
 
 :root {
   color-scheme: light;
+  --font-decode: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
 }
 
 body {
-  font-family: var(--font-decode), "Inter", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-decode);
   background-color: #f8fafc;
   color: #0f172a;
 }

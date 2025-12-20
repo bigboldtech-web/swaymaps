@@ -15,10 +15,10 @@ export function FeatureShowcases() {
           <div className="rounded-lg border border-slate-800 bg-slate-950/70 p-4">
             <div className="mb-2 text-sm font-semibold text-slate-200">Node: Auth Service</div>
             <div className="flex flex-wrap gap-2">
-              <Tag tag="production" color="emerald" />
-              <Tag tag="critical" color="red" />
-              <Tag tag="backend" color="blue" />
-              <Tag tag="verified" color="sky" />
+              <Tag label="production" tone="green" />
+              <Tag label="critical" tone="red" />
+              <Tag label="backend" tone="blue" />
+              <Tag label="verified" tone="blue" />
             </div>
           </div>
           <div className="text-xs text-slate-400">
@@ -78,8 +78,8 @@ export function FeatureShowcases() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Tag tag="production" color="emerald" />
-              <Tag tag="critical" color="red" />
+              <Tag label="production" tone="green" />
+              <Tag label="critical" tone="red" />
             </div>
           </div>
         </div>

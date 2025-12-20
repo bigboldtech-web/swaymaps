@@ -246,12 +246,18 @@ export default function NoteInspector({
           />
         </div>
 
-        {/* Edge type is controlled globally via settings; keep info text only */}
         <div>
-          <label className={`text-xs uppercase tracking-wide ${muted}`}>Edge style</label>
-          <div className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold shadow-sm ${input}`}>
-            Controlled in Settings (Gradient/Solid)
-          </div>
+          <label className={`text-xs uppercase tracking-wide ${muted}`}>Edge type</label>
+          <select
+            className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold shadow-sm ${input}`}
+            value={edgeDraft.edgeType ?? "smoothstep"}
+            onChange={(e) => handleEdgeTypeChange(e.target.value as MapEdgeMeta["edgeType"])}
+          >
+            <option value="smoothstep">Rounded</option>
+            <option value="default">Curved</option>
+            <option value="straight">Straight</option>
+            <option value="step">Step</option>
+          </select>
         </div>
 
         <div>
@@ -438,7 +444,7 @@ export default function NoteInspector({
         <label className={`text-xs uppercase tracking-wide ${muted}`}>Title</label>
         <input
           className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold outline-none ring-0 focus:border-sky-500 ${input}`}
-          value={draft.title}
+          value={draft?.title ?? ""}
           onChange={(e) => updateNote({ title: e.target.value })}
         />
       </div>
@@ -453,7 +459,7 @@ export default function NoteInspector({
           onBlur={handleTagBlur}
         />
         <div className="mt-2 flex flex-wrap gap-2">
-          {draft.tags.map((tag) => (
+          {(draft?.tags ?? []).map((tag) => (
             <span
               key={tag}
               className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] uppercase tracking-wide ${
@@ -470,19 +476,19 @@ export default function NoteInspector({
         <label className={`text-xs uppercase tracking-wide ${muted}`}>Content</label>
         <textarea
           className={`min-h-[150px] flex-1 rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
-          value={draft.content}
+          value={draft?.content ?? ""}
           onChange={(e) => updateNote({ content: e.target.value })}
         />
         <div className={`rounded-lg border p-3 ${isDark ? "border-[#0f172a] bg-[#0b1422]" : "border-slate-200 bg-slate-50"}`}>
           <div className={`text-xs uppercase tracking-wide ${muted}`}>Preview</div>
           <div className="mt-2 space-y-2">
-            {draft.content.split("\n").map((line, idx) => renderLine(line, idx))}
+            {(draft?.content ?? "").split("\n").map((line, idx) => renderLine(line, idx))}
           </div>
         </div>
       </div>
 
       <div className={`text-xs ${muted}`}>
-        Updated at: {new Date(draft.updatedAt).toLocaleString()}
+        Updated at: {draft?.updatedAt ? new Date(draft.updatedAt).toLocaleString() : "-"}
       </div>
 
       <div className={`mt-2 rounded-lg border p-3 ${isDark ? "border-[#0f172a] bg-[#0b1422]" : "border-slate-200 bg-slate-50"}`}>
@@ -490,10 +496,10 @@ export default function NoteInspector({
           <div className={`text-xs uppercase tracking-wide ${muted}`}>Comments</div>
         </div>
         <div className="mt-2 space-y-2 max-h-48 overflow-y-auto pr-1">
-          {(draft.comments ?? []).length === 0 && (
+          {(draft?.comments ?? []).length === 0 && (
             <div className={`text-xs ${muted}`}>No comments yet.</div>
           )}
-          {(draft.comments ?? []).map((c) => (
+          {(draft?.comments ?? []).map((c) => (
             <div key={c.id} className={`rounded-md border px-3 py-2 ${isDark ? "border-slate-800 bg-[#0f1422]" : "border-slate-200 bg-white"}`}>
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span className={isDark ? "text-slate-100" : "text-slate-800"}>{c.author || "Anonymous"}</span>

@@ -43,6 +43,7 @@ export interface DecodeMap {
   description?: string;
   ownerUserId?: string;
   sharedUserIds: string[];
+  publicShareId?: string | null;
   workspaceId?: string;
   createdAt: string;
   updatedAt: string;
@@ -54,6 +55,7 @@ export interface DecodeMap {
 export interface User {
   id: string;
   name: string;
+  email?: string;
   color?: string;
   plan?: "free" | "pro" | "team";
 }

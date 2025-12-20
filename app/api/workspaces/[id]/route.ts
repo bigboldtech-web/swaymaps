@@ -9,7 +9,8 @@ interface Params {
 
 export async function PUT(req: Request, { params }: Params) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = (session as any)?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
   const { name } = body ?? {};
@@ -22,7 +23,7 @@ export async function PUT(req: Request, { params }: Params) {
     include: { members: true }
   });
   if (!ws) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  const role = ws.members.find((m) => m.userId === session.user.id)?.role ?? "viewer";
+  const role = ws.members.find((m) => m.userId === userId)?.role ?? "viewer";
   if (role !== "owner" && role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

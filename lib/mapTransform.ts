@@ -91,6 +91,7 @@ export function prismaMapToDomain(map: PrismaMap & { nodes?: MapNode[]; edges?: 
     id: map.id,
     name: map.name,
     description: map.description ?? undefined,
+    publicShareId: (map as any).publicShareId ?? null,
     ownerUserId: map.ownerId ?? undefined,
     sharedUserIds: [],
     createdAt: map.createdAt.toISOString(),

@@ -14,7 +14,8 @@ interface Params {
 
 export async function GET(_req: Request, { params }: Params) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+  const userId = (session as any)?.user?.id;
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -34,9 +35,7 @@ export async function GET(_req: Request, { params }: Params) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const isMember = map.workspace
-      ? map.workspace.members.some((m) => m.userId === session.user.id)
-      : true;
+    const isMember = map.workspace ? map.workspace.members.some((m) => m.userId === userId) : true;
     if (!isMember) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
