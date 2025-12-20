@@ -16,6 +16,12 @@ export interface Note {
   title: string;
   tags: string[];
   content: string;
+  comments?: {
+    id: string;
+    author?: string;
+    text: string;
+    createdAt: string;
+  }[];
   createdAt: string;
   updatedAt: string;
 }

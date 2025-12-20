@@ -148,6 +148,10 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
     data.onUpdateMeta({ ...data.meta, ...next });
   };
 
+  const pinTag = data.meta.tags.find((t) => t.startsWith("__pin:"));
+  const pinLabel = pinTag?.replace("__pin:", "");
+  const visibleTags = data.meta.tags.filter((tag) => !tag.startsWith("__pin:"));
+
   const darkDefaults: Record<MapNodeMeta["kind"], string> = {
     person: "#0f2f4a",
     system: "#0e3727",
@@ -211,7 +215,7 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
       className={`relative w-[240px] rounded-xl px-3 py-2 text-sm shadow-sm transition ${bgClass} ${
         selected ? "ring-2 ring-blue-300" : "ring-0 ring-transparent"
       }`}
-      style={{ backgroundColor: effectiveBg }}
+      style={{ backgroundColor: effectiveBg, overflow: "visible" }}
     >
       {[
         { id: "top-source", position: Position.Top, type: "source" as const },
@@ -241,37 +245,42 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
           onBlur={() => commitMeta({ title })}
           style={{ color: textColor }}
         />
-        <span
-          className={`max-w-[80px] truncate whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide ${styles.pill}`}
-          style={
-            effectiveBg
-              ? { backgroundColor: effectiveBg, borderColor: "#0b0f19", color: textColor }
-              : { borderColor: "#0b0f19", color: textColor }
-          }
-        >
-          {data.meta.kindLabel || data.meta.kind}
-        </span>
-      </div>
-      {data.meta.tags.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1">
-          {data.meta.tags
-            .filter((tag) => !tag.startsWith("__pin:"))
-            .map((tag) => (
-              <span
-                key={tag}
-                className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] uppercase tracking-wide text-slate-600"
-              >
-                {tag}
-              </span>
-            ))}
-          {data.meta.tags.some((tag) => tag.startsWith("__pin:")) && (
+        <div className="flex items-center gap-1">
+          <span
+            className={`max-w-[80px] truncate whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide ${styles.pill}`}
+            style={
+              effectiveBg
+                ? { backgroundColor: effectiveBg, borderColor: "#0b0f19", color: textColor }
+                : { borderColor: "#0b0f19", color: textColor }
+            }
+          >
+            {data.meta.kindLabel || data.meta.kind}
+          </span>
+          {pinTag && (
             <span
-              className="inline-flex items-center rounded-full border border-amber-400 bg-amber-100 px-2 py-0.5 text-[11px] uppercase tracking-wide text-amber-700"
-              title={data.meta.tags.find((t) => t.startsWith("__pin:"))?.replace("__pin:", "")}
+              className="absolute -right-2 -top-2 inline-flex h-4 w-4 items-center justify-center text-[9px] leading-none shrink-0"
+              title={pinLabel || "Pinned"}
+              style={{
+                color: "#0b0f19",
+                backgroundColor: "transparent",
+                boxShadow: "none"
+              }}
             >
-              📍
+              📌
             </span>
           )}
+        </div>
+      </div>
+      {visibleTags.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {visibleTags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] uppercase tracking-wide text-slate-600"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
       )}
     </div>
@@ -442,6 +451,14 @@ function CanvasBody(props: DecodeMapCanvasProps) {
     onViewportCenterChange?.(center);
   }, [onViewportCenterChange, reactFlowInstance]);
 
+  const handleSelectionChange: NonNullable<
+    React.ComponentProps<typeof ReactFlow>["onSelectionChange"]
+  > = ({ nodes: selectedNodes, edges: selectedEdges }) => {
+    if ((selectedNodes?.length ?? 0) === 0 && (selectedEdges?.length ?? 0) === 0) {
+      onClearSelection();
+    }
+  };
+
   React.useEffect(() => {
     reportCenter();
   }, [reportCenter]);
@@ -481,12 +498,13 @@ function CanvasBody(props: DecodeMapCanvasProps) {
         onEdgeClick={handleEdgeClick}
         onEdgeUpdate={handleEdgeUpdate}
         onPaneClick={handlePaneClick}
+        onSelectionChange={handleSelectionChange}
         onConnect={handleConnect}
         onConnectStart={handleConnectStart}
         onConnectEnd={handleConnectEnd}
         panOnDrag={[0, 1, 2]}
-        selectionOnDrag
-        selectNodesOnDrag
+        selectionOnDrag={false}
+        selectNodesOnDrag={false}
         edgeUpdaterRadius={16}
         connectionMode="loose"
         snapToGrid

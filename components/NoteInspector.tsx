@@ -106,9 +106,11 @@ export default function NoteInspector({
   const [metaDraft, setMetaDraft] = React.useState<MapNodeMeta | null>(selectedMeta);
   const [edgeNoteDraft, setEdgeNoteDraft] = React.useState<Note | null>(selectedEdgeNote);
   const [edgeDraft, setEdgeDraft] = React.useState<MapEdgeMeta | null>(selectedEdge);
+  const [commentAuthor, setCommentAuthor] = React.useState("");
+  const [commentText, setCommentText] = React.useState("");
 
   React.useEffect(() => {
-    setDraft(selectedNote);
+    setDraft(selectedNote ? { ...selectedNote, comments: selectedNote.comments ?? [] } : selectedNote);
     setTagInput(selectedNote ? selectedNote.tags.join(", ") : "");
     setMetaDraft(selectedMeta);
   }, [selectedNote, selectedMeta]);
@@ -125,6 +127,7 @@ export default function NoteInspector({
       ...changes,
       updatedAt: new Date().toISOString()
     };
+    next.comments = next.comments ?? [];
     setDraft(next);
     onChange(next);
   };
@@ -134,6 +137,19 @@ export default function NoteInspector({
     const tags = parseTagsInput(tagInput);
     updateNote({ tags });
     onUpdateTags(tags);
+  };
+
+  const handleAddComment = () => {
+    if (!draft || !commentText.trim()) return;
+    const newComment = {
+      id: crypto.randomUUID ? crypto.randomUUID() : `c-${Date.now()}`,
+      author: commentAuthor.trim() || "Anonymous",
+      text: commentText.trim(),
+      createdAt: new Date().toISOString()
+    };
+    const comments = [...(draft.comments ?? []), newComment];
+    updateNote({ comments });
+    setCommentText("");
   };
 
   const handleKindLabelChange = (value: string) => {
@@ -188,6 +204,17 @@ export default function NoteInspector({
     const nextMeta = { ...metaDraft, tags: nextTags };
     setMetaDraft(nextMeta);
     onUpdateMeta(nextMeta);
+  };
+  const pinEnabled = Boolean(pinLabel);
+
+  const handlePinToggle = (enabled: boolean) => {
+    if (!metaDraft) return;
+    if (enabled) {
+      const fallback = metaDraft.kindLabel || metaDraft.title || "Pinned";
+      handlePinChange(pinLabel || fallback);
+    } else {
+      handlePinChange("");
+    }
   };
 
   const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
@@ -328,6 +355,47 @@ export default function NoteInspector({
     <div className={`flex h-full flex-col gap-4 p-4 ${shell}`}>
       {metaDraft && (
         <>
+          <div className="flex items-center justify-between rounded-md border px-3 py-2">
+            <div>
+              <div className={`text-xs uppercase tracking-wide ${muted}`}>Pin this node</div>
+              <div className="text-sm font-semibold">{pinEnabled ? "Visible in Focus menu" : "Not pinned"}</div>
+            </div>
+            <button
+              className={`h-6 w-11 rounded-full border transition ${
+                pinEnabled
+                  ? isDark
+                    ? "border-sky-500 bg-sky-500/30"
+                    : "border-sky-400 bg-sky-100"
+                  : isDark
+                  ? "border-slate-700 bg-slate-800"
+                  : "border-slate-200 bg-slate-100"
+              }`}
+              onClick={() => handlePinToggle(!pinEnabled)}
+              aria-label="Toggle pin"
+            >
+              <div
+                className={`h-5 w-5 rounded-full bg-white shadow transition ${
+                  pinEnabled ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </button>
+          </div>
+
+          {pinEnabled && (
+            <div>
+              <div className={`text-xs uppercase tracking-wide ${muted}`}>Pin label</div>
+              <input
+                className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold outline-none ring-0 focus:border-sky-500 ${input}`}
+                value={pinLabel}
+                onChange={(e) => handlePinChange(e.target.value)}
+                placeholder="e.g., Critical path"
+              />
+              {pinLabel && (
+                <div className={`mt-1 text-xs ${muted}`}>Use Pins dropdown to focus</div>
+              )}
+            </div>
+          )}
+
           <div>
             <label className={`text-xs uppercase tracking-wide ${muted}`}>Type label</label>
             <input
@@ -335,19 +403,6 @@ export default function NoteInspector({
               value={metaDraft.kindLabel}
               onChange={(e) => handleKindLabelChange(e.target.value)}
             />
-          </div>
-
-          <div>
-            <div className={`text-xs uppercase tracking-wide ${muted}`}>Pin label</div>
-            <input
-              className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold outline-none ring-0 focus:border-sky-500 ${input}`}
-              value={pinLabel}
-              onChange={(e) => handlePinChange(e.target.value)}
-              placeholder="e.g., Critical path"
-            />
-            {pinLabel && (
-              <div className={`mt-1 text-xs ${muted}`}>Use Pins dropdown to focus</div>
-            )}
           </div>
         </>
       )}
@@ -428,6 +483,48 @@ export default function NoteInspector({
 
       <div className={`text-xs ${muted}`}>
         Updated at: {new Date(draft.updatedAt).toLocaleString()}
+      </div>
+
+      <div className={`mt-2 rounded-lg border p-3 ${isDark ? "border-[#0f172a] bg-[#0b1422]" : "border-slate-200 bg-slate-50"}`}>
+        <div className="flex items-center justify-between gap-2">
+          <div className={`text-xs uppercase tracking-wide ${muted}`}>Comments</div>
+        </div>
+        <div className="mt-2 space-y-2 max-h-48 overflow-y-auto pr-1">
+          {(draft.comments ?? []).length === 0 && (
+            <div className={`text-xs ${muted}`}>No comments yet.</div>
+          )}
+          {(draft.comments ?? []).map((c) => (
+            <div key={c.id} className={`rounded-md border px-3 py-2 ${isDark ? "border-slate-800 bg-[#0f1422]" : "border-slate-200 bg-white"}`}>
+              <div className="flex items-center justify-between text-xs font-semibold">
+                <span className={isDark ? "text-slate-100" : "text-slate-800"}>{c.author || "Anonymous"}</span>
+                <span className={muted}>{new Date(c.createdAt).toLocaleString()}</span>
+              </div>
+              <div className={`mt-1 text-sm ${isDark ? "text-slate-100" : "text-slate-800"}`}>{c.text}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 space-y-2">
+          <input
+            className={`w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
+            placeholder="Your name (optional)"
+            value={commentAuthor}
+            onChange={(e) => setCommentAuthor(e.target.value)}
+          />
+          <textarea
+            className={`w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
+            placeholder="Write a comment..."
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+          />
+          <button
+            className={`w-full rounded-md px-3 py-2 text-sm font-semibold text-white ${
+              isDark ? "bg-slate-700 hover:bg-slate-600" : "bg-slate-900 hover:bg-slate-800"
+            }`}
+            onClick={handleAddComment}
+          >
+            Add comment
+          </button>
+        </div>
       </div>
     </div>
   );

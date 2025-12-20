@@ -30,6 +30,7 @@ interface SidebarProps {
   onUpgrade?: () => void;
   onRename?: (id: string) => void;
   onMembers?: () => void;
+  onTraining?: () => void;
   search?: string;
   onSearchChange?: (val: string) => void;
   theme?: "light" | "dark";
@@ -56,6 +57,7 @@ export function Sidebar({
   onUpgrade,
   onRename,
   onMembers,
+  onTraining,
   search,
   onSearchChange,
   createDisabled = false,
@@ -297,6 +299,16 @@ export function Sidebar({
           </div>
         )}
         <div className="space-y-2">
+          {onTraining && (
+            <button
+              className={`w-full text-left text-sm font-semibold transition ${
+                isDark ? "text-slate-100 hover:text-sky-300" : "text-slate-700 hover:text-blue-600"
+              }`}
+              onClick={onTraining}
+            >
+              Training
+            </button>
+          )}
           {onSettings && (
             <button
               className={`w-full text-left text-sm font-semibold transition ${

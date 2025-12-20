@@ -52,6 +52,7 @@ const vendorNotes: Note[] = [
     tags: ["ops", "owner"],
     content:
       "Leads vendor onboarding.\n\nimg:https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400\n\nKey focus: shorten onboarding cycle, improve compliance.",
+    comments: [],
     createdAt: now(),
     updatedAt: now()
   },
@@ -61,6 +62,7 @@ const vendorNotes: Note[] = [
     tags: ["system", "vendor"],
     content:
       "Customer-facing portal for vendors. Docs: https://example.com/vendor-app\n\n![Status](https://dummyimage.com/300x80/0ea5e9/ffffff&text=Healthy)",
+    comments: [],
     createdAt: now(),
     updatedAt: now()
   },
@@ -70,6 +72,7 @@ const vendorNotes: Note[] = [
     tags: ["process", "journey"],
     content:
       "Maps the onboarding to activation journey. Steps:\n- Intake\n- Verification\n- Activation",
+    comments: [],
     createdAt: now(),
     updatedAt: now()
   },
@@ -78,6 +81,7 @@ const vendorNotes: Note[] = [
     title: "Analytics Workspace",
     tags: ["generic", "analytics"],
     content: "Central place to review KPIs.\n\nDashboard mock: https://example.com/dashboard.png",
+    comments: [],
     createdAt: now(),
     updatedAt: now()
   }

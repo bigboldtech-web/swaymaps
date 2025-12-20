@@ -99,6 +99,11 @@ const defaultColorForKind = (kind: NodeKind) => {
   return "#6366f1";
 };
 
+const withCommentArray = (note: Note): Note => ({
+  ...note,
+  comments: note.comments ?? []
+});
+
 export default function Page() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -155,6 +160,15 @@ export default function Page() {
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const saveTimer = useRef<NodeJS.Timeout | null>(null);
   const [viewportCenter, setViewportCenter] = useState<{ x: number; y: number } | null>(null);
+  const [focusMenuOpen, setFocusMenuOpen] = useState(false);
+  const focusMenuRef = useRef<HTMLDivElement | null>(null);
+  const [shareMenuOpen, setShareMenuOpen] = useState(false);
+  const shareMenuRef = useRef<HTMLDivElement | null>(null);
+  const [showTraining, setShowTraining] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    return window.localStorage.getItem("sway-training-dismissed") !== "true";
+  });
+  const [trainingStep, setTrainingStep] = useState(0);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -303,9 +317,13 @@ export default function Page() {
         setActiveMapId(firstMap?.id ?? null);
         const active = firstMap ? initialMaps.find((m) => m.id === firstMap.id) : initialMaps[0];
         if (active) {
-          setActiveMap(active);
-          setNodes(toFlowNodes(active.nodes ?? [], handleUpdateMeta));
-          setEdges(toFlowEdges(active.edges ?? []));
+          const normalized: DecodeMap = {
+            ...active,
+            notes: (active.notes ?? []).map(withCommentArray)
+          };
+          setActiveMap(normalized);
+          setNodes(toFlowNodes(normalized.nodes ?? [], handleUpdateMeta));
+          setEdges(toFlowEdges(normalized.edges ?? []));
         }
       }
     };
@@ -329,7 +347,10 @@ export default function Page() {
         const res = await fetch(`/api/maps/${activeMapId}/full`);
         if (!res.ok) throw new Error("Full map fetch failed");
         const data = await res.json();
-        const map: DecodeMap = data.map;
+        const map: DecodeMap = {
+          ...data.map,
+          notes: (data.map.notes ?? []).map(withCommentArray)
+        };
         setActiveMap(map);
         setNodes(toFlowNodes(map.nodes, handleUpdateMeta));
         setEdges(toFlowEdges(map.edges));
@@ -338,9 +359,13 @@ export default function Page() {
       } catch (err) {
         const local = initialMaps.find((m) => m.id === activeMapId);
         if (local) {
-        setActiveMap(local);
-        setNodes(toFlowNodes(local.nodes, handleUpdateMeta));
-        setEdges(toFlowEdges(local.edges));
+          const normalized: DecodeMap = {
+            ...local,
+            notes: (local.notes ?? []).map(withCommentArray)
+          };
+          setActiveMap(normalized);
+          setNodes(toFlowNodes(normalized.nodes, handleUpdateMeta));
+          setEdges(toFlowEdges(normalized.edges));
         }
       }
     };
@@ -635,13 +660,14 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
 
   const handleNoteChange = (updated: Note) => {
     if (!activeMap) return;
+    const normalizedNote = withCommentArray(updated);
     setActiveMap((prev) =>
       prev
         ? {
             ...prev,
-            notes: prev.notes.map((note) => (note.id === updated.id ? updated : note)),
+            notes: prev.notes.map((note) => (note.id === normalizedNote.id ? normalizedNote : note)),
             nodes: prev.nodes.map((node) =>
-              node.noteId === updated.id ? { ...node, title: updated.title } : node
+              node.noteId === normalizedNote.id ? { ...node, title: normalizedNote.title } : node
             ),
             updatedAt: now()
           }
@@ -651,7 +677,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
     setNodes((prev) =>
       prev.map((node) =>
         node.data.meta.noteId === updated.id
-          ? { ...node, data: { ...node.data, meta: { ...node.data.meta, title: updated.title } } }
+          ? { ...node, data: { ...node.data, meta: { ...node.data.meta, title: normalizedNote.title } } }
           : node
       )
     );
@@ -832,6 +858,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
       title: "New Note",
       tags: [],
       content: "Add details here...",
+      comments: [],
       createdAt: now(),
       updatedAt: now()
     };
@@ -925,6 +952,32 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
     addNodeToMap(activeMap);
   };
 
+  const handleShareMap = () => {
+    if (!activeMap) {
+      setToast("No map to share");
+      return;
+    }
+    const link = `${window.location.origin}?map=${activeMap.id}`;
+    try {
+      navigator.clipboard?.writeText(link);
+      setToast("Share link copied");
+    } catch {
+      alert(link);
+    }
+  };
+
+  const handleEmailShare = () => {
+    if (!activeMap) {
+      setToast("No map to share");
+      return;
+    }
+    const link = `${window.location.origin}?map=${activeMap.id}`;
+    const subject = encodeURIComponent(`SwayMaps board: ${activeMap.name ?? ""}`);
+    const body = encodeURIComponent(`Take a look at this map:\n\n${link}`);
+    window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
+    setShareMenuOpen(false);
+  };
+
   // Shortcut: "N" to add a new node (ignored when typing in inputs).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -945,33 +998,119 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
     return () => window.removeEventListener("keydown", onKey);
   }, [handleAddNode]);
 
-  const handleResetLayout = async () => {
-    if (!activeMapId) return;
-    try {
-      const res = await fetch(`/api/maps/${activeMapId}/full`);
-      if (!res.ok) throw new Error("reset failed");
-      const data = await res.json();
-      const map: DecodeMap = data.map;
-      setActiveMap(map);
-      setNodes(toFlowNodes(map.nodes, handleUpdateMeta));
-      setEdges(toFlowEdges(map.edges));
-      setSelectedNodeId(null);
-      setSelectedEdgeId(null);
-      setToast("Layout reset");
-    } catch {
-      const local = initialMaps.find((m) => m.id === activeMapId);
-      if (local) {
-        setActiveMap(local);
-        setNodes(toFlowNodes(local.nodes, handleUpdateMeta));
-        setEdges(toFlowEdges(local.edges));
-        setSelectedNodeId(null);
-        setSelectedEdgeId(null);
-        setToast("Layout reset");
-      } else {
-        setToast("Could not reset layout");
+  useEffect(() => {
+    if (!focusMenuOpen && !shareMenuOpen) return;
+    const handleOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (focusMenuRef.current && target && !focusMenuRef.current.contains(target)) {
+        setFocusMenuOpen(false);
       }
+      if (shareMenuRef.current && target && !shareMenuRef.current.contains(target)) {
+        setShareMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside, true);
+    document.addEventListener("touchstart", handleOutside, true);
+    return () => {
+      document.removeEventListener("mousedown", handleOutside, true);
+      document.removeEventListener("touchstart", handleOutside, true);
+    };
+  }, [focusMenuOpen, shareMenuOpen]);
+
+  const trainingSteps = [
+    {
+      title: "Welcome to SwayMaps",
+      icon: "👋",
+      body: "SwayMaps helps you visualize systems, processes, and dependencies. This quick guide will show you the key features.",
+      tips: [
+        "Click anywhere on the canvas to close this menu",
+        "Use the Training button anytime to review",
+        "All changes auto-save to your workspace"
+      ]
+    },
+    {
+      title: "Add & move nodes",
+      icon: "🎯",
+      body: "Nodes are the building blocks of your map. Each node can represent a system, person, process, or anything else.",
+      tips: [
+        "Click 'Add Node (N)' or press N key",
+        "Drag nodes to reposition them",
+        "Use grab cursor to pan the canvas",
+        "Zoom with mouse wheel or pinch"
+      ]
+    },
+    {
+      title: "Connect & organize",
+      icon: "🔗",
+      body: "Create relationships between nodes by connecting them with edges. Drag from a node's connection point to another node.",
+      tips: [
+        "Hover over a node to see connection points",
+        "Drag from any connection point to create an edge",
+        "Click edges to add labels and notes",
+        "Drag edge midpoint to create new connected nodes"
+      ]
+    },
+    {
+      title: "Select & inspect",
+      icon: "📝",
+      body: "Click any node to open the inspector panel and view or edit its details, notes, tags, and comments.",
+      tips: [
+        "Click a node to select it",
+        "Add tags for filtering and organization",
+        "Write detailed notes with markdown support",
+        "Add comments for team collaboration"
+      ]
+    },
+    {
+      title: "Pin & focus",
+      icon: "📌",
+      body: "Pin critical nodes to quickly focus on important parts of your map during incidents or presentations.",
+      tips: [
+        "Toggle Pin in the inspector panel",
+        "Give pins custom labels",
+        "Use Focus dropdown to jump to pinned nodes",
+        "Share focused views with teammates"
+      ]
+    },
+    {
+      title: "Customize & style",
+      icon: "🎨",
+      body: "Personalize your map with colors, node types, and visual styles to match your workflow.",
+      tips: [
+        "Choose from 11 color options per node",
+        "Set node types: System, Person, Process, Generic",
+        "Toggle gradient edges in Settings",
+        "Switch between light and dark themes"
+      ]
+    },
+    {
+      title: "Share & collaborate",
+      icon: "🤝",
+      body: "Work with your team in real-time. Share maps, invite members, and keep everyone aligned.",
+      tips: [
+        "Click Share → Copy link to share your map",
+        "Invite teammates from the sidebar",
+        "Set roles: Owner, Admin, Editor, Viewer",
+        "All changes sync in real-time"
+      ]
+    },
+    {
+      title: "You're all set!",
+      icon: "🚀",
+      body: "You now know the essentials of SwayMaps. Start mapping your systems, processes, and ideas!",
+      tips: [
+        "Press N to quickly add nodes",
+        "Check Settings for advanced options",
+        "Visit the landing page for more examples",
+        "Reach out if you need help!"
+      ]
     }
-  };
+  ];
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("sway-training-dismissed", showTraining ? "false" : "true");
+  }, [showTraining]);
 
   const handleCreateNodeAt = (
     position: { x: number; y: number },
@@ -997,6 +1136,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
       title: "New Note",
       tags: [],
       content: "Add details here...",
+      comments: [],
       createdAt: now(),
       updatedAt: now()
     };
@@ -1305,6 +1445,10 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
             setShowSettings(true);
           }}
           onMembers={() => setShowMembers(true)}
+          onTraining={() => {
+            setShowTraining(true);
+            setTrainingStep(0);
+          }}
           onUpgrade={() => setShowUpgrade(true)}
           authLabel={session ? "Sign out" : "Sign in"}
           onAuthClick={() => (session ? handleSignOut() : signIn())}
@@ -1337,9 +1481,9 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
         />
       )}
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col relative z-50">
         <header
-          className={`flex items-center justify-between border-b px-6 py-4 shadow-sm backdrop-blur ${
+          className={`relative z-50 flex items-center justify-between border-b px-6 py-4 shadow-sm backdrop-blur ${
             theme === "dark" ? "border-slate-800 bg-[#050b15]" : "border-slate-200 bg-white/90"
           }`}
         >
@@ -1369,29 +1513,53 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
               placeholder="Board name"
             />
           </div>
-          <div className="flex items-center gap-3">
-            {pinOptions.length > 0 && (
-              <select
-                className={`rounded-md border px-3 py-2 text-sm font-semibold shadow-sm ${
-                  theme === "dark"
-                    ? "border-slate-700 bg-[#0b1422] text-slate-100"
-                    : "border-slate-200 bg-white text-slate-800"
-                }`}
-                onChange={(e) => {
-                  const id = e.target.value;
-                  if (id) handleFocusNode(id);
-                }}
-                defaultValue=""
-              >
-                <option value="">Pins</option>
-                {pinOptions.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
-            )}
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 overflow-visible">
+            <div className="flex items-center gap-2 overflow-visible relative z-30">
+              {pinOptions.length > 0 && (
+                <div className="relative z-50" ref={focusMenuRef}>
+                  <button
+                    className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold shadow-sm ${
+                      theme === "dark"
+                        ? "border-slate-700 bg-[#0b1422] text-slate-100 hover:border-slate-600"
+                        : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
+                    }`}
+                    onClick={() => setFocusMenuOpen((prev) => !prev)}
+                  >
+                    Focus
+                    <span
+                      className={`text-xs text-slate-400 transition ${
+                        focusMenuOpen ? "rotate-180" : ""
+                      }`}
+                    >
+                      &#9662;
+                    </span>
+                  </button>
+                  {focusMenuOpen && (
+                    <div
+                      className={`absolute right-0 z-50 mt-2 w-48 rounded-md border shadow-lg ${
+                        theme === "dark"
+                          ? "border-slate-800 bg-slate-900 text-slate-100"
+                          : "border-slate-200 bg-white text-slate-800"
+                      }`}
+                    >
+                      {pinOptions.map((p) => (
+                        <button
+                          key={p.id}
+                          className={`block w-full px-3 py-2 text-left text-sm transition ${
+                            theme === "dark" ? "hover:bg-slate-800" : "hover:bg-slate-100"
+                          }`}
+                          onClick={() => {
+                            handleFocusNode(p.id);
+                            setFocusMenuOpen(false);
+                          }}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               <button
                 className={`rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition ${
                   theme === "dark" ? "bg-slate-700 hover:bg-slate-600" : "bg-slate-900 hover:bg-slate-800"
@@ -1400,16 +1568,57 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
               >
                 Add Node (N)
               </button>
-              <button
-                className={`rounded-md border px-3 py-2 text-sm font-semibold shadow-sm transition ${
-                  theme === "dark"
-                    ? "border-slate-600 text-slate-100 hover:border-slate-500 hover:bg-slate-700"
-                    : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                }`}
-                onClick={handleResetLayout}
-              >
-                Reset Layout
-              </button>
+              <div className="relative" ref={shareMenuRef}>
+                <button
+                  className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold shadow-sm transition ${
+                    !activeMap
+                      ? theme === "dark"
+                        ? "cursor-not-allowed border-slate-800 bg-[#0b1422] text-slate-500 opacity-60"
+                        : "cursor-not-allowed border-slate-200 bg-white text-slate-400 opacity-60"
+                      : theme === "dark"
+                        ? "border-slate-700 bg-[#0b1422] text-slate-100 hover:border-slate-600"
+                        : "border-slate-200 bg-white text-slate-800 hover:border-slate-300"
+                  }`}
+                  onClick={() => activeMap && setShareMenuOpen((v) => !v)}
+                  disabled={!activeMap}
+                >
+                  Share
+                  <span
+                    className={`text-xs text-slate-400 transition ${shareMenuOpen ? "rotate-180" : ""}`}
+                  >
+                    &#9662;
+                  </span>
+                </button>
+                {shareMenuOpen && (
+                  <div
+                    className={`absolute right-0 z-50 mt-2 w-48 rounded-md border shadow-lg ${
+                      theme === "dark"
+                        ? "border-slate-800 bg-slate-900 text-slate-100"
+                        : "border-slate-200 bg-white text-slate-800"
+                    }`}
+                  >
+                    <button
+                      className={`block w-full px-3 py-2 text-left text-sm transition ${
+                        theme === "dark" ? "hover:bg-slate-800" : "hover:bg-slate-100"
+                      }`}
+                      onClick={() => {
+                        handleShareMap();
+                        setShareMenuOpen(false);
+                      }}
+                    >
+                      Copy link
+                    </button>
+                    <button
+                      className={`block w-full px-3 py-2 text-left text-sm transition ${
+                        theme === "dark" ? "hover:bg-slate-800" : "hover:bg-slate-100"
+                      }`}
+                      onClick={handleEmailShare}
+                  >
+                    Share via email
+                  </button>
+                </div>
+              )}
+            </div>
             </div>
           </div>
         </header>
@@ -1418,26 +1627,26 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
           <section className={`flex-1 ${theme === "dark" ? "bg-[#050b15]" : "bg-slate-50"}`}>
             <div className="h-full w-full p-4">
               <div
-      className={`h-full overflow-hidden rounded-xl border shadow ${
-        theme === "dark" ? "border-slate-800 bg-[#0b1422]" : "border-slate-200 bg-white"
-      }`}
-    >
+                className={`h-full overflow-hidden rounded-xl border shadow ${
+                  theme === "dark" ? "border-slate-800 bg-[#0b1422]" : "border-slate-200 bg-white"
+                }`}
+              >
                 <DecodeMapCanvas
                   nodes={nodes}
                   edges={edges}
                   onNodesChange={onNodesChange}
                   onEdgesChange={onEdgesChange}
                   onSelectNode={handleSelectNode}
-        onSelectEdge={handleSelectEdge}
-        onClearSelection={handleClearSelection}
+                onSelectEdge={handleSelectEdge}
+                onClearSelection={handleClearSelection}
                 onConnectEdge={handleConnectEdge}
-          onEdgeUpdate={handleEdgeUpdate}
-          onCreateNodeAt={handleCreateNodeAt}
-          focusNodeId={focusNodeId}
-          theme={theme}
-          useGradientEdges={useGradientEdges}
-          onViewportCenterChange={setViewportCenter}
-        />
+                onEdgeUpdate={handleEdgeUpdate}
+                onCreateNodeAt={handleCreateNodeAt}
+                focusNodeId={focusNodeId}
+                theme={theme}
+                useGradientEdges={useGradientEdges}
+                onViewportCenterChange={setViewportCenter}
+              />
             </div>
           </div>
         </section>
@@ -1445,7 +1654,7 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
             <aside
               className={`w-[380px] border-l ${
                 theme === "dark" ? "border-[#0f172a] bg-[#040915]" : "border-slate-200 bg-white"
-              }`}
+              } overflow-y-auto max-h-[calc(100vh-80px)]`}
             >
               <NoteInspector
                 selectedNote={selectedNote}
@@ -1559,11 +1768,11 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
       {showUpgrade && (
         <UpgradeModal
           currentUser={users.find((u) => u.id === currentUserId)}
-          onSelectPlan={async (plan) => {
+          onSelectPlan={async (plan, couponCode) => {
             const res = await fetch("/api/plan/upgrade", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ plan })
+              body: JSON.stringify({ plan, couponCode })
             });
             if (!res.ok) {
               const data = await res.json().catch(() => ({}));
@@ -1585,6 +1794,124 @@ const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
           <button className="ml-2 text-xs text-slate-200" onClick={() => setToast(null)}>
             ✕
           </button>
+        </div>
+      )}
+      {showTraining && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-[#0b1422] shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 p-5">
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">{trainingSteps[trainingStep].icon}</div>
+                <div>
+                  <div className="text-lg font-bold text-slate-100">
+                    {trainingSteps[trainingStep].title}
+                  </div>
+                  <div className="text-xs text-slate-400">
+                    Step {trainingStep + 1} of {trainingSteps.length}
+                  </div>
+                </div>
+              </div>
+              <button
+                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-200"
+                onClick={() => setShowTraining(false)}
+                aria-label="Close training"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              <p className="text-sm leading-relaxed text-slate-300">
+                {trainingSteps[trainingStep].body}
+              </p>
+
+              {trainingSteps[trainingStep].tips && (
+                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-sky-300">
+                    Quick Tips
+                  </div>
+                  <ul className="space-y-2">
+                    {trainingSteps[trainingStep].tips.map((tip, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                        <span className="mt-0.5 text-sky-400">•</span>
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-slate-800 p-5">
+              <div className="mb-4 flex justify-center gap-1.5">
+                {trainingSteps.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setTrainingStep(idx)}
+                    className={`h-2 rounded-full transition-all ${
+                      idx === trainingStep
+                        ? "w-8 bg-sky-400"
+                        : "w-2 bg-slate-600 hover:bg-slate-500"
+                    }`}
+                    aria-label={`Go to step ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  className="flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 hover:text-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
+                  onClick={() => setTrainingStep((prev) => Math.max(0, prev - 1))}
+                  disabled={trainingStep === 0}
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Previous
+                </button>
+
+                {trainingStep < trainingSteps.length - 1 ? (
+                  <button
+                    className="flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-400"
+                    onClick={() => setTrainingStep((prev) => prev + 1)}
+                  >
+                    Next
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                ) : (
+                  <button
+                    className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                    onClick={() => {
+                      setShowTraining(false);
+                      setTrainingStep(0);
+                    }}
+                  >
+                    Get Started
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              <button
+                className="mt-3 w-full text-center text-xs text-slate-500 hover:text-slate-400"
+                onClick={() => {
+                  setShowTraining(false);
+                  setTrainingStep(0);
+                }}
+              >
+                Skip tutorial
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
