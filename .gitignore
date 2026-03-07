@@ -22,3 +22,6 @@ prisma/dev.db-journal
 .DS_Store
 *.log
 !.gitkeep
+
+# Large zip files
+*.zip
