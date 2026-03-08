@@ -313,7 +313,14 @@ export default function NoteInspector({
     person: "#38bdf8",
     system: "#22c55e",
     process: "#fbbf24",
-    generic: "#6366f1"
+    generic: "#6366f1",
+    database: "#6366f1",
+    api: "#0ea5e9",
+    queue: "#f59e0b",
+    cache: "#ef4444",
+    cloud: "#8b5cf6",
+    team: "#14b8a6",
+    vendor: "#f97316"
   };
 
   const darkenColor = (hex: string, factor = 0.85) => {

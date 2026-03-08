@@ -67,6 +67,48 @@ const kindStyles: Record<
     border: "border border-slate-200",
     text: "text-slate-900",
     pill: "bg-slate-100 text-slate-700 border border-slate-200"
+  },
+  database: {
+    bg: "bg-indigo-50",
+    border: "border border-indigo-200",
+    text: "text-indigo-900",
+    pill: "bg-indigo-100 text-indigo-700 border border-indigo-200"
+  },
+  api: {
+    bg: "bg-cyan-50",
+    border: "border border-cyan-200",
+    text: "text-cyan-900",
+    pill: "bg-cyan-100 text-cyan-700 border border-cyan-200"
+  },
+  queue: {
+    bg: "bg-orange-50",
+    border: "border border-orange-200",
+    text: "text-orange-900",
+    pill: "bg-orange-100 text-orange-700 border border-orange-200"
+  },
+  cache: {
+    bg: "bg-rose-50",
+    border: "border border-rose-200",
+    text: "text-rose-900",
+    pill: "bg-rose-100 text-rose-700 border border-rose-200"
+  },
+  cloud: {
+    bg: "bg-violet-50",
+    border: "border border-violet-200",
+    text: "text-violet-900",
+    pill: "bg-violet-100 text-violet-700 border border-violet-200"
+  },
+  team: {
+    bg: "bg-teal-50",
+    border: "border border-teal-200",
+    text: "text-teal-900",
+    pill: "bg-teal-100 text-teal-700 border border-teal-200"
+  },
+  vendor: {
+    bg: "bg-amber-50",
+    border: "border border-amber-200",
+    text: "text-amber-900",
+    pill: "bg-amber-100 text-amber-800 border border-amber-200"
   }
 };
 
@@ -105,7 +147,7 @@ function GradientEdge({
   const fromColor = (sourceNode?.data as FlowNodeData | undefined)?.meta.color ?? defaultColor;
   const toColor = (targetNode?.data as FlowNodeData | undefined)?.meta.color ?? defaultColor;
 
-  const edgeShape = (data?.meta?.edgeType as EdgeShape) || (props.type as EdgeShape) || "smoothstep";
+  const edgeShape = (data?.meta?.edgeType as EdgeShape) || "smoothstep";
   const [edgePath, labelX, labelY] = edgePathForType(edgeShape, {
     id,
     sourceX,
@@ -162,7 +204,7 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
     typeof document !== "undefined" &&
     document.documentElement.classList.contains("dark");
   const strokeColor = (props.style as any)?.stroke || (isDark ? "#ffffff" : "#0f172a");
-  const edgeShape = (props.data as any)?.meta?.edgeType || (props.type as EdgeShape) || "smoothstep";
+  const edgeShape = (props.data as any)?.meta?.edgeType || "smoothstep";
   const [edgePath, labelX, labelY] = edgePathForType(edgeShape as EdgeShape, props);
   const label = (props.data as any)?.meta?.label as string | undefined;
   return (
@@ -222,14 +264,28 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
     person: "#0f2f4a",
     system: "#0e3727",
     process: "#3a2a0c",
-    generic: "#0f172a"
+    generic: "#0f172a",
+    database: "#1e1b4b",
+    api: "#083344",
+    queue: "#431407",
+    cache: "#4c0519",
+    cloud: "#2e1065",
+    team: "#042f2e",
+    vendor: "#451a03"
   };
 
   const baseDefaults: Record<MapNodeMeta["kind"], string> = {
     person: "#38bdf8",
     system: "#22c55e",
     process: "#fbbf24",
-    generic: "#6366f1"
+    generic: "#6366f1",
+    database: "#6366f1",
+    api: "#0ea5e9",
+    queue: "#f59e0b",
+    cache: "#ef4444",
+    cloud: "#8b5cf6",
+    team: "#14b8a6",
+    vendor: "#f97316"
   };
 
   const darkenColor = (hex: string, factor = 0.85) => {

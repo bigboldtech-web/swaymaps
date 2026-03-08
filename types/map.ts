@@ -1,4 +1,4 @@
-export type NodeKind = "person" | "system" | "process" | "generic";
+export type NodeKind = "person" | "system" | "process" | "generic" | "database" | "api" | "queue" | "cache" | "cloud" | "team" | "vendor";
 
 export interface MapNodeMeta {
   id: string;

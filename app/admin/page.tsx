@@ -64,6 +64,21 @@ type AdminOverview = {
     currentPeriodEnd?: string | null;
     createdAt?: string;
   }[];
+  trialCount?: number;
+  activeTrials?: {
+    userId: string;
+    userName: string;
+    email: string;
+    trialEndDate: string | null;
+  }[];
+  recentSignups?: number;
+  mrrBreakdown?: {
+    proMonthly: number;
+    proAnnual: number;
+    teamMonthly: number;
+    teamAnnual: number;
+  };
+  churnedThisMonth?: number;
   fallback?: boolean;
   generatedAt?: string;
 };
@@ -518,6 +533,64 @@ export default function AdminPage() {
                 </div>
                 <div className="mt-1 text-xs text-slate-400">
                   Unknown: {overview.subscriptionStats.unknown} • Incomplete: {overview.subscriptionStats.incomplete}
+                </div>
+              </div>
+            </section>
+
+            <section className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-inner shadow-slate-900/30">
+                <div className="text-xs uppercase tracking-wide text-slate-400">Trial Funnel</div>
+                <div className="mt-2 text-3xl font-semibold">{overview.trialCount ?? overview.subscriptionStats.trialing}</div>
+                <div className="mt-1 text-sm text-slate-300">
+                  {overview.trialCount ?? overview.subscriptionStats.trialing} active trials | {overview.churnedThisMonth ?? 0} churned this month
+                </div>
+                {(overview.activeTrials ?? []).length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {(overview.activeTrials ?? []).slice(0, 5).map((t) => (
+                      <div key={t.userId} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs">
+                        <div>
+                          <span className="font-semibold text-white">{t.userName}</span>
+                          <span className="ml-2 text-slate-400">{t.email}</span>
+                        </div>
+                        <span className="text-slate-400">Ends {formatDate(t.trialEndDate ?? undefined)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-inner shadow-slate-900/30">
+                <div className="text-xs uppercase tracking-wide text-slate-400">MRR Breakdown</div>
+                <div className="mt-3 space-y-2 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300">Pro Monthly</span>
+                    <span className="font-semibold text-white">{currency.format(overview.mrrBreakdown?.proMonthly ?? 0)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300">Pro Annual</span>
+                    <span className="font-semibold text-white">{currency.format(overview.mrrBreakdown?.proAnnual ?? 0)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300">Team Monthly</span>
+                    <span className="font-semibold text-white">{currency.format(overview.mrrBreakdown?.teamMonthly ?? 0)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300">Team Annual</span>
+                    <span className="font-semibold text-white">{currency.format(overview.mrrBreakdown?.teamAnnual ?? 0)}</span>
+                  </div>
+                  <div className="border-t border-slate-700 pt-2 flex items-center justify-between">
+                    <span className="font-semibold text-slate-200">Total MRR</span>
+                    <span className="text-lg font-semibold text-white">
+                      {currency.format(
+                        (overview.mrrBreakdown?.proMonthly ?? 0) +
+                        (overview.mrrBreakdown?.proAnnual ?? 0) +
+                        (overview.mrrBreakdown?.teamMonthly ?? 0) +
+                        (overview.mrrBreakdown?.teamAnnual ?? 0)
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-2 text-xs text-slate-400">
+                  Recent signups (7d): {overview.recentSignups ?? 0}
                 </div>
               </div>
             </section>

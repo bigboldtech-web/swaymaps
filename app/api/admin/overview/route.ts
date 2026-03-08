@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
 import { prisma } from "../../../../lib/prisma";
+import { isAdmin } from "../../../../lib/adminCheck";
 import { initialMaps, initialUsers, initialWorkspaces } from "../../../../data/initialData";
 
 type Plan = "free" | "pro" | "team";
@@ -113,6 +114,10 @@ export async function GET() {
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const adminUser = await isAdmin();
+  if (!adminUser) {
+    return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+  }
   const sessionPlan = (session.user as any)?.plan ?? "free";
   if (sessionPlan === "free") {
     return NextResponse.json({ error: "Admin access requires a paid plan." }, { status: 403 });
@@ -158,6 +163,47 @@ export async function GET() {
     const paidUsers = users.filter((u) => ((u as any).plan as Plan) !== "free").length;
     const subscriptionStats = summarizeSubscriptions(subscriptions as any);
 
+    // Additional analytics
+    const trialCount = subscriptions.filter((s) => ((s as any).status ?? "").toLowerCase() === "trialing").length;
+    const activeTrials = subscriptions
+      .filter((s) => ((s as any).status ?? "").toLowerCase() === "trialing")
+      .map((s) => ({
+        userId: s.userId,
+        userName: (s as any).user?.name ?? "User",
+        email: (s as any).user?.email ?? "",
+        trialEndDate: (s as any).currentPeriodEnd ? (s as any).currentPeriodEnd.toISOString() : null
+      }));
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const recentSignups = users.filter((u) => u.createdAt >= sevenDaysAgo).length;
+
+    const mrrBreakdown = { proMonthly: 0, proAnnual: 0, teamMonthly: 0, teamAnnual: 0 };
+    subscriptions.forEach((sub) => {
+      const status = ((sub as any).status ?? "unknown").toLowerCase();
+      if (status !== "active" && status !== "trialing" && status !== "past_due") return;
+      const plan = ((sub as any).plan ?? "free") as Plan;
+      const interval = ((sub as any).interval ?? "month") as string;
+      if (plan === "pro" && interval === "year") {
+        mrrBreakdown.proAnnual += Math.round(PLAN_PRICE.pro * 12 / 12);
+      } else if (plan === "pro") {
+        mrrBreakdown.proMonthly += PLAN_PRICE.pro;
+      } else if (plan === "team" && interval === "year") {
+        mrrBreakdown.teamAnnual += Math.round(PLAN_PRICE.team * 12 / 12);
+      } else if (plan === "team") {
+        mrrBreakdown.teamMonthly += PLAN_PRICE.team;
+      }
+    });
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+    const churnedThisMonth = subscriptions.filter((sub) => {
+      const status = ((sub as any).status ?? "").toLowerCase();
+      if (status !== "canceled") return false;
+      const updatedAt = (sub as any).updatedAt ?? (sub as any).createdAt;
+      return updatedAt && new Date(updatedAt) >= startOfMonth;
+    }).length;
+
     return NextResponse.json({
       counts: {
         users: userCount,
@@ -168,6 +214,11 @@ export async function GET() {
       },
       planBreakdown,
       subscriptionStats,
+      trialCount,
+      activeTrials,
+      recentSignups,
+      mrrBreakdown,
+      churnedThisMonth,
       users: users.map((u) => ({
         id: u.id,
         name: u.name,
@@ -221,6 +272,18 @@ export async function GET() {
       counts: fallbackCounts,
       planBreakdown: fallbackPlanBreakdown,
       subscriptionStats,
+      trialCount: fallbackSubscriptions.filter((s) => s.status === "trialing").length,
+      activeTrials: fallbackSubscriptions
+        .filter((s) => s.status === "trialing")
+        .map((s) => ({
+          userId: s.userId,
+          userName: s.userName,
+          email: s.email,
+          trialEndDate: s.currentPeriodEnd
+        })),
+      recentSignups: fallbackUsers.length,
+      mrrBreakdown: { proMonthly: 29, proAnnual: 0, teamMonthly: 79, teamAnnual: 0 },
+      churnedThisMonth: 0,
       users: fallbackUsers,
       workspaces: fallbackWorkspaces,
       maps: fallbackMaps,

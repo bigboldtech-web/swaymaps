@@ -33,6 +33,9 @@ interface SidebarProps {
   onMembers?: () => void;
   onTraining?: () => void;
   onAdmin?: () => void;
+  onGlobalSearch?: () => void;
+  onExport?: () => void;
+  onImport?: () => void;
   search?: string;
   onSearchChange?: (val: string) => void;
   theme?: "light" | "dark";
@@ -61,6 +64,9 @@ export function Sidebar({
   onMembers,
   onTraining,
   onAdmin,
+  onGlobalSearch,
+  onExport,
+  onImport,
   search,
   onSearchChange,
   createDisabled = false,
@@ -297,6 +303,43 @@ export function Sidebar({
                 onClick={onUpgrade}
               >
                 Upgrade
+              </button>
+            )}
+          </div>
+        )}
+        {(onGlobalSearch || onExport || onImport) && (
+          <div className="flex items-center gap-2">
+            {onGlobalSearch && (
+              <button
+                className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-semibold transition ${
+                  isDark ? "border-slate-800 text-slate-200 hover:border-slate-700 hover:bg-slate-900" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+                onClick={onGlobalSearch}
+                title="Search all maps"
+              >
+                Search All
+              </button>
+            )}
+            {onExport && (
+              <button
+                className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-semibold transition ${
+                  isDark ? "border-slate-800 text-slate-200 hover:border-slate-700 hover:bg-slate-900" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+                onClick={onExport}
+                title="Export current map"
+              >
+                Export
+              </button>
+            )}
+            {onImport && (
+              <button
+                className={`flex-1 rounded-md border px-2 py-1.5 text-xs font-semibold transition ${
+                  isDark ? "border-slate-800 text-slate-200 hover:border-slate-700 hover:bg-slate-900" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+                onClick={onImport}
+                title="Import map from JSON"
+              >
+                Import
               </button>
             )}
           </div>

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -19,7 +19,12 @@ model User {
   workspaces     Workspace[] @relation("WorkspaceOwner")
   memberships    WorkspaceMember[]
   maps           DecodeMap[] @relation("MapOwner")
+  isAdmin        Boolean     @default(false)
+  onboardedAt    DateTime?
+  avatarUrl      String?
   subscriptions  Subscription[]
+  templates      Template[]
+  auditLogs      AuditLog[]
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 }
@@ -70,6 +75,9 @@ model Subscription {
   status           String
   stripeCustomerId String?
   stripeSubId      String?
+  stripePriceId     String?
+  cancelAtPeriodEnd Boolean  @default(false)
+  trialEnd          DateTime?
   currentPeriodEnd DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -79,6 +87,7 @@ model DecodeMap {
   id           String      @id @default(cuid())
   name         String
   description  String?
+  isTemplate   Boolean     @default(false)
   publicShareId String?    @unique
   owner        User?       @relation("MapOwner", fields: [ownerId], references: [id])
   ownerId      String?
@@ -87,6 +96,7 @@ model DecodeMap {
   nodes        MapNode[]
   edges        MapEdge[]
   notes        Note[]
+  versions     MapVersion[]
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
@@ -136,6 +146,42 @@ model Note {
 
   node MapNode? @relation("NodeNote")
   edge MapEdge? @relation("EdgeNote")
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @default("")
+  category    String
+  thumbnail   String?
+  mapData     String
+  isPublic    Boolean  @default(true)
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id])
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MapVersion {
+  id        String    @id @default(cuid())
+  mapId     String
+  map       DecodeMap @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  version   Int
+  snapshot  String
+  createdBy String?
+  createdAt DateTime  @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  metadata   String?
+  createdAt  DateTime @default(now())
 }
 
 // NextAuth models

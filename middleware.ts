@@ -1,26 +1,46 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-// Route top-level domain (e.g., swaymaps.com) to the marketing landing page.
-// Keep app subdomain (e.g., app.swaymaps.com) on the product experience.
-export function middleware(req: NextRequest) {
-  const host = req.headers.get("host") || "";
-  const url = req.nextUrl.clone();
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-  const isTopDomain = host === "swaymaps.com" || host === "www.swaymaps.com";
-  const isAppDomain = host === "app.swaymaps.com";
+  // Public routes that never need auth
+  const isPublicRoute =
+    pathname === "/" ||
+    pathname.startsWith("/landing") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/embed") ||
+    pathname.startsWith("/invite") ||
+    pathname.startsWith("/legal") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon");
 
-  // If we are on the marketing domain and not already on /landing, send to /landing.
-  if (isTopDomain && url.pathname === "/") {
-    url.pathname = "/landing";
-    return NextResponse.rewrite(url);
+  if (isPublicRoute) {
+    return NextResponse.next();
   }
 
-  // Keep everything else as-is (app domain, API routes, landing deep links, etc.).
+  // Protected routes (e.g., /app, /admin) require authentication
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || "decode-map-demo-secret" });
+
+  if (!token) {
+    const signInUrl = req.nextUrl.clone();
+    signInUrl.pathname = "/auth/signin";
+    signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  // Admin-only routes
+  if (pathname.startsWith("/admin") && !token.isAdmin) {
+    const homeUrl = req.nextUrl.clone();
+    homeUrl.pathname = "/app";
+    return NextResponse.redirect(homeUrl);
+  }
+
   return NextResponse.next();
 }
 
-// Run middleware for all paths; minimal logic above decides rewrites.
 export const config = {
-  matcher: "/:path*"
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]
 };
