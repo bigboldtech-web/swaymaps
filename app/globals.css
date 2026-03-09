@@ -24,12 +24,26 @@ html.light {
 }
 html.light body {
   font-family: var(--font-decode);
-  background-color: #f8fafc;
+  background-color: #f1f3f8;
   color: #1e293b;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* ─── Smooth Defaults ─── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* GPU-accelerated transitions for interactive elements */
+button, a, input, select, textarea,
+[role="button"], [tabindex] {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ─── Custom Scrollbar (Dark) ─── */
@@ -113,19 +127,25 @@ html.light ::-webkit-scrollbar-thumb:hover {
 
 /* ─── Light Mode Glass ─── */
 html.light .glass-panel {
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(241, 243, 248, 0.80);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(203, 213, 225, 0.60);
+  border: 1px solid rgba(203, 213, 225, 0.50);
 }
 html.light .glass-panel-solid {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(245, 247, 251, 0.97);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(203, 213, 225, 0.70);
+  border: 1px solid rgba(203, 213, 225, 0.35);
 }
 html.light .glass-border {
-  border: 1px solid rgba(203, 213, 225, 0.60);
+  border: 1px solid rgba(203, 213, 225, 0.50);
+}
+html.light .shadow-glass {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(203, 213, 225, 0.3) !important;
+}
+html.light .shadow-2xl {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
 }
 html.light .gradient-text {
   background: linear-gradient(135deg, #0f172a, #0369a1, #4338ca);
@@ -174,26 +194,26 @@ html.light .gradient-text {
 
 /* ─── Light Mode ReactFlow Overrides ─── */
 html.light .react-flow__background {
-  background-color: #f8fafc !important;
+  background-color: #edf0f7 !important;
 }
 html.light .react-flow__minimap {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid rgba(203, 213, 225, 0.60) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: rgba(241, 243, 248, 0.95) !important;
+  border: 1px solid rgba(203, 213, 225, 0.50) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 html.light .react-flow__controls {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid rgba(203, 213, 225, 0.60) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: rgba(241, 243, 248, 0.95) !important;
+  border: 1px solid rgba(203, 213, 225, 0.50) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 html.light .react-flow__controls button {
   background: transparent !important;
   color: #475569 !important;
-  border-bottom: 1px solid rgba(203, 213, 225, 0.40) !important;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.35) !important;
   fill: #475569 !important;
 }
 html.light .react-flow__controls button:hover {
-  background: rgba(241, 245, 249, 0.80) !important;
+  background: rgba(226, 232, 240, 0.60) !important;
   color: #0f172a !important;
   fill: #0f172a !important;
 }
@@ -202,17 +222,24 @@ html.light .react-flow__nodesselection-rect {
   background: rgba(14, 165, 233, 0.06) !important;
   border: 1px solid rgba(14, 165, 233, 0.25) !important;
 }
+html.light .react-flow__node.dragging .decode-node {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(14, 165, 233, 0.3) !important;
+}
 
 /* ─── Edge Animations ─── */
 .react-flow__edge-path {
-  transition: stroke-width 0.15s ease;
+  transition: stroke-width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              stroke 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .react-flow__edge:hover .react-flow__edge-path {
   stroke-width: 3 !important;
-  filter: drop-shadow(0 0 4px rgba(14, 165, 233, 0.3));
+  filter: drop-shadow(0 0 6px rgba(14, 165, 233, 0.35));
 }
 .react-flow__connection-path {
-  animation: connection-dash 0.6s linear infinite;
+  animation: connection-dash 0.5s linear infinite;
+  stroke-linecap: round;
 }
 @keyframes connection-dash {
   to { stroke-dashoffset: -24; }
@@ -221,13 +248,25 @@ html.light .react-flow__nodesselection-rect {
   to { stroke-dashoffset: -28; }
 }
 
-/* ─── Node Interactions ─── */
-.react-flow__node.dragging .decode-node {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(14, 165, 233, 0.3) !important;
-  transform: scale(1.02) !important;
+/* ─── Flowing Orb Glow ─── */
+.react-flow__edge circle {
+  filter: blur(0.5px);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ─── Node Interactions ─── */
 .react-flow__node {
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow;
+}
+.react-flow__node.dragging .decode-node {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(14, 165, 233, 0.35) !important;
+  transform: scale(1.03) !important;
+  transition: box-shadow 0.15s ease-out, transform 0.15s ease-out !important;
+}
+.react-flow__node:not(.dragging) .decode-node {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ─── Selection ─── */
@@ -236,6 +275,24 @@ html.light .react-flow__nodesselection-rect {
   background: rgba(14, 165, 233, 0.08) !important;
   border: 1px solid rgba(14, 165, 233, 0.3) !important;
   border-radius: 8px;
+}
+
+/* ─── Smooth Handle Transitions ─── */
+.react-flow__handle {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: width, height, opacity, background-color;
+}
+
+/* ─── Smooth Minimap & Controls ─── */
+.react-flow__minimap,
+.react-flow__controls {
+  transition: opacity 0.3s ease;
+}
+.react-flow__controls button {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.react-flow__controls button:active {
+  transform: scale(0.92);
 }
 
 /* ─── Accessibility ─── */
@@ -278,6 +335,38 @@ textarea:focus-visible {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* ─── Smooth Interactive Feedback ─── */
+@layer utilities {
+  .btn-press:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
+  }
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  }
+  .smooth-colors {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+}
+
+/* ─── Smooth Page Load ─── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+main, [data-animate-in] {
+  animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── Glass Panel Transitions ─── */
+.glass-panel, .glass-panel-solid {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 /* Skip to content (screen reader) */

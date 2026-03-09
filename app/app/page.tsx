@@ -101,6 +101,7 @@ function PageContent() {
   const [mapSearch, setMapSearch] = useState("");
   const [workspaces, setWorkspaces] = useState<Workspace[]>(initialWorkspaces);
   const { theme, setTheme, toggleTheme } = useTheme();
+  const isLight = theme === "light";
   const [inputDialog, setInputDialog] = useState<{
     open: boolean;
     title: string;
@@ -1147,16 +1148,16 @@ function PageContent() {
     return {
       title: map.name,
       description: map.description ?? "",
-      nodes: map.nodes.slice(0, 14).map((node) => {
+      nodes: map.nodes.slice(0, 20).map((node) => {
         const note = map.notes.find((n) => n.id === node.noteId);
         return {
           title: node.title,
           kind: node.kind,
           tags: node.tags.slice(0, 6),
-          note: (note?.content ?? "").slice(0, 400)
+          note: (note?.content ?? "").slice(0, 500)
         };
       }),
-      edges: map.edges.slice(0, 24).map((edge) => ({
+      edges: map.edges.slice(0, 30).map((edge) => ({
         source: nodeTitles.get(edge.sourceId) ?? edge.sourceId,
         target: nodeTitles.get(edge.targetId) ?? edge.targetId,
         label: edge.label ?? ""
@@ -1981,9 +1982,9 @@ function PageContent() {
 
   if (!shareMode && status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050b15] text-slate-400 animate-fade-in">
+      <div className={`flex min-h-screen items-center justify-center ${isLight ? "bg-[#f1f3f8] text-slate-500" : "bg-[#050b15] text-slate-400"} animate-fade-in`}>
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-sky-500" />
+          <div className={`h-8 w-8 animate-spin rounded-full border-2 ${isLight ? "border-slate-300 border-t-sky-500" : "border-slate-700 border-t-sky-500"}`} />
           <span className="text-sm font-medium">Loading...</span>
         </div>
       </div>
@@ -1991,7 +1992,7 @@ function PageContent() {
   }
   if (shareMode && !shareLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#050b15] text-slate-400 animate-fade-in">
+      <div className={`flex min-h-screen items-center justify-center ${isLight ? "bg-[#f1f3f8] text-slate-500" : "bg-[#050b15] text-slate-400"} animate-fade-in`}>
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-sky-500" />
           <span className="text-sm font-medium">Loading shared board...</span>
@@ -2001,7 +2002,7 @@ function PageContent() {
   }
 
   return (
-    <div className="flex min-h-screen relative bg-[#050b15] text-slate-100">
+    <div className={`flex min-h-screen relative ${isLight ? "bg-[#f1f3f8] text-slate-800" : "bg-[#050b15] text-slate-100"}`}>
       {sidebarOpen ? (
         <Sidebar
           maps={mapsForWorkspace}
@@ -2113,10 +2114,10 @@ function PageContent() {
         />
 
         <main className="flex flex-1 overflow-hidden">
-          <section className="relative flex-1 bg-[#050b15]">
+          <section className={`relative flex-1 ${isLight ? "bg-[#edf0f7]" : "bg-[#050b15]"}`}>
             <div className="h-full w-full p-4">
               <div
-                className="relative h-full overflow-hidden rounded-xl border border-slate-800/60 bg-[#0b1422] shadow"
+                className={`relative h-full overflow-hidden rounded-xl border shadow ${isLight ? "border-slate-200/60 bg-[#edf0f7]" : "border-slate-800/60 bg-[#0b1422]"}`}
                 onContextMenu={(e) => {
                   if (shareMode) return;
                   e.preventDefault();
@@ -2217,7 +2218,7 @@ function PageContent() {
         </section>
           {(selectedMeta || selectedEdgeMeta) && (
             <aside
-              className="w-[380px] border-l border-slate-800/60 bg-[#050b15]/90 backdrop-blur-xl overflow-y-auto max-h-[calc(100vh-80px)]"
+              className={`w-[380px] border-l backdrop-blur-xl overflow-y-auto max-h-[calc(100vh-80px)] ${isLight ? "border-slate-200/60 bg-[#f5f7fb]/90" : "border-slate-800/60 bg-[#050b15]/90"}`}
             >
               <NoteInspector
                 selectedNote={selectedNote}
@@ -2333,10 +2334,10 @@ function PageContent() {
       {/* Node Type Picker */}
       {showNodeTypePicker && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { setShowNodeTypePicker(false); setPendingNodeCallback(null); }}>
-          <div className="w-[480px] rounded-2xl border border-slate-700/40 bg-[#0a1020]/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className={`w-[480px] rounded-2xl border p-6 shadow-2xl backdrop-blur-xl animate-scale-in ${isLight ? "border-slate-200/60 bg-white/95 shadow-black/10" : "border-slate-700/40 bg-[#0a1020]/95 shadow-black/40"}`} onClick={(e) => e.stopPropagation()}>
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-white">Add Node</h3>
-              <p className="text-sm text-slate-400">Choose a node type for your dependency map</p>
+              <h3 className={`text-lg font-bold ${isLight ? "text-slate-800" : "text-white"}`}>Add Node</h3>
+              <p className={`text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>Choose a node type for your dependency map</p>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {([
@@ -2354,7 +2355,7 @@ function PageContent() {
               ]).map(({ kind, label, icon, color }) => (
                 <button
                   key={kind}
-                  className="group flex flex-col items-center gap-2 rounded-xl border border-slate-700/30 bg-slate-800/20 px-3 py-3 text-sm transition-all hover:border-opacity-60 hover:bg-opacity-40 hover:shadow-lg"
+                  className={`group flex flex-col items-center gap-2 rounded-xl border px-3 py-3 text-sm transition-all hover:border-opacity-60 hover:bg-opacity-40 hover:shadow-lg ${isLight ? "border-slate-200/50 bg-slate-100/30" : "border-slate-700/30 bg-slate-800/20"}`}
                   style={{ ["--accent" as string]: color }}
                   onClick={() => {
                     setShowNodeTypePicker(false);
@@ -2376,12 +2377,12 @@ function PageContent() {
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg transition" style={{ backgroundColor: `${color}15`, border: `1px solid ${color}30` }}>
                     <svg className="h-4.5 w-4.5" style={{ color }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d={icon} /></svg>
                   </div>
-                  <span className="text-xs font-medium text-slate-300 group-hover:text-white transition">{label}</span>
+                  <span className={`text-xs font-medium transition ${isLight ? "text-slate-600 group-hover:text-slate-900" : "text-slate-300 group-hover:text-white"}`}>{label}</span>
                 </button>
               ))}
             </div>
             <div className="mt-4 flex justify-end">
-              <button className="rounded-lg px-3 py-1.5 text-sm text-slate-400 transition hover:text-slate-200" onClick={() => { setShowNodeTypePicker(false); setPendingNodeCallback(null); }}>
+              <button className={`rounded-lg px-3 py-1.5 text-sm transition ${isLight ? "text-slate-500 hover:text-slate-700" : "text-slate-400 hover:text-slate-200"}`} onClick={() => { setShowNodeTypePicker(false); setPendingNodeCallback(null); }}>
                 Cancel
               </button>
             </div>
@@ -2605,7 +2606,7 @@ function PageContent() {
 export default function Page() {
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#050b15] text-slate-400"><div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-sky-500" /></div>}>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-slate-400"><div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-sky-500 dark:border-slate-700 dark:border-t-sky-500" /></div>}>
         <PageContent />
       </Suspense>
     </ErrorBoundary>

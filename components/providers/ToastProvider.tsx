@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useState } from "react";
+import { useTheme } from "./ThemeProvider";
 
 type ToastType = "success" | "error" | "info" | "warning";
 
@@ -112,6 +113,8 @@ const icons: Record<ToastType, React.ReactNode> = {
 };
 
 function ToastContainer({ toasts, dismiss }: { toasts: Toast[]; dismiss: (id: string) => void }) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   if (toasts.length === 0) return null;
 
   return (
@@ -121,13 +124,13 @@ function ToastContainer({ toasts, dismiss }: { toasts: Toast[]; dismiss: (id: st
         return (
           <div
             key={t.id}
-            className={`flex items-center gap-3 rounded-xl border bg-[#0b1422]/95 backdrop-blur-xl px-4 py-3 text-sm text-slate-200 animate-slide-up ${style.border} ${style.glow}`}
+            className={`flex items-center gap-3 rounded-xl border backdrop-blur-xl px-4 py-3 text-sm animate-toast-in will-change-[transform,opacity] ${isLight ? "bg-white/95 text-slate-700" : "bg-[#0b1422]/95 text-slate-200"} ${style.border} ${style.glow}`}
           >
             <span className={style.icon}>{icons[t.type]}</span>
             <span className="flex-1">{t.message}</span>
             <button
               onClick={() => dismiss(t.id)}
-              className="text-slate-500 hover:text-slate-300 transition"
+              className={`transition-colors duration-200 active:scale-90 ${isLight ? "text-slate-400 hover:text-slate-600" : "text-slate-500 hover:text-slate-300"}`}
             >
               <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTheme } from "./providers/ThemeProvider";
 
 interface ExportModalProps {
   mapName: string;
@@ -10,6 +11,8 @@ interface ExportModalProps {
 }
 
 export function ExportModal({ mapName, onExport, onClose, isPro }: ExportModalProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
 
@@ -42,11 +45,11 @@ export function ExportModal({ mapName, onExport, onClose, isPro }: ExportModalPr
       <div className="w-full max-w-md max-sm:max-w-full rounded-2xl glass-panel-solid p-4 sm:p-6 shadow-2xl animate-scale-in">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400">Export</div>
-            <div className="text-lg font-semibold text-slate-100">Export &quot;{mapName}&quot;</div>
+            <div className={`text-xs uppercase tracking-wide ${isLight ? "text-slate-500" : "text-slate-400"}`}>Export</div>
+            <div className={`text-lg font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>Export &quot;{mapName}&quot;</div>
           </div>
           <button
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-700/50 text-slate-400 transition hover:bg-slate-800/60 hover:text-slate-200"
+            className={`flex h-8 w-8 items-center justify-center rounded-full border ${isLight ? "border-slate-300/50 text-slate-400 hover:bg-slate-100/60 hover:text-slate-700" : "border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"} transition`}
             onClick={onClose}
             aria-label="Close export modal"
           >
@@ -58,26 +61,26 @@ export function ExportModal({ mapName, onExport, onClose, isPro }: ExportModalPr
           {formats.map((fmt) => (
             <button
               key={fmt.id}
-              className={`w-full rounded-xl border border-slate-700/40 bg-slate-800/30 p-4 text-left transition hover:border-sky-500/30 hover:bg-slate-800/50 ${
+              className={`w-full rounded-xl border ${isLight ? "border-slate-200/60 bg-white/60 hover:border-sky-500/30 hover:bg-white/80" : "border-slate-700/40 bg-slate-800/30 hover:border-sky-500/30 hover:bg-slate-800/50"} p-4 text-left transition ${
                 !isPro && fmt.pro ? "opacity-50" : ""
               }`}
               onClick={() => handleExport(fmt.id)}
               disabled={loading !== null}
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-700/40 text-sky-400">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isLight ? "bg-slate-100/80" : "bg-slate-700/40"} text-sky-400`}>
                   {fmt.icon}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-slate-100">{fmt.label}</span>
+                    <span className={`font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>{fmt.label}</span>
                     {!isPro && fmt.pro && (
                       <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-sky-300 border border-sky-500/30">
                         Pro
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-slate-400">{fmt.desc}</p>
+                  <p className={`text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>{fmt.desc}</p>
                 </div>
                 {loading === fmt.id && (
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-sky-400 border-t-transparent" />

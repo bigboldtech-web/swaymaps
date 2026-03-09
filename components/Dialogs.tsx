@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useTheme } from "./providers/ThemeProvider";
 
 type BaseProps = {
   open: boolean;
@@ -33,6 +34,8 @@ export function InputDialog({
   onConfirm
 }: InputDialogProps) {
   const [value, setValue] = useState(initialValue);
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   useEffect(() => {
     if (open) setValue(initialValue);
@@ -44,11 +47,11 @@ export function InputDialog({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
       <div className="w-full max-w-md max-sm:max-w-full rounded-2xl glass-panel-solid p-4 sm:p-6 shadow-2xl animate-scale-in">
         <div className="mb-4">
-          <div className="text-lg font-semibold text-slate-100">{title}</div>
-          {message && <p className="mt-1 text-sm text-slate-400">{message}</p>}
+          <div className={`text-lg font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>{title}</div>
+          {message && <p className={`mt-1 text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>{message}</p>}
         </div>
         <input
-          className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
+          className={`w-full rounded-lg border ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-500"} px-3 py-2 text-sm outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50`}
           placeholder={placeholder}
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -60,7 +63,7 @@ export function InputDialog({
         />
         <div className="mt-4 flex justify-end gap-2">
           <button
-            className="rounded-lg border border-slate-700/50 px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800/60"
+            className={`rounded-lg border ${isLight ? "border-slate-300/50 text-slate-600 hover:bg-slate-100/60" : "border-slate-700/50 text-slate-300 hover:bg-slate-800/60"} px-3 py-2 text-sm font-medium transition`}
             onClick={onCancel}
           >
             Cancel
@@ -87,18 +90,21 @@ export function ConfirmDialog({
   onCancel,
   onConfirm
 }: ConfirmDialogProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
       <div className="w-full max-w-md max-sm:max-w-full rounded-2xl glass-panel-solid p-4 sm:p-6 shadow-2xl animate-scale-in">
         <div className="mb-4">
-          <div className="text-lg font-semibold text-slate-100">{title}</div>
-          {message && <p className="mt-1 text-sm text-slate-400">{message}</p>}
+          <div className={`text-lg font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>{title}</div>
+          {message && <p className={`mt-1 text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>{message}</p>}
         </div>
         <div className="flex justify-end gap-2">
           <button
-            className="rounded-lg border border-slate-700/50 px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800/60"
+            className={`rounded-lg border ${isLight ? "border-slate-300/50 text-slate-600 hover:bg-slate-100/60" : "border-slate-700/50 text-slate-300 hover:bg-slate-800/60"} px-3 py-2 text-sm font-medium transition`}
             onClick={onCancel}
           >
             Cancel

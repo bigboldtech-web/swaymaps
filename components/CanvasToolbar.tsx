@@ -22,6 +22,7 @@ interface CanvasToolbarProps {
 }
 
 export function CanvasToolbar({
+  theme,
   nodeCount,
   edgeCount,
   saveStatus,
@@ -38,6 +39,7 @@ export function CanvasToolbar({
   hasSelection,
   shareMode,
 }: CanvasToolbarProps) {
+  const isLight = theme === "light";
   const [layoutOpen, setLayoutOpen] = useState(false);
   const layoutRef = useRef<HTMLDivElement>(null);
 
@@ -51,9 +53,9 @@ export function CanvasToolbar({
     return () => document.removeEventListener("mousedown", handler);
   }, [layoutOpen]);
 
-  const btnBase = "flex items-center justify-center rounded-lg p-1.5 transition text-slate-400 hover:bg-slate-700/40 hover:text-slate-200";
-  const btnDisabled = "opacity-30 cursor-not-allowed hover:bg-transparent hover:text-slate-400";
-  const divider = "w-px h-5 bg-slate-700/40";
+  const btnBase = `flex items-center justify-center rounded-lg p-1.5 transition-all duration-200 active:scale-90 ${isLight ? "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700" : "text-slate-400 hover:bg-slate-700/40 hover:text-slate-200"}`;
+  const btnDisabled = `opacity-30 cursor-not-allowed hover:bg-transparent ${isLight ? "hover:text-slate-500" : "hover:text-slate-400"}`;
+  const divider = `w-px h-5 ${isLight ? "bg-slate-300/50" : "bg-slate-700/40"}`;
 
   const saveIndicator = {
     saved: { color: "text-emerald-400", label: "Saved" },
@@ -103,15 +105,15 @@ export function CanvasToolbar({
         </button>
         {layoutOpen && (
           <div className="absolute left-0 top-full z-50 mt-2 w-48 rounded-xl glass-panel-solid shadow-glass overflow-hidden animate-scale-in">
-            <button className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-300 transition hover:bg-slate-700/30 hover:text-slate-100" onClick={() => { onAutoLayout("top-bottom"); setLayoutOpen(false); }}>
+            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("top-bottom"); setLayoutOpen(false); }}>
               <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m0-18l-3 3m3-3l3 3" /><path strokeLinecap="round" d="M4 9h16M4 15h16" /></svg>
               Top to Bottom
             </button>
-            <button className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-300 transition hover:bg-slate-700/30 hover:text-slate-100" onClick={() => { onAutoLayout("left-right"); setLayoutOpen(false); }}>
+            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("left-right"); setLayoutOpen(false); }}>
               <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18m-18 0l3-3m-3 3l3 3" /><path strokeLinecap="round" d="M9 4v16M15 4v16" /></svg>
               Left to Right
             </button>
-            <button className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-300 transition hover:bg-slate-700/30 hover:text-slate-100" onClick={() => { onAutoLayout("radial"); setLayoutOpen(false); }}>
+            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("radial"); setLayoutOpen(false); }}>
               <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><circle cx="12" cy="12" r="3" /><circle cx="12" cy="4" r="2" /><circle cx="20" cy="12" r="2" /><circle cx="12" cy="20" r="2" /><circle cx="4" cy="12" r="2" /></svg>
               Radial
             </button>

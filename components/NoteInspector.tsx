@@ -135,7 +135,7 @@ function renderLine(line: string, index: number) {
   }
   if (lastIndex < line.length) parts.push(line.slice(lastIndex));
   return (
-    <p key={index} className="text-sm leading-relaxed break-words break-all text-slate-200">
+    <p key={index} className="text-sm leading-relaxed break-words break-all text-inherit">
       {parts.length ? parts : line}
     </p>
   );
@@ -148,11 +148,13 @@ function kindInfo(kind?: NodeKind) {
 /* ───────────────── Sub-components ───────────────── */
 
 function Section({ title, defaultOpen = true, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const { theme: secTheme } = useTheme();
+  const isSecLight = secTheme === "light";
   const [open, setOpen] = React.useState(defaultOpen);
   return (
-    <div className="rounded-lg border border-slate-700/30 bg-slate-800/15">
+    <div className={`rounded-lg border ${isSecLight ? "border-slate-200 bg-slate-50/50" : "border-slate-700/30 bg-slate-800/15"}`}>
       <button
-        className="flex w-full items-center justify-between px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-300 transition"
+        className={`flex w-full items-center justify-between px-3 py-2 text-[11px] font-semibold uppercase tracking-wider transition ${isSecLight ? "text-slate-500 hover:text-slate-700" : "text-slate-500 hover:text-slate-300"}`}
         onClick={() => setOpen(!open)}
       >
         {title}
@@ -182,7 +184,7 @@ function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string;
         >
           {tab.label}
           {tab.count !== undefined && tab.count > 0 && (
-            <span className="ml-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-slate-700/50 px-1 text-[9px] font-bold text-slate-300">
+            <span className={`ml-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold ${isTabLight ? "bg-slate-200 text-slate-600" : "bg-slate-700/50 text-slate-300"}`}>
               {tab.count}
             </span>
           )}
@@ -213,8 +215,8 @@ function RelationDropdown({ value, onChange }: { value?: EdgeRelationType; onCha
       <button
         className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
           value
-            ? "border-sky-500/30 bg-sky-500/5 text-sky-300"
-            : "border-slate-700/40 bg-slate-800/30 text-slate-400"
+            ? (isRelLight ? "border-sky-500/30 bg-sky-500/5 text-sky-600" : "border-sky-500/30 bg-sky-500/5 text-sky-300")
+            : (isRelLight ? "border-slate-200 bg-white text-slate-500" : "border-slate-700/40 bg-slate-800/30 text-slate-400")
         } hover:border-slate-500`}
         onClick={() => setOpen(!open)}
       >
@@ -241,8 +243,8 @@ function RelationDropdown({ value, onChange }: { value?: EdgeRelationType; onCha
               {group.items.map((item) => (
                 <button
                   key={item.value}
-                  className={`flex w-full items-center gap-2 px-3 py-1.5 text-sm transition hover:bg-slate-800/50 ${
-                    value === item.value ? "text-sky-300 bg-sky-500/10" : "text-slate-300"
+                  className={`flex w-full items-center gap-2 px-3 py-1.5 text-sm transition ${isRelLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
+                    value === item.value ? (isRelLight ? "text-sky-600 bg-sky-500/10" : "text-sky-300 bg-sky-500/10") : (isRelLight ? "text-slate-600" : "text-slate-300")
                   }`}
                   onClick={() => { onChange(item.value); setOpen(false); }}
                 >
@@ -277,7 +279,7 @@ function NodeTypeDropdown({ value, onChange }: { value: NodeKind; onChange: (kin
   return (
     <div ref={ref} className="relative">
       <button
-        className="flex items-center gap-2 rounded-lg border border-slate-700/30 bg-slate-800/20 px-2.5 py-1.5 text-sm transition hover:border-slate-600"
+        className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-sm transition ${isNTLight ? "border-slate-200 bg-white hover:border-slate-300" : "border-slate-700/30 bg-slate-800/20 hover:border-slate-600"}`}
         onClick={() => setOpen(!open)}
       >
         <span
@@ -286,7 +288,7 @@ function NodeTypeDropdown({ value, onChange }: { value: NodeKind; onChange: (kin
         >
           {current.icon}
         </span>
-        <span className="font-medium text-slate-200">{current.label}</span>
+        <span className={`font-medium ${isNTLight ? "text-slate-700" : "text-slate-200"}`}>{current.label}</span>
         <svg className={`h-3 w-3 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -297,8 +299,8 @@ function NodeTypeDropdown({ value, onChange }: { value: NodeKind; onChange: (kin
           {ALL_KINDS.map(({ kind, label, icon, color }) => (
             <button
               key={kind}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition hover:bg-slate-800/50 ${
-                value === kind ? "text-sky-300 bg-sky-500/10" : "text-slate-300"
+              className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition ${isNTLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
+                value === kind ? (isNTLight ? "text-sky-600 bg-sky-500/10" : "text-sky-300 bg-sky-500/10") : (isNTLight ? "text-slate-600" : "text-slate-300")
               }`}
               onClick={() => { onChange(kind, label, color); setOpen(false); }}
             >
@@ -412,7 +414,7 @@ function CommentsSection({ noteId }: { noteId: string }) {
     <div className="flex flex-col gap-2">
       {/* Collapsible header */}
       <button
-        className="flex w-full items-center justify-between rounded-lg border border-slate-700/30 bg-slate-800/15 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-300 transition"
+        className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-[11px] font-semibold uppercase tracking-wider transition ${isCSLight ? "border-slate-200 bg-slate-50/50 text-slate-500 hover:text-slate-700" : "border-slate-700/30 bg-slate-800/15 text-slate-500 hover:text-slate-300"}`}
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-2">
@@ -647,11 +649,11 @@ export default function NoteInspector({
   if (!draft && !edgeNoteDraft) {
     return (
       <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-        <div className="rounded-2xl border border-slate-700/20 bg-slate-800/10 p-8">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800/30 text-2xl">
+        <div className={`rounded-2xl border p-8 ${isLight ? "border-slate-200/60 bg-slate-50" : "border-slate-700/20 bg-slate-800/10"}`}>
+          <div className={`mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl text-2xl ${isLight ? "bg-slate-100" : "bg-slate-800/30"}`}>
             🎯
           </div>
-          <div className="text-sm font-semibold text-slate-300">
+          <div className={`text-sm font-semibold ${isLight ? "text-slate-600" : "text-slate-300"}`}>
             {onNoSelectionMessage || "Select a node or edge"}
           </div>
           <p className="mt-1 text-xs text-slate-500">
@@ -677,11 +679,11 @@ export default function NoteInspector({
     return (
       <div className={`flex h-full flex-col ${isLight ? "bg-white text-slate-800" : "bg-[#040915] text-slate-100"}`}>
         {/* ── Visual sentence header: Source → relation → Target ── */}
-        <div className="border-b border-slate-700/30 px-4 py-3 space-y-2.5">
+        <div className={`border-b px-4 py-3 space-y-2.5 ${isLight ? "border-slate-200" : "border-slate-700/30"}`}>
           <div className="flex items-center gap-2 text-sm">
             {/* Source chip */}
             <button
-              className="flex items-center gap-1 rounded-md border border-slate-700/30 bg-slate-800/30 px-2 py-1 text-xs font-medium text-slate-300 hover:bg-slate-700/30 transition truncate max-w-[110px]"
+              className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition truncate max-w-[110px] ${isLight ? "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100" : "border-slate-700/30 bg-slate-800/30 text-slate-300 hover:bg-slate-700/30"}`}
               onClick={() => sourceNode && onFocusNode?.(sourceNode.id)}
               title={sourceNode?.title || "Source"}
             >
@@ -700,7 +702,7 @@ export default function NoteInspector({
 
             {/* Target chip */}
             <button
-              className="flex items-center gap-1 rounded-md border border-slate-700/30 bg-slate-800/30 px-2 py-1 text-xs font-medium text-slate-300 hover:bg-slate-700/30 transition truncate max-w-[110px]"
+              className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition truncate max-w-[110px] ${isLight ? "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100" : "border-slate-700/30 bg-slate-800/30 text-slate-300 hover:bg-slate-700/30"}`}
               onClick={() => targetNode && onFocusNode?.(targetNode.id)}
               title={targetNode?.title || "Target"}
             >
@@ -833,7 +835,7 @@ export default function NoteInspector({
                         className={`flex-1 rounded-md px-1 py-1 text-[10px] font-medium transition ${
                           active
                             ? "bg-sky-500/15 border border-sky-500/30 text-sky-300"
-                            : "bg-slate-800/20 border border-slate-700/20 text-slate-500 hover:text-slate-300"
+                            : isLight ? "bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-700" : "bg-slate-800/20 border border-slate-700/20 text-slate-500 hover:text-slate-300"
                         }`}
                         onClick={() => updateEdge({ edgeType: value })}
                       >
@@ -865,7 +867,7 @@ export default function NoteInspector({
                         className={`flex-1 rounded-md py-2 text-center text-xs font-medium tracking-wider transition ${
                           active
                             ? "bg-sky-500/15 border border-sky-500/30 text-sky-300"
-                            : "bg-slate-800/20 border border-slate-700/20 text-slate-500 hover:text-slate-300"
+                            : isLight ? "bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-700" : "bg-slate-800/20 border border-slate-700/20 text-slate-500 hover:text-slate-300"
                         }`}
                         onClick={() => updateEdge({ lineStyle: value })}
                       >
@@ -901,7 +903,7 @@ export default function NoteInspector({
                       <button
                         key={color}
                         className={`h-6 w-6 rounded-full border-2 transition ${
-                          active ? "border-white ring-2 ring-sky-500/30 scale-110" : "border-slate-700/40 hover:border-slate-500"
+                          active ? "border-white ring-2 ring-sky-500/30 scale-110" : (isLight ? "border-slate-300 hover:border-slate-400" : "border-slate-700/40 hover:border-slate-500")
                         }`}
                         style={{ backgroundColor: color }}
                         onClick={() => updateEdge({ color })}
@@ -910,7 +912,7 @@ export default function NoteInspector({
                   })}
                   {edgeDraft.color && (
                     <button
-                      className="h-6 rounded-full border border-slate-700/30 px-2 text-[9px] text-slate-500 hover:text-slate-300"
+                      className={`h-6 rounded-full border px-2 text-[9px] ${isLight ? "border-slate-200 text-slate-500 hover:text-slate-700" : "border-slate-700/30 text-slate-500 hover:text-slate-300"}`}
                       onClick={() => updateEdge({ color: undefined })}
                     >
                       Reset
@@ -920,8 +922,8 @@ export default function NoteInspector({
               </div>
 
               {/* Animated Flow */}
-              <div className="flex items-center justify-between rounded-lg border border-slate-700/20 bg-slate-800/10 px-3 py-2">
-                <span className="text-xs text-slate-300">Animated Flow</span>
+              <div className={`flex items-center justify-between rounded-lg border px-3 py-2 ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/20 bg-slate-800/10"}`}>
+                <span className={`text-xs ${isLight ? "text-slate-600" : "text-slate-300"}`}>Animated Flow</span>
                 <button
                   className={`h-5 w-9 rounded-full border transition ${
                     edgeDraft.animated
@@ -958,7 +960,7 @@ export default function NoteInspector({
                 {edgeNoteDraft.tags.length > 0 && (
                   <div className="mt-1.5 flex flex-wrap gap-1">
                     {edgeNoteDraft.tags.map((tag) => (
-                      <span key={tag} className="rounded-md border border-slate-700/30 bg-slate-800/30 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-slate-400">
+                      <span key={tag} className={`rounded-md border px-1.5 py-0.5 text-[10px] uppercase tracking-wide ${isLight ? "border-slate-200 bg-slate-50 text-slate-500" : "border-slate-700/30 bg-slate-800/30 text-slate-400"}`}>
                         {tag}
                       </span>
                     ))}
@@ -1004,7 +1006,7 @@ export default function NoteInspector({
 
       {/* ═══ ZONE 1: Header — Always visible ═══ */}
       {metaDraft && (
-        <div className="border-b border-slate-700/30 px-4 py-3 space-y-2">
+        <div className={`border-b px-4 py-3 space-y-2 ${isLight ? "border-slate-200" : "border-slate-700/30"}`}>
           {/* Row 1: Icon + Name + Pin */}
           <div className="flex items-center gap-2.5">
             <div
@@ -1015,7 +1017,7 @@ export default function NoteInspector({
             </div>
             <div className="flex-1 min-w-0">
               <input
-                className="w-full bg-transparent text-sm font-bold text-slate-100 outline-none placeholder:text-slate-500 border-none p-0"
+                className={`w-full bg-transparent text-sm font-bold outline-none border-none p-0 ${isLight ? "text-slate-800 placeholder:text-slate-400" : "text-slate-100 placeholder:text-slate-500"}`}
                 value={draft?.title ?? metaDraft.title ?? ""}
                 onChange={(e) => {
                   updateNote({ title: e.target.value });
@@ -1075,8 +1077,8 @@ export default function NoteInspector({
                 {STATUS_OPTIONS.map(({ value, label, dot }) => (
                   <button
                     key={value}
-                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11px] font-medium transition hover:bg-slate-800/50 ${
-                      metaDraft.status === value ? "text-sky-300" : "text-slate-300"
+                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11px] font-medium transition ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
+                      metaDraft.status === value ? (isLight ? "text-sky-600" : "text-sky-300") : (isLight ? "text-slate-600" : "text-slate-300")
                     }`}
                     onClick={() => updateMeta({ status: metaDraft.status === value ? undefined : value })}
                   >
@@ -1103,8 +1105,8 @@ export default function NoteInspector({
                 {PRIORITY_OPTIONS.map(({ value, label, color }) => (
                   <button
                     key={value}
-                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11px] font-medium transition hover:bg-slate-800/50 ${
-                      metaDraft.priority === value ? "text-sky-300" : "text-slate-300"
+                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11px] font-medium transition ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
+                      metaDraft.priority === value ? (isLight ? "text-sky-600" : "text-sky-300") : (isLight ? "text-slate-600" : "text-slate-300")
                     }`}
                     onClick={() => updateMeta({ priority: metaDraft.priority === value ? undefined : value })}
                   >
@@ -1119,13 +1121,13 @@ export default function NoteInspector({
           {/* Row 3: Owner + quick info badges */}
           <div className="flex items-center gap-2 text-xs">
             <input
-              className="flex-1 bg-transparent text-xs text-slate-300 outline-none placeholder:text-slate-600 border-none p-0"
+              className={`flex-1 bg-transparent text-xs outline-none border-none p-0 ${isLight ? "text-slate-600 placeholder:text-slate-400" : "text-slate-300 placeholder:text-slate-600"}`}
               value={metaDraft.owner ?? ""}
               onChange={(e) => updateMeta({ owner: e.target.value || undefined })}
               placeholder="Owner / Team..."
             />
             {metaDraft.version && (
-              <span className="rounded-md border border-slate-700/30 bg-slate-800/20 px-1.5 py-0.5 text-[10px] font-mono text-slate-400">
+              <span className={`rounded-md border px-1.5 py-0.5 text-[10px] font-mono ${isLight ? "border-slate-200 bg-slate-50 text-slate-500" : "border-slate-700/30 bg-slate-800/20 text-slate-400"}`}>
                 {metaDraft.version}
               </span>
             )}
@@ -1216,7 +1218,7 @@ export default function NoteInspector({
                     href={metaDraft.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-center rounded-lg border border-slate-700/30 bg-slate-800/20 px-2 text-sky-400 hover:bg-sky-500/10 transition"
+                    className={`flex items-center justify-center rounded-lg border px-2 text-sky-400 hover:bg-sky-500/10 transition ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/30 bg-slate-800/20"}`}
                     title="Open link"
                   >
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1240,7 +1242,7 @@ export default function NoteInspector({
               {(draft?.tags ?? []).length > 0 && (
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {(draft?.tags ?? []).map((tag) => (
-                    <span key={tag} className="rounded-md border border-slate-700/30 bg-slate-800/30 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-slate-400">
+                    <span key={tag} className={`rounded-md border px-1.5 py-0.5 text-[10px] uppercase tracking-wide ${isLight ? "border-slate-200 bg-slate-50 text-slate-500" : "border-slate-700/30 bg-slate-800/30 text-slate-400"}`}>
                       {tag}
                     </span>
                   ))}
@@ -1288,7 +1290,7 @@ export default function NoteInspector({
                     <button
                       key={color}
                       className={`h-6 w-6 rounded-full border-2 transition ${
-                        active ? "border-white ring-2 ring-sky-500/30 scale-110" : "border-slate-700/40 hover:border-slate-500"
+                        active ? "border-white ring-2 ring-sky-500/30 scale-110" : (isLight ? "border-slate-300 hover:border-slate-400" : "border-slate-700/40 hover:border-slate-500")
                       }`}
                       style={{ backgroundColor: color }}
                       onClick={() => updateMeta({ color })}

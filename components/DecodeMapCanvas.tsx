@@ -271,13 +271,13 @@ function GradientEdge({
           strokeDasharray,
           opacity: dimmed ? 0.15 : 1,
           filter: selected ? "drop-shadow(0 0 4px rgba(56,189,248,0.5))" : isConnected && hasSelection ? `drop-shadow(0 0 6px ${glowColor}60)` : undefined,
-          transition: "stroke-width 0.2s ease, filter 0.2s ease, opacity 0.3s ease"
+          transition: "stroke-width 0.3s cubic-bezier(0.16,1,0.3,1), filter 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.4s cubic-bezier(0.16,1,0.3,1)"
         }}
       />
       {/* Flowing glow orb — always flows from source toward arrowhead */}
       {showOrb && (
-        <circle r={4.5} fill={glowColor} filter={`url(#glow-${id})`} opacity={dimmed ? 0 : 0.9}>
-          <animateMotion dur="3s" repeatCount="indefinite" path={edgePath} />
+        <circle r={3.5} fill={glowColor} filter={`url(#glow-${id})`} opacity={dimmed ? 0 : 0.85} style={{ transition: "opacity 0.5s ease" }}>
+          <animateMotion dur="2.8s" repeatCount="indefinite" path={edgePath} calcMode="spline" keySplines="0.4 0 0.2 1" keyTimes="0;1" />
         </circle>
       )}
       {(labelParts || latency) && (
@@ -290,7 +290,7 @@ function GradientEdge({
               opacity: dimmed ? 0.15 : 1,
               transition: "opacity 0.3s ease"
             }}
-            className={`cursor-pointer rounded-md px-2 py-1 text-xs font-medium shadow-sm transition-all hover:scale-105 ${isDark ? "border border-slate-700 bg-[#0b1422]/95 text-slate-200 hover:border-slate-500" : "border border-slate-300 bg-white/95 text-slate-700 hover:border-slate-400"}`}
+            className={`cursor-pointer rounded-md px-2 py-1 text-xs font-medium shadow-sm transition-all hover:scale-[1.03] ${isDark ? "border border-slate-700 bg-[#0b1422]/95 text-slate-200 hover:border-slate-500" : "border border-slate-300 bg-white/95 text-slate-700 hover:border-slate-400"}`}
           >
             <span>{labelParts}</span>
             {latency && <span className={`ml-1.5 text-[10px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>{latency}</span>}
@@ -354,16 +354,19 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
           strokeDasharray,
           opacity: dimmed ? 0.15 : 1,
           filter: props.selected ? `drop-shadow(0 0 4px ${strokeColor}50)` : isConnected ? `drop-shadow(0 0 6px ${strokeColor}60)` : undefined,
-          transition: "stroke-width 0.2s ease, filter 0.2s ease, opacity 0.3s ease"
+          transition: "stroke-width 0.3s cubic-bezier(0.16,1,0.3,1), filter 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.4s cubic-bezier(0.16,1,0.3,1)"
         }}
       />
       {/* Flowing glow orb — always visible, dims when unconnected node selected */}
       {showOrb && (
-        <circle r={4.5} fill={strokeColor} filter={`url(#glow-b-${props.id})`} opacity={0.9}>
+        <circle r={3.5} fill={strokeColor} filter={`url(#glow-b-${props.id})`} opacity={0.85} style={{ transition: "opacity 0.5s ease" }}>
           <animateMotion
             dur="2.5s"
             repeatCount="indefinite"
             path={edgePath}
+            calcMode="spline"
+            keySplines="0.4 0 0.2 1"
+            keyTimes="0;1"
           />
         </circle>
       )}
@@ -377,7 +380,7 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
               opacity: dimmed ? 0.15 : 1,
               transition: "opacity 0.3s ease"
             }}
-            className={`cursor-pointer rounded-md px-2 py-1 text-xs font-medium shadow-sm transition-all hover:scale-105 ${isBasicDark ? "border border-slate-700 bg-[#0b1422]/95 text-slate-200 hover:border-slate-500" : "border border-slate-300 bg-white/95 text-slate-700 hover:border-slate-400"}`}
+            className={`cursor-pointer rounded-md px-2 py-1 text-xs font-medium shadow-sm transition-all hover:scale-[1.03] ${isBasicDark ? "border border-slate-700 bg-[#0b1422]/95 text-slate-200 hover:border-slate-500" : "border border-slate-300 bg-white/95 text-slate-700 hover:border-slate-400"}`}
           >
             <span>{labelParts}</span>
             {latency && <span className={`ml-1.5 text-[10px] ${isBasicDark ? "text-slate-500" : "text-slate-400"}`}>{latency}</span>}
@@ -424,24 +427,26 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
 
   return (
     <div
-      className={`decode-node relative min-w-[200px] max-w-[280px] w-auto rounded-xl px-3.5 py-3 text-sm transition-all duration-200`}
+      className={`decode-node relative min-w-[200px] max-w-[280px] w-auto rounded-xl px-3.5 py-3 text-sm`}
       style={{
-        backgroundColor: isLight ? "rgba(255,255,255,0.92)" : "rgba(11,20,34,0.80)",
+        backgroundColor: isLight ? "rgba(248,250,255,0.95)" : "rgba(11,20,34,0.80)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
         border: selected
           ? `1px solid ${accentColor}60`
           : isHovered
-            ? isLight ? "1px solid rgba(203,213,225,0.80)" : "1px solid rgba(51,65,85,0.60)"
-            : isLight ? "1px solid rgba(203,213,225,0.50)" : "1px solid rgba(51,65,85,0.30)",
+            ? isLight ? "1px solid rgba(148,163,184,0.60)" : "1px solid rgba(51,65,85,0.60)"
+            : isLight ? "1px solid rgba(148,163,184,0.40)" : "1px solid rgba(51,65,85,0.30)",
         borderRadius: "12px",
         overflow: "visible",
         boxShadow: selected
-          ? `0 0 0 1px ${accentColor}40, 0 0 24px ${accentColor}20, 0 4px 16px ${isLight ? "rgba(0,0,0,0.08)" : "rgba(0,0,0,0.3)"}`
+          ? `0 0 0 1px ${accentColor}40, 0 0 24px ${accentColor}15, 0 4px 16px ${isLight ? "rgba(0,0,0,0.06)" : "rgba(0,0,0,0.3)"}`
           : isHovered
-            ? isLight ? "0 4px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(203,213,225,0.60)" : "0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(51,65,85,0.40)"
-            : isLight ? "0 2px 8px rgba(0,0,0,0.05)" : "0 2px 8px rgba(0,0,0,0.2)",
-        transform: isHovered && !selected ? "translateY(-1px)" : "none"
+            ? isLight ? "0 4px 20px rgba(0,0,0,0.07), 0 0 0 1px rgba(148,163,184,0.45)" : "0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(51,65,85,0.40)"
+            : isLight ? "0 1px 4px rgba(0,0,0,0.04), 0 0 0 1px rgba(148,163,184,0.20)" : "0 2px 8px rgba(0,0,0,0.2)",
+        transform: isHovered && !selected ? "translateY(-2px) scale(1.005)" : "translateY(0) scale(1)",
+        willChange: "transform, box-shadow, border-color",
+        transition: "all 0.35s cubic-bezier(0.16, 1, 0.3, 1)"
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -460,10 +465,10 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
             width: isHovered || selected ? 10 : 6,
             height: isHovered || selected ? 10 : 6,
             backgroundColor: isHovered || selected ? accentColor : "#475569",
-            border: `2px solid ${isHovered || selected ? "#0f172a" : "transparent"}`,
+            border: `2px solid ${isHovered || selected ? (isLight ? "#f1f3f8" : "#0f172a") : "transparent"}`,
             borderRadius: "50%",
             opacity: isHovered || selected ? 1 : 0,
-            transition: "all 0.2s ease",
+            transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
             boxShadow: isHovered || selected ? `0 0 6px ${accentColor}60` : "none"
           }}
         />
@@ -495,7 +500,7 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
               title={nodeStatus}
             >
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-40" style={{ backgroundColor: statusColor }} />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-[#0b1422]" style={{ backgroundColor: statusColor }} />
+              <span className={`relative inline-flex h-2.5 w-2.5 rounded-full border ${isLight ? "border-white" : "border-[#0b1422]"}`} style={{ backgroundColor: statusColor }} />
             </span>
           )}
           {pinTag && (
@@ -518,7 +523,7 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
           {visibleTags.map((tag) => (
             <span
               key={tag}
-              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${isLight ? "border border-slate-300/60 bg-slate-100/80 text-slate-500" : "border border-slate-700/40 bg-slate-800/40 text-slate-400"}`}
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${isLight ? "border border-slate-300/50 bg-slate-200/60 text-slate-600" : "border border-slate-700/40 bg-slate-800/40 text-slate-400"}`}
             >
               {tag}
             </span>
@@ -534,8 +539,8 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
       {/* Bottom meta badges (version / SLA) */}
       {(data.meta.version || data.meta.sla) && (
         <div className={`mt-1.5 flex items-center gap-1.5 text-[9px] ${isLight ? "text-slate-500" : "text-slate-500"}`}>
-          {data.meta.version && <span className={`rounded px-1 py-px ${isLight ? "border border-slate-300/50 bg-slate-100/60" : "border border-slate-700/30 bg-slate-800/30"}`}>v{data.meta.version}</span>}
-          {data.meta.sla && <span className={`rounded px-1 py-px ${isLight ? "border border-slate-300/50 bg-slate-100/60" : "border border-slate-700/30 bg-slate-800/30"}`}>{data.meta.sla}</span>}
+          {data.meta.version && <span className={`rounded px-1 py-px ${isLight ? "border border-slate-300/40 bg-slate-200/50" : "border border-slate-700/30 bg-slate-800/30"}`}>v{data.meta.version}</span>}
+          {data.meta.sla && <span className={`rounded px-1 py-px ${isLight ? "border border-slate-300/40 bg-slate-200/50" : "border border-slate-700/30 bg-slate-800/30"}`}>{data.meta.sla}</span>}
         </div>
       )}
     </div>
@@ -747,7 +752,7 @@ function CanvasBody(props: DecodeMapCanvasProps) {
       rect.y + height / 2,
       {
         zoom: 1.2,
-        duration: 500
+        duration: 800
       }
     );
   }, [focusNodeId, reactFlowInstance]);
@@ -788,7 +793,8 @@ function CanvasBody(props: DecodeMapCanvasProps) {
           stroke: "#38bdf8",
           strokeWidth: 2.5,
           strokeDasharray: "8 4",
-          pointerEvents: "none"
+          pointerEvents: "none",
+          transition: "stroke-width 0.2s ease"
         }}
         connectionLineType={ConnectionLineType.SmoothStep}
         isValidConnection={() => true}
@@ -810,12 +816,12 @@ function CanvasBody(props: DecodeMapCanvasProps) {
         fitViewOptions={{ padding: 0.2 }}
         defaultEdgeOptions={defaultEdgeOptions}
         proOptions={{ hideAttribution: true }}
-        className={isDark ? "bg-[#030712]" : "bg-[#f8fafc]"}
+        className={isDark ? "bg-[#030712]" : "bg-[#edf0f7]"}
       >
         <Background
           gap={20}
           size={1}
-          color={isDark ? "#1e293b" : "#cbd5e1"}
+          color={isDark ? "#1e293b" : "#c1c8d4"}
         />
         <style>{`
           .decode-canvas.pan-mode,
@@ -839,7 +845,7 @@ function CanvasBody(props: DecodeMapCanvasProps) {
           zoomable
           nodeStrokeWidth={2}
           nodeColor={miniMapNodeColor}
-          maskColor="rgba(3,7,18,0.7)"
+          maskColor={isDark ? "rgba(3,7,18,0.7)" : "rgba(241,243,248,0.75)"}
         />
         <Controls />
       </ReactFlow>

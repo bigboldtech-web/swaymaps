@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTheme } from "./providers/ThemeProvider";
 
 interface ShareModalProps {
   open: boolean;
@@ -28,6 +29,8 @@ export function ShareModal({
   onMakeRestricted
 }: ShareModalProps) {
   const [embedCopied, setEmbedCopied] = useState(false);
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   if (!open) return null;
 
@@ -53,11 +56,11 @@ export function ShareModal({
       <div className="w-full max-w-lg max-sm:max-w-full rounded-2xl glass-panel-solid p-4 sm:p-6 shadow-2xl animate-scale-in">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
-            <div className="text-xl font-semibold text-slate-100">Share &ldquo;{mapName || "Untitled"}&rdquo;</div>
-            <p className="text-sm text-slate-400">Control who can view this board.</p>
+            <div className={`text-xl font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>Share &ldquo;{mapName || "Untitled"}&rdquo;</div>
+            <p className={`text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>Control who can view this board.</p>
           </div>
           <button
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-700/50 text-slate-400 transition hover:bg-slate-800/60 hover:text-slate-200"
+            className={`flex h-8 w-8 items-center justify-center rounded-full border ${isLight ? "border-slate-300/50 text-slate-400 hover:bg-slate-100/60 hover:text-slate-700" : "border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"} transition`}
             onClick={onClose}
             aria-label="Close share modal"
           >
@@ -65,27 +68,27 @@ export function ShareModal({
           </button>
         </div>
 
-        <div className="mb-4 rounded-xl border border-slate-700/40 bg-slate-800/30 p-4">
-          <div className="text-sm font-semibold text-slate-200">People with access</div>
+        <div className={`mb-4 rounded-xl border ${isLight ? "border-slate-200/60 bg-white/60" : "border-slate-700/40 bg-slate-800/30"} p-4`}>
+          <div className={`text-sm font-semibold ${isLight ? "text-slate-700" : "text-slate-200"}`}>People with access</div>
           <div className="mt-3 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-sm font-bold text-white">
               {(ownerName ?? "Owner").slice(0, 2).toUpperCase()}
             </div>
             <div>
-              <div className="text-sm font-semibold text-slate-200">{ownerName ?? "Owner"}</div>
+              <div className={`text-sm font-semibold ${isLight ? "text-slate-700" : "text-slate-200"}`}>{ownerName ?? "Owner"}</div>
               <div className="text-xs text-slate-500">Owner</div>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-700/40 bg-slate-800/30 p-4">
+        <div className={`rounded-xl border ${isLight ? "border-slate-200/60 bg-white/60" : "border-slate-700/40 bg-slate-800/30"} p-4`}>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-slate-200">General access</div>
+              <div className={`text-sm font-semibold ${isLight ? "text-slate-700" : "text-slate-200"}`}>General access</div>
               <div className="text-xs text-slate-500">{accessHelp}</div>
             </div>
             <select
-              className="rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm font-semibold text-slate-100 outline-none transition focus:border-sky-500/50"
+              className={`rounded-lg border ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700" : "border-slate-700/50 bg-slate-800/30 text-slate-100"} px-3 py-2 text-sm font-semibold outline-none transition focus:border-sky-500/50`}
               value={access}
               onChange={(e) => {
                 if (shareMode) return;
@@ -103,18 +106,18 @@ export function ShareModal({
 
         {/* Embed Code Section */}
         {access === "public" && embedCode && (
-          <div className="mt-4 rounded-xl border border-slate-700/40 bg-slate-800/30 p-4">
+          <div className={`mt-4 rounded-xl border ${isLight ? "border-slate-200/60 bg-white/60" : "border-slate-700/40 bg-slate-800/30"} p-4`}>
             <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-semibold text-slate-200">Embed Code</div>
+              <div className={`text-sm font-semibold ${isLight ? "text-slate-700" : "text-slate-200"}`}>Embed Code</div>
               <button
-                className="rounded-md border border-slate-700/50 px-3 py-1 text-xs font-medium text-slate-300 transition hover:bg-slate-800/60"
+                className={`rounded-md border ${isLight ? "border-slate-300/50 text-slate-600 hover:bg-slate-100/60" : "border-slate-700/50 text-slate-300 hover:bg-slate-800/60"} px-3 py-1 text-xs font-medium transition`}
                 onClick={handleCopyEmbed}
               >
                 {embedCopied ? "Copied!" : "Copy"}
               </button>
             </div>
             <div className="text-xs text-slate-500 mb-2">Paste this into any webpage to embed your map.</div>
-            <pre className="overflow-x-auto rounded-lg bg-slate-900/60 border border-slate-700/30 p-3 text-xs text-slate-400 font-mono whitespace-pre-wrap break-all select-all">
+            <pre className={`overflow-x-auto rounded-lg ${isLight ? "bg-slate-100/80 border-slate-200/60 text-slate-600" : "bg-slate-900/60 border-slate-700/30 text-slate-400"} border p-3 text-xs font-mono whitespace-pre-wrap break-all select-all`}>
               {embedCode}
             </pre>
           </div>
@@ -126,7 +129,7 @@ export function ShareModal({
           </div>
           <div className="flex gap-2">
             <button
-              className="rounded-lg border border-slate-700/50 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-slate-800/60"
+              className={`rounded-lg border ${isLight ? "border-slate-300/50 text-slate-600 hover:bg-slate-100/60" : "border-slate-700/50 text-slate-300 hover:bg-slate-800/60"} px-4 py-2 text-sm font-semibold transition`}
               onClick={onClose}
             >
               Done

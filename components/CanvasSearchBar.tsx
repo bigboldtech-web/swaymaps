@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useTheme } from "./providers/ThemeProvider";
 
 interface SearchResult {
   id: string;
@@ -17,6 +18,8 @@ interface CanvasSearchBarProps {
 }
 
 export function CanvasSearchBar({ nodes, onFocusNode, onClose }: CanvasSearchBarProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,14 +46,14 @@ export function CanvasSearchBar({ nodes, onFocusNode, onClose }: CanvasSearchBar
     <div className="absolute left-1/2 top-3 z-50 w-80 -translate-x-1/2 rounded-xl glass-panel-solid shadow-glass animate-slide-down">
       <div className="flex items-center gap-2 px-3 py-2.5">
         <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><circle cx="11" cy="11" r="8" /><path strokeLinecap="round" d="M21 21l-4.35-4.35" /></svg>
-        <input ref={inputRef} className="flex-1 bg-transparent text-sm text-slate-100 placeholder:text-slate-600 outline-none" placeholder="Search nodes by name, type, or tag..." value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} />
+        <input ref={inputRef} className={`flex-1 bg-transparent text-sm ${isLight ? "text-slate-800" : "text-slate-100"} ${isLight ? "placeholder:text-slate-400" : "placeholder:text-slate-600"} outline-none`} placeholder="Search nodes by name, type, or tag..." value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown} />
         <button className="text-xs text-slate-600 hover:text-slate-400 transition" onClick={onClose}>ESC</button>
       </div>
       {filtered.length > 0 && (
-        <div className="max-h-48 overflow-y-auto border-t border-slate-700/30">
+        <div className={`max-h-48 overflow-y-auto border-t ${isLight ? "border-slate-200/50" : "border-slate-700/30"}`}>
           {filtered.slice(0, 10).map((node, i) => (
-            <button key={node.id} className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition ${i === selectedIndex ? "bg-sky-500/10 text-sky-300" : "text-slate-300 hover:bg-slate-700/30"}`} onClick={() => { onFocusNode(node.id); onClose(); }} onMouseEnter={() => setSelectedIndex(i)}>
-              <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase bg-slate-800/60 text-slate-400 border border-slate-700/40">{node.kind}</span>
+            <button key={node.id} className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition ${i === selectedIndex ? "bg-sky-500/10 text-sky-300" : isLight ? "text-slate-600 hover:bg-slate-100/60" : "text-slate-300 hover:bg-slate-700/30"}`} onClick={() => { onFocusNode(node.id); onClose(); }} onMouseEnter={() => setSelectedIndex(i)}>
+              <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${isLight ? "bg-slate-200/60 text-slate-500 border-slate-300/40" : "bg-slate-800/60 text-slate-400 border-slate-700/40"} border`}>{node.kind}</span>
               <span className="flex-1 truncate font-medium">{node.title}</span>
               {node.tags.length > 0 && <span className="text-xs text-slate-600">{node.tags.slice(0, 2).join(", ")}</span>}
             </button>
@@ -58,7 +61,7 @@ export function CanvasSearchBar({ nodes, onFocusNode, onClose }: CanvasSearchBar
         </div>
       )}
       {query.trim() && filtered.length === 0 && (
-        <div className="border-t border-slate-700/30 px-3 py-3 text-center text-xs text-slate-600">No nodes match &ldquo;{query}&rdquo;</div>
+        <div className={`border-t ${isLight ? "border-slate-200/50" : "border-slate-700/30"} px-3 py-3 text-center text-xs ${isLight ? "text-slate-400" : "text-slate-600"}`}>No nodes match &ldquo;{query}&rdquo;</div>
       )}
     </div>
   );

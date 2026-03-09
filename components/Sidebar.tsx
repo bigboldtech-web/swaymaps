@@ -93,7 +93,7 @@ function planBadge(plan: string) {
     return <span className="inline-flex items-center rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm shadow-emerald-500/20">Team</span>;
   if (plan === "pro")
     return <span className="inline-flex items-center rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm shadow-sky-500/20">Pro</span>;
-  return <span className="inline-flex items-center rounded-full border border-slate-700/40 bg-slate-800/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">Free</span>;
+  return <span className="inline-flex items-center rounded-full border border-slate-300/50 bg-slate-200/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:border-slate-700/40 dark:bg-slate-800/40 dark:text-slate-400">Free</span>;
 }
 
 /* ──────────────────── Sidebar ──────────────────── */
@@ -171,11 +171,11 @@ export function Sidebar({
     <>
       {/* Mobile backdrop */}
       <div
-        className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden"
+        className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
-      <aside className={`flex h-screen min-h-screen w-[280px] flex-col border-r select-none fixed inset-y-0 left-0 z-40 transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 ${isLight ? "border-slate-200 bg-white text-slate-800" : "border-slate-700/20 bg-[#040810] text-slate-100"}`}>
+      <aside className={`flex h-screen min-h-screen w-[280px] flex-col border-r select-none fixed inset-y-0 left-0 z-40 transform transition-all duration-350 ease-[cubic-bezier(0.16,1,0.3,1)] md:relative md:translate-x-0 ${isLight ? "border-slate-200/70 bg-[#f5f7fb] text-slate-800" : "border-slate-700/20 bg-[#040810] text-slate-100"}`}>
 
       {/* ───── Brand Header ───── */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
@@ -210,30 +210,30 @@ export function Sidebar({
       {workspaces.length > 0 && (
         <div className="px-3 pb-1 pt-1 relative" ref={wsRef}>
           <button
-            className="flex w-full items-center gap-2.5 rounded-lg border border-slate-700/25 bg-slate-800/15 px-2.5 py-2 text-left transition hover:bg-slate-800/30 hover:border-slate-600/30"
+            className={`flex w-full items-center gap-2.5 rounded-lg border px-2.5 py-2 text-left transition ${isLight ? "border-slate-200/60 bg-white/60 hover:bg-white/90 hover:border-slate-300/50" : "border-slate-700/25 bg-slate-800/15 hover:bg-slate-800/30 hover:border-slate-600/30"}`}
             onClick={() => setWsDropdownOpen(!wsDropdownOpen)}
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-slate-700/60 to-slate-800/60 text-[11px] font-bold text-slate-300">
+            <div className={`flex h-7 w-7 items-center justify-center rounded-lg text-[11px] font-bold ${isLight ? "bg-gradient-to-br from-slate-200 to-slate-300 text-slate-600" : "bg-gradient-to-br from-slate-700/60 to-slate-800/60 text-slate-300"}`}>
               {(currentWs?.name ?? "W").charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-semibold text-slate-200 truncate">{currentWs?.name ?? "Workspace"}</div>
-              <div className="text-[10px] text-slate-500">{mapStats.totalMaps} maps · {mapStats.totalNodes} nodes</div>
+              <div className={`text-[13px] font-semibold truncate ${isLight ? "text-slate-700" : "text-slate-200"}`}>{currentWs?.name ?? "Workspace"}</div>
+              <div className={`text-[10px] ${isLight ? "text-slate-400" : "text-slate-500"}`}>{mapStats.totalMaps} maps · {mapStats.totalNodes} nodes</div>
             </div>
-            <svg className={`h-3.5 w-3.5 text-slate-500 transition-transform ${wsDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <svg className={`h-3.5 w-3.5 transition-transform ${isLight ? "text-slate-400" : "text-slate-500"} ${wsDropdownOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
           {wsDropdownOpen && (
-            <div className={`absolute left-3 right-3 mt-1 rounded-xl ${isLight ? "border border-slate-200 bg-white" : "border border-slate-700/30 bg-[#0a1220]"} shadow-xl shadow-black/40 overflow-hidden animate-scale-in z-30`}>
+            <div className={`absolute left-3 right-3 mt-1 rounded-xl ${isLight ? "border border-slate-200 bg-white" : "border border-slate-700/30 bg-[#0a1220]"} shadow-xl shadow-black/40 overflow-hidden animate-scale-in will-change-[transform,opacity] z-30`}>
               {workspaces.map((ws) => (
                 <button
                   key={ws.id}
-                  className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] transition hover:bg-slate-800/40 ${ws.id === currentWorkspaceId ? "bg-sky-500/[0.06] text-sky-300" : "text-slate-300"}`}
+                  className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] transition ${isLight ? "hover:bg-slate-100/80" : "hover:bg-slate-800/40"} ${ws.id === currentWorkspaceId ? (isLight ? "bg-sky-500/[0.06] text-sky-600" : "bg-sky-500/[0.06] text-sky-300") : (isLight ? "text-slate-600" : "text-slate-300")}`}
                   onClick={() => { onSelectWorkspace?.(ws.id); setWsDropdownOpen(false); }}
                 >
-                  <div className={`flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold ${ws.id === currentWorkspaceId ? "bg-sky-500/15 text-sky-400" : "bg-slate-800/60 text-slate-400"}`}>
+                  <div className={`flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold ${ws.id === currentWorkspaceId ? "bg-sky-500/15 text-sky-400" : (isLight ? "bg-slate-200/60 text-slate-500" : "bg-slate-800/60 text-slate-400")}`}>
                     {ws.name.charAt(0).toUpperCase()}
                   </div>
                   <span className="truncate flex-1">{ws.name}</span>
@@ -251,7 +251,7 @@ export function Sidebar({
       <div className="px-3 py-2 flex items-center gap-1.5">
         <button
           disabled={createDisabled}
-          className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-sky-500/90 to-indigo-500/90 px-3 py-[7px] text-[12px] font-semibold text-white shadow-lg shadow-sky-500/15 transition hover:shadow-sky-500/25 hover:brightness-110 active:scale-[0.98] ${createDisabled ? "opacity-40 cursor-not-allowed" : ""}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-sky-500/90 to-indigo-500/90 px-3 py-[7px] text-[12px] font-semibold text-white shadow-lg shadow-sky-500/15 transition hover:shadow-sky-500/25 hover:brightness-110 active:scale-[0.96] transition-all duration-200 ${createDisabled ? "opacity-40 cursor-not-allowed" : ""}`}
           onClick={onCreateMap}
         >
           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" d="M12 5v14m-7-7h14" /></svg>
@@ -259,7 +259,7 @@ export function Sidebar({
         </button>
         {onImport && (
           <button
-            className="rounded-lg border border-slate-700/25 bg-slate-800/15 p-[7px] text-slate-400 transition hover:bg-slate-800/30 hover:text-slate-300 hover:border-slate-600/30"
+            className={`rounded-lg border p-[7px] transition ${isLight ? "border-slate-200/60 bg-white/60 text-slate-400 hover:bg-white/90 hover:text-slate-600 hover:border-slate-300/50" : "border-slate-700/25 bg-slate-800/15 text-slate-400 hover:bg-slate-800/30 hover:text-slate-300 hover:border-slate-600/30"}`}
             onClick={onImport}
             title="Import (JSON / CSV)"
           >
@@ -268,7 +268,7 @@ export function Sidebar({
         )}
         {onExport && (
           <button
-            className="rounded-lg border border-slate-700/25 bg-slate-800/15 p-[7px] text-slate-400 transition hover:bg-slate-800/30 hover:text-slate-300 hover:border-slate-600/30"
+            className={`rounded-lg border p-[7px] transition ${isLight ? "border-slate-200/60 bg-white/60 text-slate-400 hover:bg-white/90 hover:text-slate-600 hover:border-slate-300/50" : "border-slate-700/25 bg-slate-800/15 text-slate-400 hover:bg-slate-800/30 hover:text-slate-300 hover:border-slate-600/30"}`}
             onClick={onExport}
             title="Export map"
           >
@@ -279,13 +279,13 @@ export function Sidebar({
 
       {/* ───── Search ───── */}
       <div className="px-3 pb-2">
-        <div className={`relative rounded-lg border transition-all ${searchFocused ? "border-sky-500/40 ring-1 ring-sky-500/20 bg-slate-800/25" : "border-slate-700/20 bg-slate-800/10"}`}>
+        <div className={`relative rounded-lg border transition-all ${searchFocused ? (isLight ? "border-sky-500/40 ring-1 ring-sky-500/20 bg-white/80" : "border-sky-500/40 ring-1 ring-sky-500/20 bg-slate-800/25") : (isLight ? "border-slate-200/60 bg-white/50" : "border-slate-700/20 bg-slate-800/10")}`}>
           <svg className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <circle cx="11" cy="11" r="8" />
             <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
           </svg>
           <input
-            className="w-full bg-transparent pl-8 pr-3 py-[6px] text-[13px] text-slate-200 placeholder:text-slate-600 outline-none"
+            className={`w-full bg-transparent pl-8 pr-3 py-[6px] text-[13px] outline-none ${isLight ? "text-slate-700 placeholder:text-slate-400" : "text-slate-200 placeholder:text-slate-600"}`}
             placeholder="Filter maps..."
             value={search ?? ""}
             onChange={(e) => onSearchChange?.(e.target.value)}
@@ -306,7 +306,7 @@ export function Sidebar({
       {/* ───── Map List ───── */}
       <div className="flex-1 overflow-y-auto px-2 pb-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent" ref={menuRef}>
         <div className="px-1.5 pb-1.5 flex items-center justify-between">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+          <span className={`text-[10px] font-semibold uppercase tracking-[0.08em] ${isLight ? "text-slate-400" : "text-slate-500"}`}>
             Maps{maps.length > 0 ? ` (${maps.length})` : ""}
           </span>
           {sharedMaps.length > 0 && (
@@ -324,10 +324,10 @@ export function Sidebar({
             return (
               <div
                 key={map.id}
-                className={`group relative rounded-lg transition-all ${
+                className={`group relative rounded-lg transition-all duration-200 ${
                   isActive
-                    ? "bg-sky-500/[0.08] ring-1 ring-sky-500/15"
-                    : "hover:bg-slate-800/25"
+                    ? (isLight ? "bg-sky-500/[0.06] ring-1 ring-sky-500/10" : "bg-sky-500/[0.08] ring-1 ring-sky-500/15")
+                    : (isLight ? "hover:bg-slate-200/40" : "hover:bg-slate-800/25")
                 } ${isDisabled ? "opacity-35 cursor-not-allowed" : ""}`}
               >
                 <button
@@ -337,7 +337,7 @@ export function Sidebar({
                 >
                   {/* Map icon indicator */}
                   <div className={`mt-0.5 flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-md ${
-                    isActive ? "bg-sky-500/15" : "bg-slate-800/40"
+                    isActive ? "bg-sky-500/15" : (isLight ? "bg-slate-200/60" : "bg-slate-800/40")
                   }`}>
                     <svg className={`h-3.5 w-3.5 ${isActive ? "text-sky-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -345,7 +345,7 @@ export function Sidebar({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-[13px] font-medium truncate ${isActive ? "text-sky-300" : "text-slate-200"}`}>{map.name}</span>
+                      <span className={`text-[13px] font-medium truncate ${isActive ? (isLight ? "text-sky-600" : "text-sky-300") : (isLight ? "text-slate-700" : "text-slate-200")}`}>{map.name}</span>
                       {isShared && (
                         <svg className="h-3 w-3 shrink-0 text-emerald-500/60" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z" />
@@ -357,13 +357,13 @@ export function Sidebar({
                       <span>{map.nodeCount} node{map.nodeCount !== 1 ? "s" : ""}</span>
                       {(map.edgeCount ?? 0) > 0 && (
                         <>
-                          <span className="text-slate-700">·</span>
+                          <span className={isLight ? "text-slate-300" : "text-slate-700"}>·</span>
                           <span>{map.edgeCount} edge{map.edgeCount !== 1 ? "s" : ""}</span>
                         </>
                       )}
                       {map.updatedAt && (
                         <>
-                          <span className="text-slate-700">·</span>
+                          <span className={isLight ? "text-slate-300" : "text-slate-700"}>·</span>
                           <span>{timeAgo(map.updatedAt)}</span>
                         </>
                       )}
@@ -375,7 +375,7 @@ export function Sidebar({
                 {!isDisabled && (
                   <div className="absolute right-1.5 top-1.5">
                     <button
-                      className="rounded-md p-1 text-slate-600 opacity-0 transition group-hover:opacity-100 hover:bg-slate-700/40 hover:text-slate-400"
+                      className={`rounded-md p-1 opacity-0 transition group-hover:opacity-100 ${isLight ? "text-slate-400 hover:bg-slate-200/60 hover:text-slate-600" : "text-slate-600 hover:bg-slate-700/40 hover:text-slate-400"}`}
                       onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === map.id ? null : map.id); }}
                       aria-label={`Menu for ${map.name}`}
                     >
@@ -383,7 +383,7 @@ export function Sidebar({
                     </button>
 
                     {openMenuId === map.id && (
-                      <div className={`absolute right-0 top-7 z-30 w-48 rounded-xl ${isLight ? "border border-slate-200 bg-white" : "border border-slate-700/30 bg-[#0a1220]"} shadow-2xl shadow-black/50 overflow-hidden animate-scale-in`}>
+                      <div className={`absolute right-0 top-7 z-30 w-48 rounded-xl ${isLight ? "border border-slate-200 bg-white" : "border border-slate-700/30 bg-[#0a1220]"} shadow-2xl shadow-black/50 overflow-hidden animate-scale-in will-change-[transform,opacity]`}>
                         {onRename && (
                           <ContextMenuItem
                             icon={<svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" /></svg>}
@@ -405,7 +405,7 @@ export function Sidebar({
                             onClick={() => { onBoardInvite(map.id); setOpenMenuId(null); }}
                           />
                         )}
-                        <div className="my-1 border-t border-slate-700/20" />
+                        <div className={`my-1 border-t ${isLight ? "border-slate-200/60" : "border-slate-700/20"}`} />
                         <button
                           className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-rose-400 transition hover:bg-rose-500/10 hover:text-rose-300"
                           onClick={() => { onDeleteMap(map.id); setOpenMenuId(null); }}
@@ -444,7 +444,7 @@ export function Sidebar({
       </div>
 
       {/* ───── Bottom Navigation ───── */}
-      <div className="border-t border-slate-700/15 px-2 pt-2 pb-1">
+      <div className={`border-t px-2 pt-2 pb-1 ${isLight ? "border-slate-200/60" : "border-slate-700/15"}`}>
         <div className="space-y-0.5">
           {onMembers && (
             <NavButton
@@ -479,14 +479,14 @@ export function Sidebar({
       </div>
 
       {/* ───── User Profile Footer ───── */}
-      <div className="border-t border-slate-700/15 px-3 py-3">
+      <div className={`border-t px-3 py-3 ${isLight ? "border-slate-200/60" : "border-slate-700/15"}`}>
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-500/80 to-indigo-500/80 text-[11px] font-bold text-white">
             {(userName ?? authLabel ?? "U").slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-[13px] font-medium text-slate-200 truncate">{userName ?? "User"}</span>
+              <span className={`text-[13px] font-medium truncate ${isLight ? "text-slate-700" : "text-slate-200"}`}>{userName ?? "User"}</span>
               {planLabel && planBadge(plan)}
             </div>
             {userEmail && <div className="text-[11px] text-slate-500 truncate">{userEmail}</div>}
@@ -503,7 +503,7 @@ export function Sidebar({
             )}
             {onAuthClick && (
               <button
-                className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-800/40 hover:text-slate-300"
+                className={`rounded-lg p-1.5 text-slate-500 transition ${isLight ? "hover:bg-slate-200/60 hover:text-slate-700" : "hover:bg-slate-800/40 hover:text-slate-300"}`}
                 onClick={onAuthClick}
                 title={authLabel ?? "Sign out"}
               >
@@ -521,28 +521,34 @@ export function Sidebar({
 /* ──────────────────── Sub-components ──────────────────── */
 
 function NavButton({ icon, label, onClick, accent }: { icon: React.ReactNode; label: string; onClick: () => void; accent?: boolean }) {
+  const { theme: navTheme } = useTheme();
+  const isNavLight = navTheme === "light";
   return (
     <button
       className={`w-full flex items-center gap-2.5 rounded-lg px-2.5 py-[7px] text-left text-[13px] transition ${
         accent
           ? "text-amber-400/80 hover:bg-amber-500/[0.06] hover:text-amber-300"
-          : "text-slate-400 hover:bg-slate-800/25 hover:text-slate-200"
+          : isNavLight
+            ? "text-slate-500 hover:bg-slate-200/50 hover:text-slate-700"
+            : "text-slate-400 hover:bg-slate-800/25 hover:text-slate-200"
       }`}
       onClick={onClick}
     >
-      <span className="shrink-0 text-slate-500">{icon}</span>
+      <span className={`shrink-0 ${isNavLight ? "text-slate-400" : "text-slate-500"}`}>{icon}</span>
       {label}
     </button>
   );
 }
 
 function ContextMenuItem({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
+  const { theme: ctxTheme } = useTheme();
+  const isCtxLight = ctxTheme === "light";
   return (
     <button
-      className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-slate-300 transition hover:bg-slate-800/40 hover:text-slate-100"
+      className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] transition ${isCtxLight ? "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900" : "text-slate-300 hover:bg-slate-800/40 hover:text-slate-100"}`}
       onClick={onClick}
     >
-      <span className="text-slate-500">{icon}</span>
+      <span className={isCtxLight ? "text-slate-400" : "text-slate-500"}>{icon}</span>
       {label}
     </button>
   );

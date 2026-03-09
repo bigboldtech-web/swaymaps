@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useTheme } from "./providers/ThemeProvider";
 
 interface Notification {
   id: string;
@@ -17,6 +18,8 @@ interface NotificationCenterProps {
 }
 
 export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
@@ -71,7 +74,7 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read: true } : n))
       );
-    } catch {}
+    } catch {};
   };
 
   const formatTime = (iso: string) => {
@@ -100,7 +103,7 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
   return (
     <div className="relative" ref={panelRef}>
       <button
-        className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-slate-700/50 text-slate-400 transition hover:bg-slate-800/40 hover:text-slate-200"
+        className={`relative flex h-8 w-8 items-center justify-center rounded-lg border transition-all duration-200 active:scale-90 ${isLight ? "border-slate-300/50 text-slate-500 hover:bg-slate-200/60 hover:text-slate-700" : "border-slate-700/50 text-slate-400 hover:bg-slate-800/40 hover:text-slate-200"}`}
         onClick={() => setOpen(!open)}
         title="Notifications"
       >
@@ -108,7 +111,7 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
           <path strokeLinecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-sky-500 text-[9px] font-bold text-white">
+          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-sky-500 text-[9px] font-bold text-white animate-bounce-in">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -117,8 +120,8 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
       {open && (
         <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl glass-panel-solid shadow-2xl animate-scale-in overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-700/30 px-4 py-3">
-            <span className="text-sm font-semibold text-slate-100">Notifications</span>
+          <div className={`flex items-center justify-between border-b px-4 py-3 ${isLight ? "border-slate-200/60" : "border-slate-700/30"}`}>
+            <span className={`text-sm font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>Notifications</span>
             {unreadCount > 0 && (
               <button
                 className="text-[11px] font-medium text-sky-400 transition hover:text-sky-300"
@@ -133,18 +136,18 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
           <div className="max-h-[360px] overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="px-4 py-10 text-center">
-                <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700/30 bg-slate-800/40 text-slate-600">
+                <div className={`mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl border ${isLight ? "border-slate-200/60 bg-slate-100/60 text-slate-400" : "border-slate-700/30 bg-slate-800/40 text-slate-600"}`}>
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                     <path strokeLinecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                   </svg>
                 </div>
-                <p className="text-sm text-slate-500">No notifications yet</p>
+                <p className={`text-sm ${isLight ? "text-slate-400" : "text-slate-500"}`}>No notifications yet</p>
               </div>
             ) : (
               notifications.map((n) => (
                 <button
                   key={n.id}
-                  className={`flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-800/30 ${
+                  className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-all duration-200 ${isLight ? "hover:bg-slate-100/60" : "hover:bg-slate-800/30"} ${
                     !n.read ? "bg-sky-500/5" : ""
                   }`}
                   onClick={() => {
@@ -155,7 +158,9 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
                   <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${
                     !n.read
                       ? "border-sky-500/30 bg-sky-500/10 text-sky-400"
-                      : "border-slate-700/30 bg-slate-800/40 text-slate-500"
+                      : isLight
+                        ? "border-slate-200/60 bg-slate-100/60 text-slate-400"
+                        : "border-slate-700/30 bg-slate-800/40 text-slate-500"
                   }`}>
                     <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                       {typeIcon(n.type)}
@@ -163,13 +168,13 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={`text-sm font-medium truncate ${!n.read ? "text-slate-100" : "text-slate-400"}`}>
+                      <span className={`text-sm font-medium truncate ${!n.read ? (isLight ? "text-slate-800" : "text-slate-100") : (isLight ? "text-slate-500" : "text-slate-400")}`}>
                         {n.title}
                       </span>
                       {!n.read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500" />}
                     </div>
-                    <p className="mt-0.5 text-xs text-slate-500 line-clamp-2">{n.body}</p>
-                    <span className="mt-1 text-[10px] text-slate-600">{formatTime(n.createdAt)}</span>
+                    <p className={`mt-0.5 text-xs line-clamp-2 ${isLight ? "text-slate-400" : "text-slate-500"}`}>{n.body}</p>
+                    <span className={`mt-1 text-[10px] ${isLight ? "text-slate-400" : "text-slate-600"}`}>{formatTime(n.createdAt)}</span>
                   </div>
                 </button>
               ))

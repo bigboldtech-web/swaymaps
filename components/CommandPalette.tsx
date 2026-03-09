@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useTheme } from "./providers/ThemeProvider";
 
 interface CommandItem {
   id: string;
@@ -20,6 +21,8 @@ interface CommandPaletteProps {
 export function CommandPalette({ open, onClose, items }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   useEffect(() => {
     if (open) {
@@ -102,19 +105,19 @@ export function CommandPalette({ open, onClose, items }: CommandPaletteProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input */}
-        <div className="flex items-center gap-3 border-b border-slate-700/30 px-4 py-3">
+        <div className={`flex items-center gap-3 border-b ${isLight ? "border-slate-200/50" : "border-slate-700/30"} px-4 py-3`}>
           <svg className="h-5 w-5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
             ref={inputRef}
-            className="flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
+            className={`flex-1 bg-transparent text-sm ${isLight ? "text-slate-800" : "text-slate-100"} outline-none ${isLight ? "placeholder:text-slate-400" : "placeholder:text-slate-500"}`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search..."
           />
-          <kbd className="hidden sm:inline-flex items-center rounded-md border border-slate-700/40 bg-slate-800/60 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+          <kbd className={`hidden sm:inline-flex items-center rounded-md border ${isLight ? "border-slate-300/40 bg-slate-200/60 text-slate-400" : "border-slate-700/40 bg-slate-800/60 text-slate-500"} px-1.5 py-0.5 text-[10px] font-semibold`}>
             ESC
           </kbd>
         </div>
@@ -140,7 +143,7 @@ export function CommandPalette({ open, onClose, items }: CommandPaletteProps) {
                     className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition ${
                       isSelected
                         ? "bg-sky-500/10 text-sky-300"
-                        : "text-slate-300 hover:bg-slate-800/40 hover:text-slate-100"
+                        : isLight ? "text-slate-600 hover:bg-slate-100/60 hover:text-slate-800" : "text-slate-300 hover:bg-slate-800/40 hover:text-slate-100"
                     }`}
                     onClick={() => {
                       item.onSelect();
@@ -149,13 +152,13 @@ export function CommandPalette({ open, onClose, items }: CommandPaletteProps) {
                     onMouseEnter={() => setSelectedIdx(idx)}
                   >
                     {item.icon && (
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-700/40 bg-slate-800/30 text-slate-400">
+                      <span className={`flex h-7 w-7 items-center justify-center rounded-lg border ${isLight ? "border-slate-200/50 bg-slate-100/60 text-slate-500" : "border-slate-700/40 bg-slate-800/30 text-slate-400"}`}>
                         {item.icon}
                       </span>
                     )}
                     <span className="flex-1 truncate">{item.label}</span>
                     {item.shortcut && (
-                      <kbd className="ml-auto rounded border border-slate-700/40 bg-slate-800/50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                      <kbd className={`ml-auto rounded border ${isLight ? "border-slate-300/40 bg-slate-200/60 text-slate-400" : "border-slate-700/40 bg-slate-800/50 text-slate-500"} px-1.5 py-0.5 text-[10px] font-semibold`}>
                         {item.shortcut}
                       </kbd>
                     )}
@@ -167,17 +170,17 @@ export function CommandPalette({ open, onClose, items }: CommandPaletteProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-4 border-t border-slate-700/30 px-4 py-2">
+        <div className={`flex items-center gap-4 border-t ${isLight ? "border-slate-200/50" : "border-slate-700/30"} px-4 py-2`}>
           <span className="flex items-center gap-1 text-[10px] text-slate-600">
-            <kbd className="rounded border border-slate-700/40 bg-slate-800/50 px-1 text-[9px]">&uarr;&darr;</kbd>
+            <kbd className={`rounded border ${isLight ? "border-slate-300/40 bg-slate-200/60 text-slate-400" : "border-slate-700/40 bg-slate-800/50 text-slate-500"} px-1 text-[9px]`}>&uarr;&darr;</kbd>
             navigate
           </span>
           <span className="flex items-center gap-1 text-[10px] text-slate-600">
-            <kbd className="rounded border border-slate-700/40 bg-slate-800/50 px-1 text-[9px]">&crarr;</kbd>
+            <kbd className={`rounded border ${isLight ? "border-slate-300/40 bg-slate-200/60 text-slate-400" : "border-slate-700/40 bg-slate-800/50 text-slate-500"} px-1 text-[9px]`}>&crarr;</kbd>
             select
           </span>
           <span className="flex items-center gap-1 text-[10px] text-slate-600">
-            <kbd className="rounded border border-slate-700/40 bg-slate-800/50 px-1 text-[9px]">esc</kbd>
+            <kbd className={`rounded border ${isLight ? "border-slate-300/40 bg-slate-200/60 text-slate-400" : "border-slate-700/40 bg-slate-800/50 text-slate-500"} px-1 text-[9px]`}>esc</kbd>
             close
           </span>
         </div>

@@ -129,7 +129,7 @@ export const planToGraph = (
   const edges: MapEdgeMeta[] = [];
   const titleToId = new Map<string, string>(opts?.existingTitles ?? []);
   const origin = opts?.origin ?? { x: 120, y: 120 };
-  const ideas = (plan.nodes ?? []).filter((n) => n?.title).slice(0, 12);
+  const ideas = (plan.nodes ?? []).filter((n) => n?.title).slice(0, 14);
 
   ideas.forEach((idea, idx) => {
     const normalized = normalizeTitle(idea.title);

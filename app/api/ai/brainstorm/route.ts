@@ -3,26 +3,58 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
 import { AiBrainstormPlan, AiBrainstormRequest } from "../../../../types/ai";
 
-const systemPrompt = `You are an expert facilitator who converts short prompts into concise system/strategy maps.
-Return a single JSON object with this shape:
+const systemPrompt = `You are a world-class systems architect and strategy consultant who creates crystal-clear visual dependency maps. You think like a McKinsey partner, design like an engineer, and communicate like a storyteller.
+
+Your job: turn any prompt into a richly structured map that reveals hidden dependencies, bottlenecks, and opportunities.
+
+RESPONSE FORMAT — Return a single JSON object:
 {
-  "title": "short board title",
-  "summary": "1-2 sentence overview",
-  "focusAreas": ["short bullets"],
+  "title": "Compelling 3-6 word board title",
+  "summary": "2-3 sentence executive summary explaining the map's key insight",
+  "focusAreas": ["Critical path items or key themes — 3-5 bullets"],
   "nodes": [
     {
-      "title": "clear label",
-      "kind": "person|system|process|generic",
-      "tags": ["tags"],
-      "note": "3-5 concise sentences or bullets",
-      "summary": "one-sentence TLDR"
+      "title": "Clear, specific label (not vague)",
+      "kind": "person|team|system|process|database|api|queue|cache|cloud|vendor|generic",
+      "tags": ["2-4 relevant tags"],
+      "note": "Rich context: what this is, why it matters, key risks or metrics. Use bullet points (•) for clarity. 4-8 sentences.",
+      "summary": "One-sentence TLDR of this node's role",
+      "importance": "core|supporting"
     }
   ],
   "edges": [
-    { "source": "Node title", "target": "Node title", "label": "verb phrase" }
+    {
+      "source": "Exact node title",
+      "target": "Exact node title",
+      "label": "Specific verb phrase (e.g. 'sends events to', 'depends on', 'triggers')",
+      "rationale": "Why this relationship matters"
+    }
   ]
 }
-Keep nodes between 4 and 9. Use existing context when provided to avoid duplicates. Edge source/target must exactly match node titles.`;
+
+RULES:
+1. NODES: Create 5-9 nodes. Each must be specific and actionable — never vague ("Thing 1"). Use the right kind:
+   • person — Individual roles (CEO, Lead Engineer, Customer)
+   • team — Groups (Engineering, Marketing, Support Team)
+   • system — Software/platforms (Stripe, Slack, CRM, Auth Service)
+   • process — Workflows/procedures (Code Review, Sprint Planning, Onboarding Flow)
+   • database — Data stores (User DB, Analytics Warehouse, Redis Cache)
+   • api — Endpoints/integrations (REST API, Webhook, GraphQL Gateway)
+   • queue — Message systems (Event Bus, Job Queue, Notification Pipeline)
+   • cloud — Infrastructure (AWS Lambda, CDN, Kubernetes Cluster)
+   • vendor — External services (Twilio, SendGrid, Cloudflare)
+   • generic — Concepts/abstractions that don't fit above
+
+2. EDGES: Create meaningful connections (aim for nodes×1.2 edges). Every edge label should be a specific verb phrase — not just "connects to". Show data flow, dependencies, triggers, and ownership.
+
+3. NOTES: Each node's note should be genuinely useful — include context someone new to the project would need. Mention risks, metrics, or action items where relevant. Use bullet points (•) for readability.
+
+4. STRUCTURE: Think about the map holistically. Include upstream dependencies and downstream impacts. Show the full picture, not just the obvious parts.
+
+5. EXPAND MODE: When mapContext is provided, analyze existing nodes deeply. Add nodes that fill gaps, reveal hidden dependencies, or extend the map's coverage. Never duplicate existing nodes. Reference existing nodes in new edges.
+
+6. Edge source/target MUST exactly match a node title (existing or new).`;
+
 
 const limit = (val: unknown, max = 360) => {
   if (typeof val !== "string") return "";
@@ -57,13 +89,13 @@ export async function POST(req: Request) {
     ? {
         title: limit(mapContext.title, 120),
         description: limit(mapContext.description, 240),
-        nodes: (mapContext.nodes ?? []).slice(0, 12).map((node) => ({
+        nodes: (mapContext.nodes ?? []).slice(0, 20).map((node) => ({
           title: limit(node.title, 120),
           kind: node.kind,
-          tags: (node.tags ?? []).slice(0, 5),
-          note: limit(node.note, 240)
+          tags: (node.tags ?? []).slice(0, 6),
+          note: limit(node.note, 360)
         })),
-        edges: (mapContext.edges ?? []).slice(0, 20).map((edge) => ({
+        edges: (mapContext.edges ?? []).slice(0, 30).map((edge) => ({
           source: limit(edge.source, 120),
           target: limit(edge.target, 120),
           label: limit(edge.label, 120)
@@ -96,8 +128,8 @@ export async function POST(req: Request) {
       },
       body: JSON.stringify({
         model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
-        temperature: 0.6,
-        max_tokens: 700,
+        temperature: 0.72,
+        max_tokens: 2400,
         response_format: { type: "json_object" },
         messages
       })
