@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SwayMapsIcon } from "../../../components/SwayMapsLogo";
 
 type InviteDetails = {
   email: string;
@@ -54,7 +55,9 @@ export default function InviteAcceptPage({ params }: { params: { token: string }
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
         <div className="mb-4">
-          <div className="text-xs uppercase tracking-wide text-slate-500">SwayMaps</div>
+          <div className="mb-2">
+            <SwayMapsIcon size={28} />
+          </div>
           <div className="text-xl font-semibold text-slate-900">Accept invite</div>
         </div>
         {!details && !error && <div className="text-sm text-slate-600">Loading...</div>}

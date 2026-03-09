@@ -52,7 +52,7 @@ export function CanvasSearchBar({ nodes, onFocusNode, onClose }: CanvasSearchBar
       {filtered.length > 0 && (
         <div className={`max-h-48 overflow-y-auto border-t ${isLight ? "border-slate-200/50" : "border-slate-700/30"}`}>
           {filtered.slice(0, 10).map((node, i) => (
-            <button key={node.id} className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition ${i === selectedIndex ? "bg-sky-500/10 text-sky-300" : isLight ? "text-slate-600 hover:bg-slate-100/60" : "text-slate-300 hover:bg-slate-700/30"}`} onClick={() => { onFocusNode(node.id); onClose(); }} onMouseEnter={() => setSelectedIndex(i)}>
+            <button key={node.id} className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition ${i === selectedIndex ? "bg-brand-500/10 text-brand-300" : isLight ? "text-slate-600 hover:bg-slate-100/60" : "text-slate-300 hover:bg-slate-700/30"}`} onClick={() => { onFocusNode(node.id); onClose(); }} onMouseEnter={() => setSelectedIndex(i)}>
               <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${isLight ? "bg-slate-200/60 text-slate-500 border-slate-300/40" : "bg-slate-800/60 text-slate-400 border-slate-700/40"} border`}>{node.kind}</span>
               <span className="flex-1 truncate font-medium">{node.title}</span>
               {node.tags.length > 0 && <span className="text-xs text-slate-600">{node.tags.slice(0, 2).join(", ")}</span>}

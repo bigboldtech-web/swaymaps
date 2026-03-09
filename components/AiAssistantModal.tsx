@@ -63,8 +63,8 @@ const nodeKindExamples = [
   { kind: "team", color: "#14b8a6", label: "Teams" },
   { kind: "system", color: "#22c55e", label: "Systems" },
   { kind: "process", color: "#fbbf24", label: "Processes" },
-  { kind: "database", color: "#6366f1", label: "Databases" },
-  { kind: "api", color: "#0ea5e9", label: "APIs" },
+  { kind: "database", color: "#29a5e5", label: "Databases" },
+  { kind: "api", color: "#2192dd", label: "APIs" },
   { kind: "vendor", color: "#f97316", label: "Vendors" },
   { kind: "cloud", color: "#8b5cf6", label: "Cloud" },
 ];
@@ -125,7 +125,7 @@ export function AiAssistantModal({
         <div className="mb-5 flex items-start justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-indigo-500 text-white shadow-lg shadow-sky-500/20">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-600 to-brand-400 text-white shadow-lg shadow-brand-500/20">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -185,7 +185,7 @@ export function AiAssistantModal({
                   onClick={() => setActiveCategory(i)}
                   className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${
                     activeCategory === i
-                      ? "bg-sky-500/15 text-sky-400 border border-sky-500/30"
+                      ? "bg-brand-500/15 text-brand-400 border border-brand-500/30"
                       : isLight
                         ? "text-slate-500 hover:bg-slate-100/60 border border-transparent"
                         : "text-slate-400 hover:bg-slate-800/40 border border-transparent"
@@ -204,7 +204,7 @@ export function AiAssistantModal({
                   onClick={() => setPrompt(example)}
                   className={`rounded-lg border px-3 py-2 text-left text-xs font-medium transition ${
                     prompt === example
-                      ? "border-sky-500/40 bg-sky-500/10 text-sky-300"
+                      ? "border-brand-500/40 bg-brand-500/10 text-brand-300"
                       : isLight
                         ? "border-slate-200/50 bg-white/50 text-slate-600 hover:border-slate-300 hover:bg-white/70"
                         : "border-slate-700/40 bg-slate-800/20 text-slate-400 hover:border-slate-600 hover:bg-slate-700/30"
@@ -225,7 +225,7 @@ export function AiAssistantModal({
               </span>
             </div>
             <textarea
-              className={`min-h-[120px] w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-600"}`}
+              className={`min-h-[120px] w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-600"}`}
               placeholder="e.g. Map how our payment system works: Stripe handles billing, webhooks notify our API, which updates the database, triggers email via SendGrid, and syncs to our analytics warehouse."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
@@ -247,7 +247,7 @@ export function AiAssistantModal({
               <div className="space-y-2 text-sm">
                 <label className={`flex items-center gap-2.5 rounded-lg border px-3 py-2 cursor-pointer transition ${
                   mode === "new-board" || !canExpand
-                    ? "border-sky-500/40 bg-sky-500/5"
+                    ? "border-brand-500/40 bg-brand-500/5"
                     : isLight ? "border-slate-200/60 hover:bg-slate-100/40" : "border-slate-700/40 hover:bg-slate-700/20"
                 }`}>
                   <input
@@ -256,7 +256,7 @@ export function AiAssistantModal({
                     value="new-board"
                     checked={mode === "new-board" || !canExpand}
                     onChange={() => setMode("new-board")}
-                    className="h-3.5 w-3.5 accent-sky-500"
+                    className="h-3.5 w-3.5 accent-brand-500"
                   />
                   <div className="flex flex-col">
                     <span className={`text-xs font-semibold ${isLight ? "text-slate-700" : "text-slate-200"}`}>Create new board</span>
@@ -265,7 +265,7 @@ export function AiAssistantModal({
                 </label>
                 <label className={`flex items-center gap-2.5 rounded-lg border px-3 py-2 cursor-pointer transition ${
                   mode === "expand-board" && canExpand
-                    ? "border-sky-500/40 bg-sky-500/5"
+                    ? "border-brand-500/40 bg-brand-500/5"
                     : isLight ? "border-slate-200/60 hover:bg-slate-100/40" : "border-slate-700/40 hover:bg-slate-700/20"
                 }`}>
                   <input
@@ -275,7 +275,7 @@ export function AiAssistantModal({
                     checked={mode === "expand-board" && canExpand}
                     onChange={() => setMode("expand-board")}
                     disabled={!canExpand}
-                    className="h-3.5 w-3.5 accent-sky-500"
+                    className="h-3.5 w-3.5 accent-brand-500"
                   />
                   <div className="flex flex-col">
                     <span className={`text-xs font-semibold ${isLight ? "text-slate-700" : "text-slate-200"}`}>Expand current board</span>
@@ -291,7 +291,7 @@ export function AiAssistantModal({
               </div>
               <input
                 type="text"
-                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-600"}`}
+                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-600"}`}
                 placeholder="AI will suggest a name if left empty"
                 value={mapName}
                 onChange={(e) => setMapName(e.target.value)}
@@ -333,7 +333,7 @@ export function AiAssistantModal({
               <button
                 type="submit"
                 disabled={loading || !prompt.trim()}
-                className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:opacity-50"
+                className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 disabled:opacity-50"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">

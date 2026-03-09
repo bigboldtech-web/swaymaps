@@ -83,11 +83,11 @@ type AdminOverview = {
   generatedAt?: string;
 };
 
-const swatches = ["#0ea5e9", "#22c55e", "#f59e0b", "#ef4444", "#6b7280"];
+const swatches = ["#2192dd", "#22c55e", "#f59e0b", "#ef4444", "#6b7280"];
 
 const planClassName = (plan?: Plan | string) => {
   if (plan === "team") return "bg-emerald-500/20 text-emerald-100 border border-emerald-500/60";
-  if (plan === "pro") return "bg-indigo-500/20 text-indigo-100 border border-indigo-500/60";
+  if (plan === "pro") return "bg-brand-500/20 text-indigo-100 border border-brand-500/60";
   return "bg-slate-800 text-slate-100 border border-slate-700";
 };
 
@@ -96,13 +96,13 @@ const statusClassName = (status?: SubStatus) => {
     case "active":
       return "bg-emerald-500/15 text-emerald-100 border border-emerald-500/50";
     case "trialing":
-      return "bg-sky-500/15 text-sky-100 border border-sky-500/50";
+      return "bg-brand-500/15 text-sky-100 border border-brand-500/50";
     case "past_due":
       return "bg-amber-500/15 text-amber-100 border border-amber-500/50";
     case "canceled":
       return "bg-rose-500/15 text-rose-100 border border-rose-500/50";
     case "incomplete":
-      return "bg-indigo-500/10 text-indigo-100 border border-indigo-500/40";
+      return "bg-brand-500/10 text-indigo-100 border border-brand-500/40";
     default:
       return "bg-slate-800 text-slate-200 border border-slate-700";
   }
@@ -397,8 +397,8 @@ export default function AdminPage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-50">
       <div className="pointer-events-none absolute inset-0 opacity-60">
-        <div className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-sky-500/20 blur-[120px]" />
-        <div className="absolute right-10 top-20 h-80 w-80 rounded-full bg-indigo-500/20 blur-[120px]" />
+        <div className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-brand-500/20 blur-[120px]" />
+        <div className="absolute right-10 top-20 h-80 w-80 rounded-full bg-brand-500/20 blur-[120px]" />
         <div className="absolute bottom-10 left-1/3 h-64 w-64 rounded-full bg-emerald-500/20 blur-[120px]" />
       </div>
 
@@ -426,7 +426,7 @@ export default function AdminPage() {
               Copy KPI snapshot
             </button>
             <button
-              className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:from-sky-400 hover:to-indigo-400"
+              className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:from-brand-400 hover:to-brand-300"
               onClick={loadOverview}
             >
               Refresh data
@@ -515,7 +515,7 @@ export default function AdminPage() {
                         <div className="flex-1 overflow-hidden rounded-full bg-slate-800">
                           <div
                             className={`h-2 ${
-                              plan === "team" ? "bg-emerald-400" : plan === "pro" ? "bg-indigo-400" : "bg-slate-500"
+                              plan === "team" ? "bg-emerald-400" : plan === "pro" ? "bg-brand-400" : "bg-slate-500"
                             }`}
                             style={{ width: `${percent}%` }}
                           />
@@ -668,7 +668,7 @@ export default function AdminPage() {
                 <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/60 p-4">
                   <div className="text-sm font-semibold text-white">Select subscription</div>
                   <select
-                    className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-sky-400"
+                    className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-brand-400"
                     value={selectedSubId}
                     onChange={(e) => setSelectedSubId(e.target.value)}
                   >
@@ -683,7 +683,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       disabled={subActionLoading || !selectedSubId}
-                      className="w-full rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-400 disabled:opacity-60"
+                      className="w-full rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-400 disabled:opacity-60"
                       onClick={() => handleSubscriptionAction("trial")}
                     >
                       Grant 14-day trial extension
@@ -852,7 +852,7 @@ export default function AdminPage() {
                   <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-3">
                     <div className="text-sm font-semibold text-white">Seat actions</div>
                     <select
-                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-sky-400"
+                      className="w-full rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-brand-400"
                       value={selectedWorkspaceId}
                       onChange={(e) => setSelectedWorkspaceId(e.target.value)}
                     >
@@ -866,7 +866,7 @@ export default function AdminPage() {
                     <div className="grid gap-2 md:grid-cols-2">
                       <button
                         type="button"
-                        className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-400 disabled:opacity-60"
+                        className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-400 disabled:opacity-60"
                         disabled={!selectedWorkspaceId}
                         onClick={() => handleSeatAction("enforce")}
                       >

@@ -23,7 +23,7 @@ const FORMAT_INFO: {
   color: string;
 }[] = [
   { id: "lucidchart", label: "Lucidchart", ext: "CSV", color: "#f59e0b" },
-  { id: "drawio", label: "Draw.io", ext: "XML", color: "#0ea5e9" },
+  { id: "drawio", label: "Draw.io", ext: "XML", color: "#2192dd" },
   { id: "miro", label: "Miro", ext: "JSON", color: "#fbbf24" },
 ];
 
@@ -178,7 +178,7 @@ export function ImportModal({ open, onClose, onImport }: ImportModalProps) {
               key={fmt.id}
               className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide border ${
                 detectedFormat === fmt.id
-                  ? "border-sky-500/40 bg-sky-500/20 text-sky-300"
+                  ? "border-brand-500/40 bg-brand-500/20 text-brand-300"
                   : "border-slate-700/40 bg-slate-800/40 text-slate-400"
               }`}
             >
@@ -200,7 +200,7 @@ export function ImportModal({ open, onClose, onImport }: ImportModalProps) {
           onClick={() => fileInputRef.current?.click()}
           className={`mt-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all ${
             dragOver
-              ? "border-sky-400 bg-sky-500/10"
+              ? "border-brand-400 bg-brand-500/10"
               : fileName && !error
               ? "border-emerald-500/40 bg-emerald-500/5"
               : "border-slate-700/50 bg-slate-800/20 hover:border-slate-600/60 hover:bg-slate-800/30"
@@ -235,7 +235,7 @@ export function ImportModal({ open, onClose, onImport }: ImportModalProps) {
               </p>
               <p className="mt-0.5 text-xs text-slate-400">
                 Detected as{" "}
-                <span className="font-semibold text-sky-400">
+                <span className="font-semibold text-brand-400">
                   {formatLabel}
                 </span>
               </p>
@@ -352,7 +352,7 @@ export function ImportModal({ open, onClose, onImport }: ImportModalProps) {
             disabled={!result || importing}
             className={`rounded-lg px-5 py-2 text-sm font-semibold transition ${
               result && !importing
-                ? "bg-sky-500 text-white hover:bg-sky-400 shadow-lg shadow-sky-500/20"
+                ? "bg-brand-500 text-white hover:bg-brand-400 shadow-lg shadow-brand-500/20"
                 : "bg-slate-700/40 text-slate-500 cursor-not-allowed"
             }`}
           >

@@ -152,13 +152,13 @@ export function ApiKeysModal({ open, onClose, workspaceId }: ApiKeysModalProps) 
             <input
               type="text"
               placeholder="Key name (e.g. CI/CD Pipeline)"
-              className="flex-1 rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
+              className="flex-1 rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50"
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
             <select
-              className="rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
+              className="rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50"
               value={newKeyPermission}
               onChange={(e) => setNewKeyPermission(e.target.value)}
             >
@@ -168,7 +168,7 @@ export function ApiKeysModal({ open, onClose, workspaceId }: ApiKeysModalProps) 
             <button
               onClick={handleCreate}
               disabled={creating || !newKeyName.trim() || !workspaceId}
-              className="shrink-0 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="shrink-0 rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {creating ? "Creating..." : "Create key"}
             </button>
@@ -269,7 +269,7 @@ export function ApiKeysModal({ open, onClose, workspaceId }: ApiKeysModalProps) 
 {`curl -X POST ${baseUrl}/api/v1/maps/{mapId}/nodes \\
   -H "Authorization: Bearer sm_your_key_here" \\
   -H "Content-Type: application/json" \\
-  -d '{"title": "Auth Service", "kind": "system", "color": "#6366f1"}'`}
+  -d '{"title": "Auth Service", "kind": "system", "color": "#29a5e5"}'`}
                 </pre>
               </div>
 
@@ -287,14 +287,14 @@ export function ApiKeysModal({ open, onClose, workspaceId }: ApiKeysModalProps) 
                 <div className="font-semibold text-slate-300">Endpoints</div>
                 <div className="overflow-x-auto rounded-lg bg-slate-900/60 p-3 font-mono text-[11px] text-slate-300 space-y-1">
                   <div><span className="text-emerald-400">GET</span>    /api/v1/maps</div>
-                  <div><span className="text-sky-400">POST</span>   /api/v1/maps</div>
+                  <div><span className="text-brand-400">POST</span>   /api/v1/maps</div>
                   <div><span className="text-emerald-400">GET</span>    /api/v1/maps/:id</div>
                   <div><span className="text-amber-400">PATCH</span>  /api/v1/maps/:id</div>
                   <div><span className="text-rose-400">DELETE</span> /api/v1/maps/:id</div>
                   <div><span className="text-emerald-400">GET</span>    /api/v1/maps/:id/nodes</div>
-                  <div><span className="text-sky-400">POST</span>   /api/v1/maps/:id/nodes</div>
+                  <div><span className="text-brand-400">POST</span>   /api/v1/maps/:id/nodes</div>
                   <div><span className="text-emerald-400">GET</span>    /api/v1/maps/:id/edges</div>
-                  <div><span className="text-sky-400">POST</span>   /api/v1/maps/:id/edges</div>
+                  <div><span className="text-brand-400">POST</span>   /api/v1/maps/:id/edges</div>
                 </div>
               </div>
             </div>

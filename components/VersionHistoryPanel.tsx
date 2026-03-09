@@ -68,7 +68,7 @@ export function VersionHistoryPanel({ open, onClose, mapId, onRestore }: Version
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-700/30 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 text-white">
               <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                 <path strokeLinecap="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -92,7 +92,7 @@ export function VersionHistoryPanel({ open, onClose, mapId, onRestore }: Version
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
-              <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-700 border-t-sky-500" />
+              <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-700 border-t-brand-500" />
               <span className="text-xs text-slate-500">Loading versions...</span>
             </div>
           ) : versions.length === 0 ? (
@@ -116,7 +116,7 @@ export function VersionHistoryPanel({ open, onClose, mapId, onRestore }: Version
                     {/* Timeline dot */}
                     <div className={`relative z-10 mt-1.5 h-[10px] w-[10px] shrink-0 rounded-full border-2 ${
                       idx === 0
-                        ? "border-sky-500 bg-sky-500/30"
+                        ? "border-brand-500 bg-brand-500/30"
                         : "border-slate-600 bg-slate-800"
                     }`} />
 
@@ -126,7 +126,7 @@ export function VersionHistoryPanel({ open, onClose, mapId, onRestore }: Version
                           v{v.version}
                         </span>
                         {idx === 0 && (
-                          <span className="rounded-full bg-sky-500/20 border border-sky-500/30 px-1.5 py-0.5 text-[9px] font-semibold text-sky-400 uppercase">
+                          <span className="rounded-full bg-brand-500/20 border border-brand-500/30 px-1.5 py-0.5 text-[9px] font-semibold text-brand-400 uppercase">
                             Latest
                           </span>
                         )}
@@ -139,8 +139,8 @@ export function VersionHistoryPanel({ open, onClose, mapId, onRestore }: Version
 
                     {idx > 0 && (
                       <button
-                        className={`shrink-0 rounded-lg border border-slate-700/50 px-2 py-1 text-[11px] font-semibold text-slate-400 opacity-0 group-hover:opacity-100 transition hover:border-sky-500/40 hover:text-sky-400 ${
-                          restoring === v.id ? "opacity-100 text-sky-400" : ""
+                        className={`shrink-0 rounded-lg border border-slate-700/50 px-2 py-1 text-[11px] font-semibold text-slate-400 opacity-0 group-hover:opacity-100 transition hover:border-brand-500/40 hover:text-brand-400 ${
+                          restoring === v.id ? "opacity-100 text-brand-400" : ""
                         }`}
                         onClick={() => handleRestore(v.id)}
                         disabled={restoring === v.id}

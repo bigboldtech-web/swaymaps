@@ -111,18 +111,26 @@ model DecodeMap {
 }
 
 model MapNode {
-  id        String    @id @default(cuid())
-  map       DecodeMap @relation(fields: [mapId], references: [id])
-  mapId     String
-  kind      String
-  kindLabel String
-  title     String
-  tags      String
-  color     String
-  note      Note?     @relation("NodeNote", fields: [noteId], references: [id])
-  noteId    String?   @unique
-  posX      Float
-  posY      Float
+  id          String    @id @default(cuid())
+  map         DecodeMap @relation(fields: [mapId], references: [id])
+  mapId       String
+  kind        String
+  kindLabel   String
+  title       String
+  tags        String
+  color       String
+  note        Note?     @relation("NodeNote", fields: [noteId], references: [id])
+  noteId      String?   @unique
+  posX        Float
+  posY        Float
+  // Extended metadata
+  status      String?
+  priority    String?
+  owner       String?
+  url         String?
+  description String?
+  version     String?
+  sla         String?
 
   sourceEdges MapEdge[] @relation("SourceNode")
   targetEdges MapEdge[] @relation("TargetNode")
@@ -143,6 +151,17 @@ model MapEdge {
   label         String?
   note          Note?     @relation("EdgeNote", fields: [noteId], references: [id])
   noteId        String?   @unique
+  // Extended edge properties
+  edgeType      String?
+  lineStyle     String?
+  color         String?
+  animated      Boolean?
+  relationType  String?
+  direction     String?
+  weight        Int?
+  protocol      String?
+  latency       String?
+  dataFlow      String?
 
   @@index([mapId])
 }

@@ -234,14 +234,14 @@ export function IntegrationsModal({ open, onClose, workspaceId }: IntegrationsMo
             <ol className="text-xs text-slate-400 space-y-1 list-decimal list-inside">
               <li>Go to your Slack workspace settings and open <span className="text-slate-300">Incoming Webhooks</span>.</li>
               <li>Click <span className="text-slate-300">Add New Webhook to Workspace</span> and select a channel.</li>
-              <li>Copy the webhook URL (starts with <code className="text-sky-400">https://hooks.slack.com/</code>).</li>
+              <li>Copy the webhook URL (starts with <code className="text-brand-400">https://hooks.slack.com/</code>).</li>
               <li>Paste it below and give the integration a name.</li>
             </ol>
           ) : (
             <ol className="text-xs text-slate-400 space-y-1 list-decimal list-inside">
               <li>In Microsoft Teams, go to your channel and click <span className="text-slate-300">Connectors</span> (or <span className="text-slate-300">Workflows</span>).</li>
               <li>Add an <span className="text-slate-300">Incoming Webhook</span> connector and name it.</li>
-              <li>Copy the webhook URL (contains <code className="text-sky-400">webhook.office.com</code>).</li>
+              <li>Copy the webhook URL (contains <code className="text-brand-400">webhook.office.com</code>).</li>
               <li>Paste it below and give the integration a name.</li>
             </ol>
           )}
@@ -267,7 +267,7 @@ export function IntegrationsModal({ open, onClose, workspaceId }: IntegrationsMo
               <label className="text-xs uppercase tracking-wide text-slate-500 mb-1 block">Name</label>
               <input
                 type="text"
-                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
+                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50"
                 placeholder={tab === "slack" ? "e.g. #dev-notifications" : "e.g. Dev Channel"}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -277,7 +277,7 @@ export function IntegrationsModal({ open, onClose, workspaceId }: IntegrationsMo
               <label className="text-xs uppercase tracking-wide text-slate-500 mb-1 block">Webhook URL</label>
               <input
                 type="url"
-                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
+                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50"
                 placeholder={tab === "slack" ? "https://hooks.slack.com/services/..." : "https://...webhook.office.com/..."}
                 value={webhookUrl}
                 onChange={(e) => setWebhookUrl(e.target.value)}
@@ -294,7 +294,7 @@ export function IntegrationsModal({ open, onClose, workspaceId }: IntegrationsMo
                   key={opt.value}
                   className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
                     selectedEvents.includes(opt.value)
-                      ? "border-sky-500/50 bg-sky-500/20 text-sky-300"
+                      ? "border-brand-500/50 bg-brand-500/20 text-brand-300"
                       : "border-slate-700/50 text-slate-400 hover:text-slate-200 hover:border-slate-600"
                   }`}
                   onClick={() => handleToggleEvent(opt.value)}
@@ -307,7 +307,7 @@ export function IntegrationsModal({ open, onClose, workspaceId }: IntegrationsMo
 
           <div className="flex gap-2">
             <button
-              className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:opacity-50"
+              className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 disabled:opacity-50"
               onClick={handleAdd}
               disabled={saving}
             >

@@ -51,7 +51,7 @@ export function InputDialog({
           {message && <p className={`mt-1 text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>{message}</p>}
         </div>
         <input
-          className={`w-full rounded-lg border ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-500"} px-3 py-2 text-sm outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50`}
+          className={`w-full rounded-lg border ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-500"} px-3 py-2 text-sm outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50`}
           placeholder={placeholder}
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -69,7 +69,7 @@ export function InputDialog({
             Cancel
           </button>
           <button
-            className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:opacity-50"
+            className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 disabled:opacity-50"
             disabled={!value.trim()}
             onClick={() => onConfirm(value.trim())}
           >
@@ -113,7 +113,7 @@ export function ConfirmDialog({
             className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition ${
               destructive
                 ? "bg-rose-600 hover:bg-rose-700 shadow-rose-500/20"
-                : "bg-gradient-to-r from-sky-500 to-indigo-500 shadow-sky-500/20 hover:shadow-sky-500/40"
+                : "bg-gradient-to-r from-brand-600 to-brand-400 shadow-brand-500/20 hover:shadow-brand-500/40"
             }`}
             onClick={onConfirm}
           >

@@ -42,7 +42,14 @@ export function prismaNodeToDomain(node: MapNode): MapNodeMeta {
     tags: parseTags(node.tags),
     noteId: node.noteId ?? "",
     color: node.color,
-    position: { x: node.posX, y: node.posY }
+    position: { x: node.posX, y: node.posY },
+    status: node.status as MapNodeMeta["status"] ?? undefined,
+    priority: node.priority as MapNodeMeta["priority"] ?? undefined,
+    owner: node.owner ?? undefined,
+    url: node.url ?? undefined,
+    description: node.description ?? undefined,
+    version: node.version ?? undefined,
+    sla: node.sla ?? undefined,
   };
 }
 
@@ -57,7 +64,14 @@ export function domainNodeToPrisma(meta: MapNodeMeta, mapId: string): Omit<MapNo
     color: meta.color ?? "",
     noteId: meta.noteId || null,
     posX: meta.position?.x ?? 0,
-    posY: meta.position?.y ?? 0
+    posY: meta.position?.y ?? 0,
+    status: meta.status ?? null,
+    priority: meta.priority ?? null,
+    owner: meta.owner ?? null,
+    url: meta.url ?? null,
+    description: meta.description ?? null,
+    version: meta.version ?? null,
+    sla: meta.sla ?? null,
   };
 }
 
@@ -69,7 +83,17 @@ export function prismaEdgeToDomain(edge: MapEdge): MapEdgeMeta {
     sourceHandle: edge.sourceHandle ?? null,
     targetHandle: edge.targetHandle ?? null,
     label: edge.label ?? undefined,
-    noteId: edge.noteId ?? undefined
+    noteId: edge.noteId ?? undefined,
+    edgeType: edge.edgeType as MapEdgeMeta["edgeType"] ?? undefined,
+    lineStyle: edge.lineStyle as MapEdgeMeta["lineStyle"] ?? undefined,
+    color: edge.color ?? undefined,
+    animated: edge.animated ?? undefined,
+    relationType: edge.relationType as MapEdgeMeta["relationType"] ?? undefined,
+    direction: edge.direction as MapEdgeMeta["direction"] ?? undefined,
+    weight: edge.weight ?? undefined,
+    protocol: edge.protocol ?? undefined,
+    latency: edge.latency ?? undefined,
+    dataFlow: edge.dataFlow ?? undefined,
   };
 }
 
@@ -82,7 +106,17 @@ export function domainEdgeToPrisma(meta: MapEdgeMeta, mapId: string): Omit<MapEd
     targetNodeId: meta.targetId,
     targetHandle: meta.targetHandle ?? null,
     label: meta.label ?? null,
-    noteId: meta.noteId ?? null
+    noteId: meta.noteId ?? null,
+    edgeType: meta.edgeType ?? null,
+    lineStyle: meta.lineStyle ?? null,
+    color: meta.color ?? null,
+    animated: meta.animated ?? null,
+    relationType: meta.relationType ?? null,
+    direction: meta.direction ?? null,
+    weight: meta.weight ?? null,
+    protocol: meta.protocol ?? null,
+    latency: meta.latency ?? null,
+    dataFlow: meta.dataFlow ?? null,
   };
 }
 

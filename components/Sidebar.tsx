@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useTheme } from "./providers/ThemeProvider";
+import { SwayMapsIcon } from "./SwayMapsLogo";
 import { Workspace } from "../types/map";
 
 export interface MapListItem {
@@ -51,28 +52,6 @@ interface SidebarProps {
   userEmail?: string;
 }
 
-/* ──────────────────── Logo ──────────────────── */
-function SwayMapLogo({ size = 32 }: { size?: number }) {
-  return (
-    <div
-      className="flex items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-sky-500 to-indigo-600 shadow-lg shadow-sky-500/25"
-      style={{ width: size, height: size }}
-    >
-      <svg width={size * 0.58} height={size * 0.58} viewBox="0 0 24 24" fill="none">
-        <path d="M12 6.5V10.5" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 13.5L6.5 18" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 13.5L17.5 18" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 13.5L19 10" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="12" cy="12" r="2.2" fill="white" />
-        <circle cx="12" cy="5" r="1.7" fill="white" opacity="0.9" />
-        <circle cx="6" cy="19" r="1.5" fill="white" opacity="0.7" />
-        <circle cx="18" cy="19" r="1.5" fill="white" opacity="0.7" />
-        <circle cx="19.5" cy="9.5" r="1.2" fill="white" opacity="0.55" />
-      </svg>
-    </div>
-  );
-}
-
 /* ──────────────────── Helpers ──────────────────── */
 function timeAgo(dateStr?: string): string {
   if (!dateStr) return "";
@@ -92,7 +71,7 @@ function planBadge(plan: string) {
   if (plan === "team")
     return <span className="inline-flex items-center rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm shadow-emerald-500/20">Team</span>;
   if (plan === "pro")
-    return <span className="inline-flex items-center rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm shadow-sky-500/20">Pro</span>;
+    return <span className="inline-flex items-center rounded-full bg-gradient-to-r from-brand-600 to-brand-400 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm shadow-brand-500/20">Pro</span>;
   return <span className="inline-flex items-center rounded-full border border-slate-300/50 bg-slate-200/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500 dark:border-slate-700/40 dark:bg-slate-800/40 dark:text-slate-400">Free</span>;
 }
 
@@ -179,10 +158,7 @@ export function Sidebar({
 
       {/* ───── Brand Header ───── */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <div className="flex items-center gap-2.5">
-          <SwayMapLogo size={30} />
-          <span className={`text-[15px] font-bold bg-clip-text text-transparent tracking-tight ${isLight ? "bg-gradient-to-r from-slate-900 via-sky-700 to-indigo-600" : "bg-gradient-to-r from-white via-sky-200 to-indigo-300"}`}>SwayMaps</span>
-        </div>
+        <SwayMapsIcon size={30} />
         <div className="flex items-center gap-0.5">
           {onGlobalSearch && (
             <button
@@ -230,15 +206,15 @@ export function Sidebar({
               {workspaces.map((ws) => (
                 <button
                   key={ws.id}
-                  className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] transition ${isLight ? "hover:bg-slate-100/80" : "hover:bg-slate-800/40"} ${ws.id === currentWorkspaceId ? (isLight ? "bg-sky-500/[0.06] text-sky-600" : "bg-sky-500/[0.06] text-sky-300") : (isLight ? "text-slate-600" : "text-slate-300")}`}
+                  className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] transition ${isLight ? "hover:bg-slate-100/80" : "hover:bg-slate-800/40"} ${ws.id === currentWorkspaceId ? (isLight ? "bg-brand-500/[0.06] text-brand-600" : "bg-brand-500/[0.06] text-brand-300") : (isLight ? "text-slate-600" : "text-slate-300")}`}
                   onClick={() => { onSelectWorkspace?.(ws.id); setWsDropdownOpen(false); }}
                 >
-                  <div className={`flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold ${ws.id === currentWorkspaceId ? "bg-sky-500/15 text-sky-400" : (isLight ? "bg-slate-200/60 text-slate-500" : "bg-slate-800/60 text-slate-400")}`}>
+                  <div className={`flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold ${ws.id === currentWorkspaceId ? "bg-brand-500/15 text-brand-400" : (isLight ? "bg-slate-200/60 text-slate-500" : "bg-slate-800/60 text-slate-400")}`}>
                     {ws.name.charAt(0).toUpperCase()}
                   </div>
                   <span className="truncate flex-1">{ws.name}</span>
                   {ws.id === currentWorkspaceId && (
-                    <svg className="h-3.5 w-3.5 text-sky-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                    <svg className="h-3.5 w-3.5 text-brand-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                   )}
                 </button>
               ))}
@@ -251,7 +227,7 @@ export function Sidebar({
       <div className="px-3 py-2 flex items-center gap-1.5">
         <button
           disabled={createDisabled}
-          className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-sky-500/90 to-indigo-500/90 px-3 py-[7px] text-[12px] font-semibold text-white shadow-lg shadow-sky-500/15 transition hover:shadow-sky-500/25 hover:brightness-110 active:scale-[0.96] transition-all duration-200 ${createDisabled ? "opacity-40 cursor-not-allowed" : ""}`}
+          className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-brand-600/90 to-brand-400/90 px-3 py-[7px] text-[12px] font-semibold text-white shadow-lg shadow-brand-500/15 transition hover:shadow-brand-500/25 hover:brightness-110 active:scale-[0.96] transition-all duration-200 ${createDisabled ? "opacity-40 cursor-not-allowed" : ""}`}
           onClick={onCreateMap}
         >
           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" d="M12 5v14m-7-7h14" /></svg>
@@ -279,7 +255,7 @@ export function Sidebar({
 
       {/* ───── Search ───── */}
       <div className="px-3 pb-2">
-        <div className={`relative rounded-lg border transition-all ${searchFocused ? (isLight ? "border-sky-500/40 ring-1 ring-sky-500/20 bg-white/80" : "border-sky-500/40 ring-1 ring-sky-500/20 bg-slate-800/25") : (isLight ? "border-slate-200/60 bg-white/50" : "border-slate-700/20 bg-slate-800/10")}`}>
+        <div className={`relative rounded-lg border transition-all ${searchFocused ? (isLight ? "border-brand-500/40 ring-1 ring-brand-500/20 bg-white/80" : "border-brand-500/40 ring-1 ring-brand-500/20 bg-slate-800/25") : (isLight ? "border-slate-200/60 bg-white/50" : "border-slate-700/20 bg-slate-800/10")}`}>
           <svg className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <circle cx="11" cy="11" r="8" />
             <path strokeLinecap="round" d="M21 21l-4.35-4.35" />
@@ -326,7 +302,7 @@ export function Sidebar({
                 key={map.id}
                 className={`group relative rounded-lg transition-all duration-200 ${
                   isActive
-                    ? (isLight ? "bg-sky-500/[0.06] ring-1 ring-sky-500/10" : "bg-sky-500/[0.08] ring-1 ring-sky-500/15")
+                    ? (isLight ? "bg-brand-500/[0.06] ring-1 ring-brand-500/10" : "bg-brand-500/[0.08] ring-1 ring-brand-500/15")
                     : (isLight ? "hover:bg-slate-200/40" : "hover:bg-slate-800/25")
                 } ${isDisabled ? "opacity-35 cursor-not-allowed" : ""}`}
               >
@@ -337,15 +313,15 @@ export function Sidebar({
                 >
                   {/* Map icon indicator */}
                   <div className={`mt-0.5 flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-md ${
-                    isActive ? "bg-sky-500/15" : (isLight ? "bg-slate-200/60" : "bg-slate-800/40")
+                    isActive ? "bg-brand-500/15" : (isLight ? "bg-slate-200/60" : "bg-slate-800/40")
                   }`}>
-                    <svg className={`h-3.5 w-3.5 ${isActive ? "text-sky-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <svg className={`h-3.5 w-3.5 ${isActive ? "text-brand-400" : "text-slate-500"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-[13px] font-medium truncate ${isActive ? (isLight ? "text-sky-600" : "text-sky-300") : (isLight ? "text-slate-700" : "text-slate-200")}`}>{map.name}</span>
+                      <span className={`text-[13px] font-medium truncate ${isActive ? (isLight ? "text-brand-600" : "text-brand-300") : (isLight ? "text-slate-700" : "text-slate-200")}`}>{map.name}</span>
                       {isShared && (
                         <svg className="h-3 w-3 shrink-0 text-emerald-500/60" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M12.232 4.232a2.5 2.5 0 013.536 3.536l-1.225 1.224a.75.75 0 001.061 1.06l1.224-1.224a4 4 0 00-5.656-5.656l-3 3a4 4 0 00.225 5.865.75.75 0 00.977-1.138 2.5 2.5 0 01-.142-3.667l3-3z" />
@@ -433,7 +409,7 @@ export function Sidebar({
               <p className="mt-1 text-[11px] text-slate-600">Create your first dependency map</p>
               <button
                 onClick={onCreateMap}
-                className="mt-3 inline-flex items-center gap-1 rounded-lg bg-sky-500/10 border border-sky-500/20 px-3 py-1.5 text-[12px] font-medium text-sky-400 transition hover:bg-sky-500/20"
+                className="mt-3 inline-flex items-center gap-1 rounded-lg bg-brand-500/10 border border-brand-500/20 px-3 py-1.5 text-[12px] font-medium text-brand-400 transition hover:bg-brand-500/20"
               >
                 <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}><path strokeLinecap="round" d="M12 5v14m-7-7h14" /></svg>
                 Create map
@@ -481,7 +457,7 @@ export function Sidebar({
       {/* ───── User Profile Footer ───── */}
       <div className={`border-t px-3 py-3 ${isLight ? "border-slate-200/60" : "border-slate-700/15"}`}>
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-500/80 to-indigo-500/80 text-[11px] font-bold text-white">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-600/80 to-brand-400/80 text-[11px] font-bold text-white">
             {(userName ?? authLabel ?? "U").slice(0, 2).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">

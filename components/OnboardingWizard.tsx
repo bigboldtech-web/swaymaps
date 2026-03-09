@@ -22,7 +22,7 @@ const TEMPLATES = [
     title: "Microservice Architecture",
     category: "architecture",
     description: "Map your services, databases, and APIs",
-    gradient: "from-sky-500 to-cyan-400",
+    gradient: "from-brand-500 to-cyan-400",
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7">
         <rect x="2" y="2" width="6" height="6" rx="1" />
@@ -113,7 +113,7 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
         {/* Step 1: Welcome */}
         {step === 0 && (
           <div className="flex flex-col items-center text-center">
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-500 text-white shadow-lg shadow-sky-500/20">
+            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 text-white shadow-lg shadow-brand-500/20">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
                 <polyline points="10 17 15 12 10 7" />
@@ -133,7 +133,7 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
                 Your role
               </label>
               <select
-                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2.5 text-sm font-medium text-slate-100 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
+                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2.5 text-sm font-medium text-slate-100 outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
@@ -149,7 +149,7 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
             </div>
 
             <button
-              className="mt-8 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-8 rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!role}
               onClick={() => setStep(1)}
             >
@@ -177,7 +177,7 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
                     type="button"
                     className={`group relative flex flex-col items-start rounded-xl border p-4 text-left transition-all duration-200 ${
                       isSelected
-                        ? "border-sky-500/50 bg-sky-500/10 ring-1 ring-sky-500/30"
+                        ? "border-brand-500/50 bg-brand-500/10 ring-1 ring-brand-500/30"
                         : "border-slate-700/40 bg-slate-800/30 hover:border-slate-600"
                     } ${template.category === "custom" ? "col-span-2" : ""}`}
                     onClick={() => setSelectedTemplate(template.category)}
@@ -192,7 +192,7 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
                       {template.description}
                     </div>
                     {isSelected && (
-                      <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 text-white">
+                      <div className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-brand-600 to-brand-400 text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0z" clipRule="evenodd" />
                         </svg>
@@ -211,7 +211,7 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
                 Back
               </button>
               <button
-                className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!selectedTemplate}
                 onClick={() => setStep(2)}
               >
@@ -263,7 +263,7 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
                 Back
               </button>
               <button
-                className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40"
+                className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40"
                 onClick={handleComplete}
               >
                 Start Mapping
@@ -279,9 +279,9 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
               key={i}
               className={`h-2 rounded-full transition-all duration-300 ${
                 i === step
-                  ? "w-6 bg-gradient-to-r from-sky-500 to-indigo-500"
+                  ? "w-6 bg-gradient-to-r from-brand-600 to-brand-400"
                   : i < step
-                  ? "w-2 bg-sky-500/40"
+                  ? "w-2 bg-brand-500/40"
                   : "w-2 bg-slate-700"
               }`}
             />

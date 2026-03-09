@@ -33,7 +33,7 @@ export function PresenceAvatars({ users, currentUserId, maxVisible = 5 }: Presen
           <div
             key={user.id}
             className={`relative flex h-7 w-7 items-center justify-center rounded-full border-2 ${borderColor} text-[10px] font-bold text-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110 hover:z-10 hover:shadow-lg`}
-            style={{ backgroundColor: user.color || '#6366f1' }}
+            style={{ backgroundColor: user.color || '#29a5e5' }}
             title={`${user.name} is viewing`}
           >
             {user.avatarUrl ? (

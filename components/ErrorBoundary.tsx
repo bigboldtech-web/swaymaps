@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </div>
             )}
             <button
-              className="mt-6 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40"
+              className="mt-6 rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40"
               onClick={() => {
                 this.setState({ hasError: false, error: null });
                 window.location.reload();

@@ -104,7 +104,7 @@ export function InteractiveLandingDemo() {
           title: "Cache Layer",
           tags: ["infrastructure"],
           noteId: "note-5",
-          color: "#6366f1",
+          color: "#29a5e5",
           position: { x: 320, y: 320 }
         },
         onUpdateMeta: () => {}
@@ -195,14 +195,14 @@ export function InteractiveLandingDemo() {
 
   return (
     <div className="relative">
-      <div className="absolute -inset-4 rounded-2xl bg-gradient-to-r from-sky-500/20 via-blue-500/20 to-indigo-500/20 blur-2xl"></div>
-      <div className="relative rounded-2xl border-2 border-sky-500/30 bg-slate-950 p-4 shadow-2xl">
+      <div className="absolute -inset-4 rounded-2xl bg-gradient-to-r from-brand-500/20 via-blue-500/20 to-brand-400/20 blur-2xl"></div>
+      <div className="relative rounded-2xl border-2 border-brand-500/30 bg-slate-950 p-4 shadow-2xl">
         <div className="mb-3 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-slate-100">Try it yourself!</h3>
             <p className="text-sm text-slate-400">Drag nodes, click to select, explore the interface</p>
           </div>
-          <div className="rounded-lg bg-sky-500/20 px-3 py-1 text-xs font-semibold text-sky-300">
+          <div className="rounded-lg bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-300">
             ✨ Live Demo
           </div>
         </div>
@@ -265,7 +265,7 @@ export function InteractiveLandingDemo() {
                 {selectedNode.data.meta.tags.map((tag, idx) => (
                   <span
                     key={idx}
-                    className="rounded bg-sky-500/20 px-2 py-0.5 text-xs text-sky-300"
+                    className="rounded bg-brand-500/20 px-2 py-0.5 text-xs text-brand-300"
                   >
                     {tag}
                   </span>

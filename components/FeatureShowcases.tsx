@@ -36,7 +36,7 @@ export function FeatureShowcases() {
             { type: "System", color: "#22c55e", icon: "🖥️" },
             { type: "Person", color: "#38bdf8", icon: "👤" },
             { type: "Process", color: "#fbbf24", icon: "⚙️" },
-            { type: "Generic", color: "#6366f1", icon: "📦" }
+            { type: "Generic", color: "#29a5e5", icon: "📦" }
           ].map((item) => (
             <div
               key={item.type}
@@ -105,7 +105,7 @@ export function FeatureShowcases() {
                   <span className="text-lg">{member.avatar}</span>
                   <span className="text-sm text-slate-200">{member.name}</span>
                 </div>
-                <span className="rounded bg-sky-500/20 px-2 py-0.5 text-xs text-sky-300">
+                <span className="rounded bg-brand-500/20 px-2 py-0.5 text-xs text-brand-300">
                   {member.role}
                 </span>
               </div>
@@ -134,7 +134,7 @@ export function FeatureShowcases() {
               onClick={() => setSelectedFeature(idx)}
               className={`w-full rounded-xl border p-4 text-left transition ${
                 selectedFeature === idx
-                  ? "border-sky-500 bg-sky-950/30 shadow-lg shadow-sky-500/10"
+                  ? "border-brand-500 bg-sky-950/30 shadow-lg shadow-brand-500/10"
                   : "border-slate-800 bg-slate-900/40 hover:border-slate-700"
               }`}
             >
@@ -145,7 +145,7 @@ export function FeatureShowcases() {
                 </div>
                 <div
                   className={`h-3 w-3 rounded-full ${
-                    selectedFeature === idx ? "bg-sky-400" : "bg-slate-700"
+                    selectedFeature === idx ? "bg-brand-400" : "bg-slate-700"
                   }`}
                 />
               </div>
@@ -155,10 +155,10 @@ export function FeatureShowcases() {
 
         {/* Preview Area */}
         <div className="relative">
-          <div className="absolute -inset-2 rounded-2xl bg-gradient-to-r from-sky-500/20 to-blue-500/20 blur-xl" />
-          <div className="relative rounded-xl border border-sky-500/30 bg-slate-950 p-6">
+          <div className="absolute -inset-2 rounded-2xl bg-gradient-to-r from-brand-500/20 to-blue-500/20 blur-xl" />
+          <div className="relative rounded-xl border border-brand-500/30 bg-slate-950 p-6">
             <div className="mb-4">
-              <div className="text-sm font-semibold text-sky-300">Live Preview</div>
+              <div className="text-sm font-semibold text-brand-300">Live Preview</div>
               <div className="text-xs text-slate-400">This is the actual component</div>
             </div>
             <div className="min-h-[300px]">{showcases[selectedFeature].component}</div>

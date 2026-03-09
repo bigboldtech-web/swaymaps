@@ -16,17 +16,17 @@ function EmbedNode({ data }: any) {
     person: "#38bdf8",
     system: "#22c55e",
     process: "#fbbf24",
-    database: "#6366f1",
-    api: "#0ea5e9",
+    database: "#29a5e5",
+    api: "#2192dd",
     queue: "#f59e0b",
     cache: "#ef4444",
     cloud: "#8b5cf6",
     team: "#14b8a6",
     vendor: "#f97316",
-    generic: "#6366f1",
+    generic: "#29a5e5",
   };
   const color =
-    data.meta?.color || kindColors[data.meta?.kind] || "#6366f1";
+    data.meta?.color || kindColors[data.meta?.kind] || "#29a5e5";
 
   return (
     <div
@@ -147,7 +147,7 @@ export default function EmbedPage({
       <div className="flex h-screen w-full items-center justify-center bg-[#030712]">
         <div className="flex flex-col items-center gap-3">
           <svg
-            className="h-8 w-8 animate-spin text-sky-500"
+            className="h-8 w-8 animate-spin text-brand-500"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -190,7 +190,7 @@ export default function EmbedPage({
       {!isEmbed && (
         <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-slate-900/90 to-transparent">
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center">
+            <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-brand-400 to-brand-400 flex items-center justify-center">
               <svg
                 className="h-3.5 w-3.5 text-white"
                 fill="none"
@@ -251,7 +251,7 @@ export default function EmbedPage({
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 rounded-lg border border-slate-700/40 bg-slate-900/80 backdrop-blur-sm px-2.5 py-1.5 text-[10px] text-slate-400 transition hover:text-slate-200 hover:border-slate-600"
         >
-          <div className="h-3.5 w-3.5 rounded bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center">
+          <div className="h-3.5 w-3.5 rounded bg-gradient-to-br from-brand-400 to-brand-400 flex items-center justify-center">
             <svg
               className="h-2 w-2 text-white"
               fill="none"

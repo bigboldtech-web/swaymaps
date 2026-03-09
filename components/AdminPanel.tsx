@@ -7,7 +7,7 @@ interface AdminPanelProps {
   onClose: () => void;
 }
 
-const swatches = ["#0ea5e9", "#22c55e", "#f59e0b", "#ef4444", "#6b7280"];
+const swatches = ["#2192dd", "#22c55e", "#f59e0b", "#ef4444", "#6b7280"];
 
 export function AdminPanel({ users, onAddUser, onClose }: AdminPanelProps) {
   const [name, setName] = React.useState("");

@@ -9,6 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        brand: {
+          300: "#5ec0f0",   // Light — text on dark bg
+          400: "#29a5e5",   // Logo right (sky blue)
+          500: "#2192dd",   // Mid-point
+          600: "#1a80d5",   // Logo left (darker blue)
+          700: "#1568b5",   // Darkest — borders, hover
+        },
         surface: {
           base: "#030712",
           elevated: "#0b1422",
@@ -25,10 +32,10 @@ const config: Config = {
         "3xl": "64px",
       },
       boxShadow: {
-        "glow-sm": "0 0 12px rgba(14,165,233,0.15)",
-        "glow-md": "0 0 20px rgba(14,165,233,0.20)",
-        "glow-lg": "0 0 40px rgba(14,165,233,0.25)",
-        "glow-indigo": "0 0 20px rgba(99,102,241,0.20)",
+        "glow-sm": "0 0 12px rgba(26,128,213,0.15)",
+        "glow-md": "0 0 20px rgba(26,128,213,0.20)",
+        "glow-lg": "0 0 40px rgba(26,128,213,0.25)",
+        "glow-brand": "0 0 20px rgba(33,146,221,0.20)",
         "glow-emerald": "0 0 20px rgba(16,185,129,0.20)",
         "glow-rose": "0 0 20px rgba(239,68,68,0.20)",
         "glass": "0 8px 32px rgba(0,0,0,0.4)",
@@ -100,8 +107,8 @@ const config: Config = {
           "100%": { backgroundPosition: "200% 0" },
         },
         glowPulse: {
-          "0%, 100%": { boxShadow: "0 0 12px rgba(14,165,233,0.08)" },
-          "50%": { boxShadow: "0 0 24px rgba(14,165,233,0.22)" },
+          "0%, 100%": { boxShadow: "0 0 12px rgba(26,128,213,0.08)" },
+          "50%": { boxShadow: "0 0 24px rgba(26,128,213,0.22)" },
         },
         bounceIn: {
           "0%": { opacity: "0", transform: "scale(0.3)" },

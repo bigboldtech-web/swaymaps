@@ -79,7 +79,14 @@ export async function PUT(req: Request, { params }: Params) {
           color: node.data.meta.color ?? "",
           noteId: node.data.meta.noteId || null,
           posX: node.position?.x ?? 0,
-          posY: node.position?.y ?? 0
+          posY: node.position?.y ?? 0,
+          status: node.data.meta.status ?? null,
+          priority: node.data.meta.priority ?? null,
+          owner: node.data.meta.owner ?? null,
+          url: node.data.meta.url ?? null,
+          description: node.data.meta.description ?? null,
+          version: node.data.meta.version ?? null,
+          sla: node.data.meta.sla ?? null,
         }))
       });
     }
@@ -94,7 +101,17 @@ export async function PUT(req: Request, { params }: Params) {
           sourceHandle: edge.sourceHandle ?? null,
           targetHandle: edge.targetHandle ?? null,
           label: edge.label ?? null,
-          noteId: edge.noteId ?? null
+          noteId: edge.noteId ?? null,
+          edgeType: edge.edgeType ?? null,
+          lineStyle: edge.lineStyle ?? null,
+          color: edge.color ?? null,
+          animated: edge.animated ?? null,
+          relationType: edge.relationType ?? null,
+          direction: edge.direction ?? null,
+          weight: edge.weight ?? null,
+          protocol: edge.protocol ?? null,
+          latency: edge.latency ?? null,
+          dataFlow: edge.dataFlow ?? null,
         }))
       });
     }

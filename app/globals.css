@@ -96,10 +96,10 @@ html.light ::-webkit-scrollbar-thumb:hover {
     border: 1px solid rgba(51, 65, 85, 0.40);
   }
   .glass-glow {
-    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+    box-shadow: 0 0 20px rgba(26, 128, 213, 0.15);
   }
   .glass-glow-lg {
-    box-shadow: 0 0 40px rgba(14, 165, 233, 0.20);
+    box-shadow: 0 0 40px rgba(26, 128, 213, 0.20);
   }
   .gradient-text {
     background: linear-gradient(135deg, #ffffff, #bae6fd, #c7d2fe);
@@ -116,7 +116,7 @@ html.light ::-webkit-scrollbar-thumb:hover {
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(14,165,233,0.3), rgba(99,102,241,0.3));
+    background: linear-gradient(135deg, rgba(26,128,213,0.3), rgba(41,165,229,0.3));
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
@@ -219,11 +219,11 @@ html.light .react-flow__controls button:hover {
 }
 html.light .react-flow__selection,
 html.light .react-flow__nodesselection-rect {
-  background: rgba(14, 165, 233, 0.06) !important;
-  border: 1px solid rgba(14, 165, 233, 0.25) !important;
+  background: rgba(26, 128, 213, 0.06) !important;
+  border: 1px solid rgba(26, 128, 213, 0.25) !important;
 }
 html.light .react-flow__node.dragging .decode-node {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(14, 165, 233, 0.3) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(26, 128, 213, 0.3) !important;
 }
 
 /* ─── Edge Animations ─── */
@@ -235,7 +235,7 @@ html.light .react-flow__node.dragging .decode-node {
 }
 .react-flow__edge:hover .react-flow__edge-path {
   stroke-width: 3 !important;
-  filter: drop-shadow(0 0 6px rgba(14, 165, 233, 0.35));
+  filter: drop-shadow(0 0 6px rgba(26, 128, 213, 0.35));
 }
 .react-flow__connection-path {
   animation: connection-dash 0.5s linear infinite;
@@ -261,7 +261,7 @@ html.light .react-flow__node.dragging .decode-node {
   will-change: transform, box-shadow;
 }
 .react-flow__node.dragging .decode-node {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(14, 165, 233, 0.35) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(26, 128, 213, 0.35) !important;
   transform: scale(1.03) !important;
   transition: box-shadow 0.15s ease-out, transform 0.15s ease-out !important;
 }
@@ -272,8 +272,8 @@ html.light .react-flow__node.dragging .decode-node {
 /* ─── Selection ─── */
 .react-flow__nodesselection-rect,
 .react-flow__selection {
-  background: rgba(14, 165, 233, 0.08) !important;
-  border: 1px solid rgba(14, 165, 233, 0.3) !important;
+  background: rgba(26, 128, 213, 0.08) !important;
+  border: 1px solid rgba(26, 128, 213, 0.3) !important;
   border-radius: 8px;
 }
 
@@ -297,7 +297,7 @@ html.light .react-flow__node.dragging .decode-node {
 
 /* ─── Accessibility ─── */
 *:focus-visible {
-  outline: 2px solid rgba(14, 165, 233, 0.6);
+  outline: 2px solid rgba(26, 128, 213, 0.6);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -307,7 +307,7 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid rgba(14, 165, 233, 0.6);
+  outline: 2px solid rgba(26, 128, 213, 0.6);
   outline-offset: 2px;
 }
 

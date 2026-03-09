@@ -100,7 +100,7 @@ export function ActivityFeed({ open, onClose, workspaceId }: ActivityFeedProps) 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-700/30 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 text-white">
               <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                 <path strokeLinecap="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -124,7 +124,7 @@ export function ActivityFeed({ open, onClose, workspaceId }: ActivityFeedProps) 
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
-              <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-700 border-t-sky-500" />
+              <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-700 border-t-brand-500" />
               <span className="text-xs text-slate-500">Loading activity...</span>
             </div>
           ) : activities.length === 0 ? (
@@ -142,7 +142,7 @@ export function ActivityFeed({ open, onClose, workspaceId }: ActivityFeedProps) 
               {activities.map((a) => (
                 <div key={a.id} className="flex items-start gap-3 rounded-lg p-2 transition hover:bg-slate-800/30">
                   {/* Avatar */}
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-[10px] font-bold text-white">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-brand-400 text-[10px] font-bold text-white">
                     {getInitials(a.user.name)}
                   </div>
 

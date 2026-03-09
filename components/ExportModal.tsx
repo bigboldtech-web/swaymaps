@@ -61,21 +61,21 @@ export function ExportModal({ mapName, onExport, onClose, isPro }: ExportModalPr
           {formats.map((fmt) => (
             <button
               key={fmt.id}
-              className={`w-full rounded-xl border ${isLight ? "border-slate-200/60 bg-white/60 hover:border-sky-500/30 hover:bg-white/80" : "border-slate-700/40 bg-slate-800/30 hover:border-sky-500/30 hover:bg-slate-800/50"} p-4 text-left transition ${
+              className={`w-full rounded-xl border ${isLight ? "border-slate-200/60 bg-white/60 hover:border-brand-500/30 hover:bg-white/80" : "border-slate-700/40 bg-slate-800/30 hover:border-brand-500/30 hover:bg-slate-800/50"} p-4 text-left transition ${
                 !isPro && fmt.pro ? "opacity-50" : ""
               }`}
               onClick={() => handleExport(fmt.id)}
               disabled={loading !== null}
             >
               <div className="flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isLight ? "bg-slate-100/80" : "bg-slate-700/40"} text-sky-400`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isLight ? "bg-slate-100/80" : "bg-slate-700/40"} text-brand-400`}>
                   {fmt.icon}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className={`font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>{fmt.label}</span>
                     {!isPro && fmt.pro && (
-                      <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-sky-300 border border-sky-500/30">
+                      <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-300 border border-brand-500/30">
                         Pro
                       </span>
                     )}
@@ -83,7 +83,7 @@ export function ExportModal({ mapName, onExport, onClose, isPro }: ExportModalPr
                   <p className={`text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>{fmt.desc}</p>
                 </div>
                 {loading === fmt.id && (
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-sky-400 border-t-transparent" />
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
                 )}
               </div>
             </button>

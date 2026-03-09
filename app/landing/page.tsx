@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { SwayMapsIcon } from "../../components/SwayMapsLogo";
 
 /* ─── DATA ─── */
 
@@ -138,44 +139,6 @@ const faqData = [
   { question: "Can I import from other tools?", answer: "We support JSON import/export. Lucidchart and Draw.io import coming soon." },
 ];
 
-/* ─── LOGO ─── */
-function SwayMapLogo({ size = 32 }: { size?: number }) {
-  return (
-    <div
-      className="flex items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-sky-500 to-indigo-600 shadow-lg shadow-sky-500/25"
-      style={{ width: size, height: size }}
-    >
-      <svg
-        width={size * 0.58}
-        height={size * 0.58}
-        viewBox="0 0 24 24"
-        fill="none"
-      >
-        {/* Connection lines — drawn first so nodes sit on top */}
-        <path d="M12 6.5V10.5" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 13.5L6.5 18" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 13.5L17.5 18" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 13.5L19 10" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinecap="round" />
-
-        {/* Hub node — center */}
-        <circle cx="12" cy="12" r="2.2" fill="white" />
-
-        {/* Top node */}
-        <circle cx="12" cy="5" r="1.7" fill="white" opacity="0.9" />
-
-        {/* Bottom-left */}
-        <circle cx="6" cy="19" r="1.5" fill="white" opacity="0.7" />
-
-        {/* Bottom-right */}
-        <circle cx="18" cy="19" r="1.5" fill="white" opacity="0.7" />
-
-        {/* Side node */}
-        <circle cx="19.5" cy="9.5" r="1.2" fill="white" opacity="0.55" />
-      </svg>
-    </div>
-  );
-}
-
 /* ─── PAGE GRID BACKGROUND ─── */
 function PageGridBg() {
   return (
@@ -223,18 +186,18 @@ function GraphBackground() {
       <svg className="absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="line-h" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0" />
-            <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+            <stop offset="0%" stopColor="#2192dd" stopOpacity="0" />
+            <stop offset="50%" stopColor="#2192dd" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#29a5e5" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="line-v" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0" />
-            <stop offset="50%" stopColor="#6366f1" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
+            <stop offset="0%" stopColor="#2192dd" stopOpacity="0" />
+            <stop offset="50%" stopColor="#29a5e5" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#2192dd" stopOpacity="0" />
           </linearGradient>
           <radialGradient id="node-pulse" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
+            <stop offset="0%" stopColor="#2192dd" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#2192dd" stopOpacity="0" />
           </radialGradient>
         </defs>
 
@@ -255,13 +218,13 @@ function GraphBackground() {
         </line>
 
         {/* Animated dash connections */}
-        <line x1="50" y1="80" x2="500" y2="350" stroke="#0ea5e9" strokeWidth="0.5" opacity="0.06" strokeDasharray="6 12">
+        <line x1="50" y1="80" x2="500" y2="350" stroke="#2192dd" strokeWidth="0.5" opacity="0.06" strokeDasharray="6 12">
           <animate attributeName="stroke-dashoffset" values="0;-72" dur="4s" repeatCount="indefinite" />
         </line>
-        <line x1="700" y1="50" x2="1100" y2="400" stroke="#6366f1" strokeWidth="0.5" opacity="0.05" strokeDasharray="6 12">
+        <line x1="700" y1="50" x2="1100" y2="400" stroke="#29a5e5" strokeWidth="0.5" opacity="0.05" strokeDasharray="6 12">
           <animate attributeName="stroke-dashoffset" values="0;-72" dur="5s" repeatCount="indefinite" />
         </line>
-        <line x1="400" y1="500" x2="900" y2="150" stroke="#0ea5e9" strokeWidth="0.5" opacity="0.04" strokeDasharray="6 12">
+        <line x1="400" y1="500" x2="900" y2="150" stroke="#2192dd" strokeWidth="0.5" opacity="0.04" strokeDasharray="6 12">
           <animate attributeName="stroke-dashoffset" values="0;72" dur="4.5s" repeatCount="indefinite" />
         </line>
 
@@ -276,7 +239,7 @@ function GraphBackground() {
             <circle cx={dot.cx} cy={dot.cy} r={dot.r} fill="url(#node-pulse)" opacity="0">
               <animate attributeName="opacity" values="0;0.15;0" dur={dot.dur} repeatCount="indefinite" />
             </circle>
-            <circle cx={dot.cx} cy={dot.cy} r="1.5" fill="#0ea5e9" opacity="0.15">
+            <circle cx={dot.cx} cy={dot.cy} r="1.5" fill="#2192dd" opacity="0.15">
               <animate attributeName="opacity" values="0.1;0.3;0.1" dur={dot.dur} repeatCount="indefinite" />
             </circle>
           </g>
@@ -295,16 +258,16 @@ function HeroMapPreview() {
     // Row 0 — entry
     { id: "client",  x: 360, y: 18,  label: "Web Client",      color: "#94a3b8", kind: "Frontend" },
     // Row 1 — gateway
-    { id: "gateway", x: 360, y: 100, label: "API Gateway",      color: "#0ea5e9", kind: "System" },
+    { id: "gateway", x: 360, y: 100, label: "API Gateway",      color: "#2192dd", kind: "System" },
     // Row 2 — services
     { id: "auth",    x: 60,  y: 190, label: "Auth Service",     color: "#8b5cf6", kind: "Service" },
-    { id: "users",   x: 240, y: 190, label: "User Service",     color: "#0ea5e9", kind: "Service" },
+    { id: "users",   x: 240, y: 190, label: "User Service",     color: "#2192dd", kind: "Service" },
     { id: "orders",  x: 480, y: 190, label: "Order Service",    color: "#10b981", kind: "Service" },
     { id: "notify",  x: 660, y: 190, label: "Notifications",    color: "#f97316", kind: "Service" },
     // Row 3 — data
     { id: "pg",      x: 120, y: 290, label: "PostgreSQL",       color: "#f59e0b", kind: "Database" },
     { id: "redis",   x: 360, y: 290, label: "Redis",            color: "#ef4444", kind: "Cache" },
-    { id: "kafka",   x: 570, y: 290, label: "Kafka",            color: "#6366f1", kind: "Queue" },
+    { id: "kafka",   x: 570, y: 290, label: "Kafka",            color: "#29a5e5", kind: "Queue" },
   ];
 
   const edges: { from: string; to: string; color?: string }[] = [
@@ -342,8 +305,8 @@ function HeroMapPreview() {
             <circle cx="12" cy="12" r="0.5" fill="rgba(51,65,85,0.25)" />
           </pattern>
           <linearGradient id="edge-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0ea5e9" />
-            <stop offset="100%" stopColor="#6366f1" />
+            <stop offset="0%" stopColor="#2192dd" />
+            <stop offset="100%" stopColor="#29a5e5" />
           </linearGradient>
           <filter id="glow-sm" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="6" />
@@ -467,9 +430,8 @@ export default function LandingPage() {
       {/* ───── NAV ───── */}
       <nav className="relative sticky top-0 z-50 border-b border-slate-800/40 bg-[#030712]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2.5 text-xl font-bold tracking-tight text-white">
-            <SwayMapLogo size={34} />
-            SwayMaps
+          <Link href="/">
+            <SwayMapsIcon size={34} />
           </Link>
 
           <div className="hidden items-center gap-8 text-sm text-slate-400 md:flex">
@@ -483,7 +445,7 @@ export default function LandingPage() {
             <Link href="/auth/signin" className="rounded-lg px-4 py-2 text-sm font-medium text-slate-400 transition hover:text-white">
               Sign In
             </Link>
-            <Link href="/auth/signup" className="rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40">
+            <Link href="/auth/signup" className="rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40">
               Start Free
             </Link>
           </div>
@@ -495,8 +457,8 @@ export default function LandingPage() {
         <GraphBackground />
 
         {/* Glow blobs */}
-        <div className="pointer-events-none absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-sky-500/[0.06] blur-[140px]" />
-        <div className="pointer-events-none absolute -bottom-40 right-0 h-[400px] w-[500px] rounded-full bg-indigo-500/[0.06] blur-[120px]" />
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-brand-500/[0.06] blur-[140px]" />
+        <div className="pointer-events-none absolute -bottom-40 right-0 h-[400px] w-[500px] rounded-full bg-brand-500/[0.06] blur-[120px]" />
 
         <div className="relative mx-auto max-w-5xl px-6 pb-28 pt-32 text-center">
           <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-slate-700/50 bg-slate-800/30 px-4 py-1.5 text-xs font-medium text-slate-400 backdrop-blur">
@@ -518,7 +480,7 @@ export default function LandingPage() {
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/auth/signup"
-              className="group rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-sky-500/25 transition hover:shadow-sky-500/40 hover:-translate-y-[1px]"
+              className="group rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand-500/25 transition hover:shadow-brand-500/40 hover:-translate-y-[1px]"
             >
               Start Free &mdash; No Credit Card
             </Link>
@@ -535,7 +497,7 @@ export default function LandingPage() {
           </p>
 
           {/* Dashboard preview — mock dependency map */}
-          <div className="mx-auto mt-14 max-w-4xl overflow-hidden rounded-2xl border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-950/90 shadow-2xl shadow-sky-500/[0.03]">
+          <div className="mx-auto mt-14 max-w-4xl overflow-hidden rounded-2xl border border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-950/90 shadow-2xl shadow-brand-500/[0.03]">
             <div className="flex items-center gap-2 border-b border-slate-800/60 bg-[#0b1422]/90 px-4 py-3">
               <div className="flex gap-1.5">
                 <div className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
@@ -604,9 +566,9 @@ export default function LandingPage() {
           <div className="mt-14 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 
             {/* AI-Powered Generation — large card with visual */}
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/30 p-6 transition hover:border-sky-500/20 hover:bg-slate-900/50 lg:col-span-2 lg:row-span-2">
-              <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-sky-500/[0.04] blur-[60px] transition-all group-hover:bg-sky-500/[0.08]" />
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-400">
+            <div className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/30 p-6 transition hover:border-brand-500/20 hover:bg-slate-900/50 lg:col-span-2 lg:row-span-2">
+              <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-500/[0.04] blur-[60px] transition-all group-hover:bg-brand-500/[0.08]" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/10 text-brand-400">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -618,7 +580,7 @@ export default function LandingPage() {
               {/* Mini visual: AI prompt → graph */}
               <div className="mt-6 rounded-xl border border-slate-800/40 bg-[#050b15] p-4">
                 <div className="flex items-center gap-2 text-[11px] text-slate-600 mb-3">
-                  <svg className="h-3.5 w-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <svg className="h-3.5 w-3.5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path strokeLinecap="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   AI Prompt
@@ -627,11 +589,11 @@ export default function LandingPage() {
                   &quot;Map our payment processing pipeline with Stripe, webhooks, and the order database&quot;
                 </div>
                 <div className="mt-3 flex items-center gap-2">
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-sky-500/30 to-transparent" />
-                  <svg className="h-3.5 w-3.5 text-sky-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-brand-500/30 to-transparent" />
+                  <svg className="h-3.5 w-3.5 text-brand-500/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path strokeLinecap="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                   </svg>
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-sky-500/30 to-transparent" />
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-brand-500/30 to-transparent" />
                 </div>
                 <svg className="mt-3 w-full" viewBox="0 0 380 80" fill="none">
                   {/* Mini generated graph */}
@@ -663,7 +625,7 @@ export default function LandingPage() {
               <p className="mt-2 text-sm leading-relaxed text-slate-500">Multiple people editing the same map. See cursors, edits, and comments live.</p>
               {/* Mini avatars */}
               <div className="mt-4 flex items-center -space-x-2">
-                {["bg-sky-500", "bg-violet-500", "bg-emerald-500"].map((bg, i) => (
+                {["bg-brand-500", "bg-violet-500", "bg-emerald-500"].map((bg, i) => (
                   <div key={i} className={`flex h-7 w-7 items-center justify-center rounded-full ${bg} border-2 border-[#0b1422] text-[10px] font-bold text-white`}>
                     {["A", "R", "M"][i]}
                   </div>
@@ -709,9 +671,9 @@ export default function LandingPage() {
             </div>
 
             {/* Public Sharing — wide */}
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/30 p-6 transition hover:border-sky-500/20 hover:bg-slate-900/50 lg:col-span-2">
-              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-sky-500/[0.04] blur-[50px] transition-all group-hover:bg-sky-500/[0.08]" />
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-sky-500/20 bg-sky-500/10 text-sky-400">
+            <div className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/30 p-6 transition hover:border-brand-500/20 hover:bg-slate-900/50 lg:col-span-2">
+              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-brand-500/[0.04] blur-[50px] transition-all group-hover:bg-brand-500/[0.08]" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/10 text-brand-400">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
@@ -720,18 +682,18 @@ export default function LandingPage() {
               <p className="mt-2 text-sm leading-relaxed text-slate-500">Share read-only maps with a single link. Perfect for stakeholder reviews, incident post-mortems, and architecture walkthroughs.</p>
               {/* Mini share link UI */}
               <div className="mt-4 flex items-center gap-2 rounded-lg border border-slate-700/30 bg-slate-800/30 px-3 py-2">
-                <svg className="h-3.5 w-3.5 shrink-0 text-sky-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                <svg className="h-3.5 w-3.5 shrink-0 text-brand-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
                 <span className="flex-1 truncate text-[11px] font-mono text-slate-500">swaymaps.com/share/a8f2e...</span>
-                <span className="rounded bg-sky-500/10 px-1.5 py-0.5 text-[9px] font-bold text-sky-400">COPY</span>
+                <span className="rounded bg-brand-500/10 px-1.5 py-0.5 text-[9px] font-bold text-brand-400">COPY</span>
               </div>
             </div>
 
             {/* Version History */}
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/30 p-6 transition hover:border-indigo-500/20 hover:bg-slate-900/50">
-              <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-indigo-500/[0.04] blur-[40px] transition-all group-hover:bg-indigo-500/[0.08]" />
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
+            <div className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/30 p-6 transition hover:border-brand-500/20 hover:bg-slate-900/50">
+              <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand-500/[0.04] blur-[40px] transition-all group-hover:bg-brand-500/[0.08]" />
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/10 text-brand-400">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -746,7 +708,7 @@ export default function LandingPage() {
                   { label: "v2", time: "3h ago", active: false },
                 ].map((v, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <div className={`h-2 w-2 rounded-full ${v.active ? "bg-indigo-400" : "bg-slate-700"}`} />
+                    <div className={`h-2 w-2 rounded-full ${v.active ? "bg-brand-400" : "bg-slate-700"}`} />
                     <span className={`text-[11px] font-medium ${v.active ? "text-slate-300" : "text-slate-600"}`}>{v.label}</span>
                     <span className="text-[10px] text-slate-700">{v.time}</span>
                   </div>
@@ -756,7 +718,7 @@ export default function LandingPage() {
 
             {/* Command Palette */}
             <div className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/30 p-6 transition hover:border-slate-600/60 hover:bg-slate-900/50">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700/30 bg-slate-800/40 text-slate-400 transition group-hover:border-sky-500/30 group-hover:text-sky-400">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700/30 bg-slate-800/40 text-slate-400 transition group-hover:border-brand-500/30 group-hover:text-brand-400">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
                 </svg>
@@ -773,7 +735,7 @@ export default function LandingPage() {
 
             {/* 11 Node Types */}
             <div className="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-900/30 p-6 transition hover:border-slate-600/60 hover:bg-slate-900/50">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700/30 bg-slate-800/40 text-slate-400 transition group-hover:border-sky-500/30 group-hover:text-sky-400">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700/30 bg-slate-800/40 text-slate-400 transition group-hover:border-brand-500/30 group-hover:text-brand-400">
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <circle cx="5" cy="12" r="2.5" />
                   <circle cx="19" cy="6" r="2.5" />
@@ -786,7 +748,7 @@ export default function LandingPage() {
               {/* Mini colored dots */}
               <div className="mt-4 flex flex-wrap gap-1.5">
                 {[
-                  { color: "bg-sky-500", label: "System" },
+                  { color: "bg-brand-500", label: "System" },
                   { color: "bg-violet-500", label: "Person" },
                   { color: "bg-emerald-500", label: "Process" },
                   { color: "bg-amber-500", label: "Database" },
@@ -822,7 +784,7 @@ export default function LandingPage() {
                 onClick={() => setActiveTab(uc.id)}
                 className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
                   activeTab === uc.id
-                    ? "bg-gradient-to-r from-sky-500 to-indigo-500 text-white shadow-lg shadow-sky-500/20"
+                    ? "bg-gradient-to-r from-brand-600 to-brand-400 text-white shadow-lg shadow-brand-500/20"
                     : "border border-slate-700/50 text-slate-400 hover:border-slate-600 hover:text-slate-200"
                 }`}
               >
@@ -837,7 +799,7 @@ export default function LandingPage() {
             <ul className="mt-6 space-y-3">
               {activeUseCase.bullets.map((b, i) => (
                 <li key={i} className="flex items-start gap-3 text-slate-300">
-                  <svg className="mt-0.5 h-5 w-5 shrink-0 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <svg className="mt-0.5 h-5 w-5 shrink-0 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path strokeLinecap="round" d="M5 13l4 4L19 7" />
                   </svg>
                   {b}
@@ -866,7 +828,7 @@ export default function LandingPage() {
             <button
               onClick={() => setAnnualBilling(!annualBilling)}
               className={`relative inline-flex h-7 w-[52px] shrink-0 items-center rounded-full transition-colors duration-200 ${
-                annualBilling ? "bg-gradient-to-r from-sky-500 to-indigo-500" : "bg-slate-700"
+                annualBilling ? "bg-gradient-to-r from-brand-600 to-brand-400" : "bg-slate-700"
               }`}
               role="switch"
               aria-checked={annualBilling}
@@ -923,19 +885,19 @@ export default function LandingPage() {
               <ul className="mt-8 flex-1 space-y-3 text-sm text-slate-400">
                 {["Unlimited maps", "5 workspaces", "All node types", "Unlimited AI", "Export PDF / PNG / SVG", "All templates", "Public sharing", "Email support"].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" d="M5 13l4 4L19 7" /></svg>
+                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" d="M5 13l4 4L19 7" /></svg>
                     {item}
                   </li>
                 ))}
               </ul>
-              <Link href="/auth/signup" className="mt-8 block rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 hover:-translate-y-[1px]">
+              <Link href="/auth/signup" className="mt-8 block rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 hover:-translate-y-[1px]">
                 Start 14-Day Free Trial
               </Link>
             </div>
 
             {/* Team */}
-            <div className="relative flex flex-col rounded-2xl border-2 border-sky-500/30 bg-slate-900/30 p-8 shadow-lg shadow-sky-500/5">
-              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-1 text-xs font-bold text-white shadow-lg shadow-sky-500/20">
+            <div className="relative flex flex-col rounded-2xl border-2 border-brand-500/30 bg-slate-900/30 p-8 shadow-lg shadow-brand-500/5">
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-600 to-brand-400 px-4 py-1 text-xs font-bold text-white shadow-lg shadow-brand-500/20">
                 Most Popular
               </span>
               <h3 className="text-xl font-bold text-white">Team</h3>
@@ -948,12 +910,12 @@ export default function LandingPage() {
               <ul className="mt-8 flex-1 space-y-3 text-sm text-slate-400">
                 {["Everything in Pro", "Unlimited workspaces", "Unlimited members", "Version history", "Priority support", "API access (coming)"].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" d="M5 13l4 4L19 7" /></svg>
+                    <svg className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" d="M5 13l4 4L19 7" /></svg>
                     {item}
                   </li>
                 ))}
               </ul>
-              <Link href="/auth/signup" className="mt-8 block rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 hover:-translate-y-[1px]">
+              <Link href="/auth/signup" className="mt-8 block rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 hover:-translate-y-[1px]">
                 Start 14-Day Free Trial
               </Link>
             </div>
@@ -986,7 +948,7 @@ export default function LandingPage() {
                 >
                   <span className="font-semibold text-slate-100">{faq.question}</span>
                   <svg
-                    className={`h-5 w-5 shrink-0 text-sky-400 transition-transform ${expandedFaq === idx ? "rotate-180" : ""}`}
+                    className={`h-5 w-5 shrink-0 text-brand-400 transition-transform ${expandedFaq === idx ? "rotate-180" : ""}`}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                   >
                     <path strokeLinecap="round" d="M19 9l-7 7-7-7" />
@@ -1007,7 +969,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden py-28">
         <GraphBackground />
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-500/[0.06] blur-[160px]" />
+          <div className="absolute left-1/2 top-1/2 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500/[0.06] blur-[160px]" />
         </div>
 
         <div className="relative mx-auto max-w-3xl px-6 text-center">
@@ -1020,7 +982,7 @@ export default function LandingPage() {
           <div className="mt-10">
             <Link
               href="/auth/signup"
-              className="inline-block rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-10 py-4 text-lg font-bold text-white shadow-xl shadow-sky-500/25 transition hover:shadow-sky-500/40 hover:-translate-y-[1px]"
+              className="inline-block rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 px-10 py-4 text-lg font-bold text-white shadow-xl shadow-brand-500/25 transition hover:shadow-brand-500/40 hover:-translate-y-[1px]"
             >
               Start Mapping for Free
             </Link>
@@ -1033,10 +995,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             <div className="lg:col-span-1">
-              <div className="flex items-center gap-2.5">
-                <SwayMapLogo size={28} />
-                <span className="text-lg font-bold text-white">SwayMaps</span>
-              </div>
+              <SwayMapsIcon size={28} />
               <p className="mt-3 text-sm text-slate-600">
                 Visual dependency mapping for engineering teams.
               </p>

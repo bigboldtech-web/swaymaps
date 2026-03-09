@@ -21,25 +21,26 @@ export const colors = {
     inverse: "#0f172a",    // slate-900
   },
 
-  // Accent (primary gradient endpoints)
+  // Accent — brand gradient from logo
   accent: {
-    sky: "#0ea5e9",        // sky-500
-    indigo: "#6366f1",     // indigo-500
-    gradient: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+    light: "#29a5e5",      // brand-400 (logo right)
+    primary: "#2192dd",    // brand-500 (mid)
+    dark: "#1a80d5",       // brand-600 (logo left)
+    gradient: "linear-gradient(135deg, #1a80d5, #29a5e5)",
   },
 
   // Semantic
   success: { base: "#10b981", glow: "rgba(16,185,129,0.20)" },   // emerald-500
   warning: { base: "#f59e0b", glow: "rgba(245,158,11,0.20)" },   // amber-500
   error:   { base: "#ef4444", glow: "rgba(239,68,68,0.20)" },     // red-500
-  info:    { base: "#0ea5e9", glow: "rgba(14,165,233,0.20)" },    // sky-500
+  info:    { base: "#2192dd", glow: "rgba(33,146,221,0.20)" },    // brand-500
 
   // Borders
   border: {
     subtle: "rgba(51,65,85,0.40)",   // slate-700/40
     medium: "rgba(51,65,85,0.60)",   // slate-700/60
     strong: "#334155",               // slate-700
-    glow: "rgba(14,165,233,0.30)",   // sky-500/30
+    glow: "rgba(26,128,213,0.30)",   // brand-600/30
   },
 
   // Node kind accent colors
@@ -63,7 +64,7 @@ export const glass = {
   panelHover: "bg-[#0b1422]/85 backdrop-blur-xl border border-slate-700/60",
   card: "bg-slate-900/60 backdrop-blur-lg border border-slate-700/40 rounded-2xl",
   input: "bg-slate-800/30 border border-slate-700/50 backdrop-blur-sm",
-  inputFocus: "ring-1 ring-sky-500/50 border-sky-500/50",
+  inputFocus: "ring-1 ring-brand-500/50 border-brand-500/50",
   overlay: "bg-black/60 backdrop-blur-sm",
   modal: "bg-[#0b1422]/90 backdrop-blur-2xl border border-slate-700/40 rounded-2xl shadow-2xl",
 } as const;
@@ -73,8 +74,8 @@ export const shadows = {
   md: "0 4px 12px rgba(0,0,0,0.4)",
   lg: "0 8px 32px rgba(0,0,0,0.5)",
   glow: {
-    sky: "0 0 20px rgba(14,165,233,0.15)",
-    indigo: "0 0 20px rgba(99,102,241,0.15)",
+    brand: "0 0 20px rgba(26,128,213,0.15)",
+    brandLight: "0 0 20px rgba(41,165,229,0.15)",
     emerald: "0 0 20px rgba(16,185,129,0.15)",
     rose: "0 0 20px rgba(239,68,68,0.15)",
   },

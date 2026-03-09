@@ -4,6 +4,7 @@ import React, { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { SwayMapsAuthLogo } from "../../../components/SwayMapsLogo";
 
 function SignInForm() {
   const router = useRouter();
@@ -40,20 +41,15 @@ function SignInForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-100">
+    <div className="dark min-h-screen bg-[#030712] text-slate-100">
       <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
         {/* Left: hero */}
         <div className="hidden flex-col justify-center bg-gradient-to-br from-sky-950 via-[#030712] to-indigo-950 px-12 py-12 md:flex">
           <div className="max-w-lg space-y-4">
-            <Link href="/" className="flex items-center gap-2">
-              <svg viewBox="0 0 48 48" className="h-8 w-8">
-                <circle cx="36" cy="8" r="4" fill="#ef4444" stroke="#0ea5e9" strokeWidth="3" />
-                <circle cx="12" cy="40" r="4" fill="#ef4444" stroke="#0ea5e9" strokeWidth="3" />
-                <path d="M36 8 L22 18 L30 28 L12 40" fill="none" stroke="#0ea5e9" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <span className="text-xl font-bold text-white">SwayMaps</span>
+            <Link href="/">
+              <SwayMapsAuthLogo />
             </Link>
-            <h1 className="mt-6 bg-gradient-to-r from-white via-sky-200 to-indigo-200 bg-clip-text text-4xl font-extrabold text-transparent">
+            <h1 className="mt-6 bg-gradient-to-r from-white via-brand-300 to-indigo-200 bg-clip-text text-4xl font-extrabold text-transparent">
               See What Depends on What. Before It Breaks.
             </h1>
             <p className="text-sm leading-relaxed text-slate-400">
@@ -65,18 +61,13 @@ function SignInForm() {
         {/* Right: form */}
         <div className="flex items-center justify-center px-6 py-10">
           <div className="w-full max-w-md">
-            <div className="mb-6 flex items-center gap-2 md:hidden">
-              <Link href="/" className="flex items-center gap-2">
-                <svg viewBox="0 0 48 48" className="h-8 w-8">
-                  <circle cx="36" cy="8" r="4" fill="#ef4444" stroke="#0ea5e9" strokeWidth="3" />
-                  <circle cx="12" cy="40" r="4" fill="#ef4444" stroke="#0ea5e9" strokeWidth="3" />
-                  <path d="M36 8 L22 18 L30 28 L12 40" fill="none" stroke="#0ea5e9" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="text-lg font-bold text-white">SwayMaps</span>
+            <div className="mb-6 md:hidden">
+              <Link href="/">
+                <SwayMapsAuthLogo size="small" />
               </Link>
             </div>
 
-            <div className="rounded-2xl glass-panel-solid p-8">
+            <div className="rounded-2xl border border-slate-700/40 bg-slate-900/80 backdrop-blur-xl p-8">
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-white">Welcome back</h2>
                 <p className="mt-1 text-sm text-slate-400">Sign in to your SwayMaps account</p>
@@ -99,7 +90,7 @@ function SignInForm() {
               <button
                 type="button"
                 onClick={handleGithubSignIn}
-                className="mt-3 flex w-full items-center justify-center gap-3 rounded-lg border border-slate-700 bg-slate-800/80 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-700"
+                className="mt-3 flex w-full items-center justify-center gap-3 rounded-lg border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
@@ -108,9 +99,9 @@ function SignInForm() {
               </button>
 
               <div className="my-6 flex items-center gap-3">
-                <div className="h-px flex-1 bg-slate-800" />
+                <div className="h-px flex-1 bg-slate-700/60" />
                 <span className="text-xs text-slate-500">or continue with email</span>
-                <div className="h-px flex-1 bg-slate-800" />
+                <div className="h-px flex-1 bg-slate-700/60" />
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -119,7 +110,7 @@ function SignInForm() {
                   <input
                     type="email"
                     required
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                     placeholder="you@company.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -130,7 +121,7 @@ function SignInForm() {
                   <input
                     type="password"
                     required
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -144,7 +135,7 @@ function SignInForm() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:opacity-60"
+                  className="w-full rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40 disabled:opacity-60"
                 >
                   {loading ? "Signing in..." : "Sign In"}
                 </button>
@@ -152,7 +143,7 @@ function SignInForm() {
 
               <div className="mt-6 text-center text-sm text-slate-400">
                 Don&apos;t have an account?{" "}
-                <Link href="/auth/signup" className="font-semibold text-sky-400 transition hover:text-sky-300">
+                <Link href="/auth/signup" className="font-semibold text-brand-400 transition hover:text-brand-300">
                   Sign up free
                 </Link>
               </div>

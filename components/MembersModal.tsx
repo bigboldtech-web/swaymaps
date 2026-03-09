@@ -2,6 +2,7 @@
 
 import React from "react";
 import { User, Workspace, WorkspaceRole } from "../types/map";
+import { useTheme } from "./providers/ThemeProvider";
 
 interface MembersModalProps {
   workspace: Workspace;
@@ -22,6 +23,8 @@ export function MembersModal({
 }: MembersModalProps) {
   const members = workspace.members;
   const findUser = (id: string) => users.find((u) => u.id === id);
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
@@ -29,20 +32,20 @@ export function MembersModal({
         <div className="mb-4 flex items-center justify-between">
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-500">Workspace</div>
-            <div className="text-lg font-semibold text-slate-100">Members</div>
-            <p className="text-sm text-slate-400">{workspace.name}</p>
+            <div className={`text-lg font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>Members</div>
+            <p className={`text-sm ${isLight ? "text-slate-500" : "text-slate-400"}`}>{workspace.name}</p>
           </div>
           <div className="flex items-center gap-2">
             {onInvite && (
               <button
-                className="rounded-lg border border-slate-700/50 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:bg-slate-800/60"
+                className={`rounded-lg border px-3 py-1 text-xs font-semibold transition ${isLight ? "border-slate-300/50 text-slate-600 hover:bg-slate-100/60" : "border-slate-700/50 text-slate-300 hover:bg-slate-800/60"}`}
                 onClick={onInvite}
               >
                 Invite
               </button>
             )}
             <button
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-700/50 text-slate-400 transition hover:bg-slate-800/60 hover:text-slate-200"
+              className={`flex h-8 w-8 items-center justify-center rounded-full border transition ${isLight ? "border-slate-300/50 text-slate-400 hover:bg-slate-100/60 hover:text-slate-700" : "border-slate-700/50 text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"}`}
               onClick={onClose}
               aria-label="Close members modal"
             >
@@ -57,14 +60,14 @@ export function MembersModal({
             return (
               <div
                 key={m.userId}
-                className="flex items-center justify-between rounded-xl border border-slate-700/40 bg-slate-800/30 px-3 py-2.5"
+                className={`flex items-center justify-between rounded-xl border px-3 py-2.5 ${isLight ? "border-slate-200/60 bg-white/60" : "border-slate-700/40 bg-slate-800/30"}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-xs font-bold text-white">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-brand-400 text-xs font-bold text-white">
                     {(user?.name ?? m.userId).slice(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-slate-200">
+                    <div className={`text-sm font-semibold ${isLight ? "text-slate-700" : "text-slate-200"}`}>
                       {user?.name ?? m.userId}
                     </div>
                     <div className="text-xs text-slate-500">{user?.email ?? ""}</div>
@@ -72,7 +75,7 @@ export function MembersModal({
                 </div>
                 <div className="flex items-center gap-2">
                   <select
-                    className="rounded-lg border border-slate-700/50 bg-slate-800/30 px-2 py-1 text-xs font-semibold text-slate-200 outline-none transition focus:border-sky-500/50"
+                    className={`rounded-lg border px-2 py-1 text-xs font-semibold outline-none transition focus:border-brand-500/50 ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700" : "border-slate-700/50 bg-slate-800/30 text-slate-200"}`}
                     value={m.role}
                     onChange={(e) => onChangeRole(m.userId, e.target.value as WorkspaceRole)}
                   >
@@ -92,7 +95,7 @@ export function MembersModal({
             );
           })}
           {members.length === 0 && (
-            <div className="rounded-xl border border-dashed border-slate-700/40 px-3 py-6 text-center text-sm text-slate-500">
+            <div className={`rounded-xl border border-dashed px-3 py-6 text-center text-sm ${isLight ? "border-slate-300/40 text-slate-400" : "border-slate-700/40 text-slate-500"}`}>
               No members yet. Invite your team to get started.
             </div>
           )}

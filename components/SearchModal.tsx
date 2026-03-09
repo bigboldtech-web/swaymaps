@@ -83,7 +83,7 @@ export function SearchModal({ onSelectMap, onClose }: SearchModalProps) {
             onKeyDown={(e) => e.key === "Escape" && onClose()}
           />
           {loading && (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-sky-400 border-t-transparent" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
           )}
           <kbd className={`rounded ${isLight ? "bg-slate-200/60" : "bg-slate-800/60"} px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 border ${isLight ? "border-slate-300/40" : "border-slate-700/40"}`}>
             ESC
@@ -131,7 +131,7 @@ export function SearchModal({ onSelectMap, onClose }: SearchModalProps) {
                   <div className="flex items-center gap-2">
                     <span
                       className="h-3 w-3 rounded-full shrink-0"
-                      style={{ backgroundColor: n.color || "#6366f1" }}
+                      style={{ backgroundColor: n.color || "#29a5e5" }}
                     />
                     <span className={`text-sm font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>{n.title}</span>
                     <span className={`rounded-full ${isLight ? "bg-slate-200/60" : "bg-slate-800/60"} border ${isLight ? "border-slate-300/40" : "border-slate-700/40"} px-1.5 py-0.5 text-[10px] font-semibold capitalize text-slate-400`}>

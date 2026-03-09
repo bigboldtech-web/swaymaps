@@ -267,7 +267,7 @@ function ProcessView({
             href={process.sopLink}
             target="_blank"
             rel="noreferrer"
-            className="text-sm font-medium text-sky-400 hover:text-sky-300 hover:underline"
+            className="text-sm font-medium text-brand-400 hover:text-brand-300 hover:underline"
           >
             {process.sopLink}
           </a>
@@ -405,7 +405,7 @@ function EdgeView({
           </div>
           {edge.sourceId && (
             <button
-              className="text-xs font-semibold text-sky-400 hover:text-sky-300 hover:underline"
+              className="text-xs font-semibold text-brand-400 hover:text-brand-300 hover:underline"
               onClick={() => onSelectNode(edge.sourceId)}
             >
               Select
@@ -425,7 +425,7 @@ function EdgeView({
           </div>
           {edge.targetId && (
             <button
-              className="text-xs font-semibold text-sky-400 hover:text-sky-300 hover:underline"
+              className="text-xs font-semibold text-brand-400 hover:text-brand-300 hover:underline"
               onClick={() => onSelectNode(edge.targetId)}
             >
               Select

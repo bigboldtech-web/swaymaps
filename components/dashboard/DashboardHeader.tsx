@@ -184,7 +184,7 @@ export function DashboardHeader({
         <button
           className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold shadow-sm transition-all duration-200 active:scale-95 ${
             aiEnabled
-              ? "bg-gradient-to-r from-sky-500 to-indigo-500 text-white shadow-sky-500/20 hover:shadow-sky-500/40 hover:brightness-110"
+              ? "bg-gradient-to-r from-brand-600 to-brand-400 text-white shadow-brand-500/20 hover:shadow-brand-500/40 hover:brightness-110"
               : "bg-slate-700/30 text-slate-500 cursor-not-allowed opacity-60"
           }`}
           onClick={onAiAssist}

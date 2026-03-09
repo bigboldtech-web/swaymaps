@@ -139,7 +139,7 @@ export function SettingsModal({
             </div>
             <div className="space-y-2">
               <select
-                className={`w-full rounded-lg border px-3 py-2 text-sm font-semibold outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 ${isLight ? "border-slate-200/70 bg-white/70 text-slate-700" : "border-slate-700/50 bg-slate-800/30 text-slate-100"}`}
+                className={`w-full rounded-lg border px-3 py-2 text-sm font-semibold outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 ${isLight ? "border-slate-200/70 bg-white/70 text-slate-700" : "border-slate-700/50 bg-slate-800/30 text-slate-100"}`}
                 value={workspace?.id ?? ""}
                 onChange={(e) => onSelectWorkspace(e.target.value)}
               >
@@ -168,7 +168,7 @@ export function SettingsModal({
             </div>
             <div className="mt-2 grid grid-cols-1 gap-2">
               <button
-                className="w-full rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40"
+                className="w-full rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-3 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40"
                 onClick={onUpgrade}
               >
                 Upgrade plan
@@ -193,7 +193,7 @@ export function SettingsModal({
                   onChange={(e) => onToggleAiEnabled(e.target.checked)}
                   className="peer sr-only"
                 />
-                <div className="h-5 w-9 rounded-full bg-slate-700 peer-checked:bg-sky-500 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full" />
+                <div className="h-5 w-9 rounded-full bg-slate-700 peer-checked:bg-brand-500 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-full" />
                 <span className="text-xs font-semibold text-slate-400">
                   {aiEnabled ? "Enabled" : "Disabled"}
                 </span>
@@ -205,7 +205,7 @@ export function SettingsModal({
               </label>
               <input
                 type="password"
-                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50 ${isLight ? "border-slate-200/70 bg-white/70 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-500"}`}
+                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 ${isLight ? "border-slate-200/70 bg-white/70 text-slate-700 placeholder:text-slate-400" : "border-slate-700/50 bg-slate-800/30 text-slate-100 placeholder:text-slate-500"}`}
                 placeholder="sk-..."
                 value={aiKey}
                 onChange={(e) => onChangeAiKey(e.target.value)}
@@ -227,7 +227,7 @@ export function SettingsModal({
                   className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition ${isLight ? "border-slate-200/60 text-slate-600 hover:bg-slate-100/60 hover:text-slate-800" : "border-slate-700/50 text-slate-300 hover:bg-slate-700/40 hover:text-slate-100"}`}
                   onClick={() => { onClose(); onOpenApiKeys(); }}
                 >
-                  <svg className="h-4 w-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
+                  <svg className="h-4 w-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
                   API Keys
                 </button>
               )}
@@ -236,7 +236,7 @@ export function SettingsModal({
                   className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition ${isLight ? "border-slate-200/60 text-slate-600 hover:bg-slate-100/60 hover:text-slate-800" : "border-slate-700/50 text-slate-300 hover:bg-slate-700/40 hover:text-slate-100"}`}
                   onClick={() => { onClose(); onOpenIntegrations(); }}
                 >
-                  <svg className="h-4 w-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.03a4.5 4.5 0 00-6.364-6.364L4.5 8.25l4.5 4.5" /></svg>
+                  <svg className="h-4 w-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.03a4.5 4.5 0 00-6.364-6.364L4.5 8.25l4.5 4.5" /></svg>
                   Slack / Teams
                 </button>
               )}

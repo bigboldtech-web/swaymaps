@@ -78,8 +78,8 @@ const typeStyles: Record<ToastType, { icon: string; border: string; glow: string
     glow: "shadow-[0_0_12px_rgba(239,68,68,0.15)]",
   },
   info: {
-    icon: "text-sky-400",
-    border: "border-sky-500/20",
+    icon: "text-brand-400",
+    border: "border-brand-500/20",
     glow: "shadow-[0_0_12px_rgba(14,165,233,0.15)]",
   },
   warning: {

@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-[#030712] text-slate-300">
       <div className="mx-auto max-w-3xl px-6 py-16">
-        <Link href="/" className="text-sm text-sky-400 hover:text-sky-300">
+        <Link href="/" className="text-sm text-brand-400 hover:text-brand-300">
           &larr; Back to SwayMaps
         </Link>
         <h1 className="mt-6 text-3xl font-bold text-white">Privacy Policy</h1>

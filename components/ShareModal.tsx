@@ -39,7 +39,7 @@ export function ShareModal({
     : "Only invited members can open";
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const embedUrl = shareId ? `${origin}/share/${shareId}` : null;
+  const embedUrl = shareId ? `${origin}/embed/${shareId}` : null;
   const embedCode = embedUrl
     ? `<iframe src="${embedUrl}?embed=true" width="100%" height="600" style="border:none;border-radius:12px;" title="${mapName || "SwayMap"}" loading="lazy"></iframe>`
     : null;
@@ -71,7 +71,7 @@ export function ShareModal({
         <div className={`mb-4 rounded-xl border ${isLight ? "border-slate-200/60 bg-white/60" : "border-slate-700/40 bg-slate-800/30"} p-4`}>
           <div className={`text-sm font-semibold ${isLight ? "text-slate-700" : "text-slate-200"}`}>People with access</div>
           <div className="mt-3 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-sm font-bold text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-brand-400 text-sm font-bold text-white">
               {(ownerName ?? "Owner").slice(0, 2).toUpperCase()}
             </div>
             <div>
@@ -88,7 +88,7 @@ export function ShareModal({
               <div className="text-xs text-slate-500">{accessHelp}</div>
             </div>
             <select
-              className={`rounded-lg border ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700" : "border-slate-700/50 bg-slate-800/30 text-slate-100"} px-3 py-2 text-sm font-semibold outline-none transition focus:border-sky-500/50`}
+              className={`rounded-lg border ${isLight ? "border-slate-300/50 bg-white/60 text-slate-700" : "border-slate-700/50 bg-slate-800/30 text-slate-100"} px-3 py-2 text-sm font-semibold outline-none transition focus:border-brand-500/50`}
               value={access}
               onChange={(e) => {
                 if (shareMode) return;
@@ -135,7 +135,7 @@ export function ShareModal({
               Done
             </button>
             <button
-              className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40"
+              className="rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40"
               onClick={onCopyLink}
             >
               Copy link

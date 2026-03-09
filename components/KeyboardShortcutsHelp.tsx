@@ -52,7 +52,7 @@ export function KeyboardShortcutsHelp({ open, onClose }: KeyboardShortcutsHelpPr
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-700/30 p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 text-white">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                 <path strokeLinecap="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
               </svg>
@@ -73,7 +73,7 @@ export function KeyboardShortcutsHelp({ open, onClose }: KeyboardShortcutsHelpPr
         <div className="max-h-[60vh] overflow-y-auto p-5 space-y-5">
           {shortcuts.map((group) => (
             <div key={group.category}>
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-sky-400">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-400">
                 {group.category}
               </div>
               <div className="space-y-1">

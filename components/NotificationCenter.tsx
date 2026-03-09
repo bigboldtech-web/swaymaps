@@ -111,7 +111,7 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
           <path strokeLinecap="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-sky-500 text-[9px] font-bold text-white animate-bounce-in">
+          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[9px] font-bold text-white animate-bounce-in">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -124,7 +124,7 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
             <span className={`text-sm font-semibold ${isLight ? "text-slate-800" : "text-slate-100"}`}>Notifications</span>
             {unreadCount > 0 && (
               <button
-                className="text-[11px] font-medium text-sky-400 transition hover:text-sky-300"
+                className="text-[11px] font-medium text-brand-400 transition hover:text-brand-300"
                 onClick={markAllRead}
               >
                 Mark all read
@@ -148,7 +148,7 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
                 <button
                   key={n.id}
                   className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-all duration-200 ${isLight ? "hover:bg-slate-100/60" : "hover:bg-slate-800/30"} ${
-                    !n.read ? "bg-sky-500/5" : ""
+                    !n.read ? "bg-brand-500/5" : ""
                   }`}
                   onClick={() => {
                     markRead(n.id);
@@ -157,7 +157,7 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
                 >
                   <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${
                     !n.read
-                      ? "border-sky-500/30 bg-sky-500/10 text-sky-400"
+                      ? "border-brand-500/30 bg-brand-500/10 text-brand-400"
                       : isLight
                         ? "border-slate-200/60 bg-slate-100/60 text-slate-400"
                         : "border-slate-700/30 bg-slate-800/40 text-slate-500"
@@ -171,7 +171,7 @@ export function NotificationCenter({ onNavigate }: NotificationCenterProps) {
                       <span className={`text-sm font-medium truncate ${!n.read ? (isLight ? "text-slate-800" : "text-slate-100") : (isLight ? "text-slate-500" : "text-slate-400")}`}>
                         {n.title}
                       </span>
-                      {!n.read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-sky-500" />}
+                      {!n.read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />}
                     </div>
                     <p className={`mt-0.5 text-xs line-clamp-2 ${isLight ? "text-slate-400" : "text-slate-500"}`}>{n.body}</p>
                     <span className={`mt-1 text-[10px] ${isLight ? "text-slate-400" : "text-slate-600"}`}>{formatTime(n.createdAt)}</span>

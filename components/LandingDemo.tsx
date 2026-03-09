@@ -11,9 +11,9 @@ export function LandingDemo() {
         <div className="mt-4 rounded-lg border border-slate-800 bg-slate-900 p-3">
           <div className="flex flex-col gap-3 text-xs text-slate-200">
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-sky-400" />
+              <div className="h-2 w-2 rounded-full bg-brand-400" />
               <div>Incident map</div>
-              <div className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[10px] uppercase text-sky-200">Pinned</div>
+              <div className="rounded-full bg-brand-500/20 px-2 py-0.5 text-[10px] uppercase text-sky-200">Pinned</div>
             </div>
             <div className="grid grid-cols-3 gap-2 text-[11px]">
               {["Auth Service", "DB Cluster", "Billing", "On-call", "Runbook", "Postmortem"].map((item) => (

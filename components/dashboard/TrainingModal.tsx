@@ -119,7 +119,7 @@ export function TrainingModal({ open, onClose }: TrainingModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-700/30 p-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 text-white">
               {current.icon}
             </div>
             <div>
@@ -150,13 +150,13 @@ export function TrainingModal({ open, onClose }: TrainingModalProps) {
 
           {current.tips && (
             <div className="mt-4 rounded-xl border border-slate-700/40 bg-slate-800/30 p-4">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-sky-400">
+              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-400">
                 Quick Tips
               </div>
               <ul className="space-y-2">
                 {current.tips.map((tip, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
-                    <span className="mt-0.5 text-sky-400">&#8226;</span>
+                    <span className="mt-0.5 text-brand-400">&#8226;</span>
                     <span>{tip}</span>
                   </li>
                 ))}
@@ -174,9 +174,9 @@ export function TrainingModal({ open, onClose }: TrainingModalProps) {
                 onClick={() => setStep(idx)}
                 className={`h-2 rounded-full transition-all ${
                   idx === step
-                    ? "w-8 bg-gradient-to-r from-sky-500 to-indigo-500"
+                    ? "w-8 bg-gradient-to-r from-brand-600 to-brand-400"
                     : idx < step
-                    ? "w-2 bg-sky-500/40"
+                    ? "w-2 bg-brand-500/40"
                     : "w-2 bg-slate-700 hover:bg-slate-600"
                 }`}
                 aria-label={`Go to step ${idx + 1}`}
@@ -198,7 +198,7 @@ export function TrainingModal({ open, onClose }: TrainingModalProps) {
 
             {step < trainingSteps.length - 1 ? (
               <button
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40"
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition hover:shadow-brand-500/40"
                 onClick={() => setStep((prev) => prev + 1)}
               >
                 Next

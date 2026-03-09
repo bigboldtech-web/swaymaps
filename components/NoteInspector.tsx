@@ -19,14 +19,14 @@ const ALL_KINDS: { kind: NodeKind; label: string; icon: string; color: string }[
   { kind: "person", label: "Person", icon: "👤", color: "#38bdf8" },
   { kind: "system", label: "System", icon: "🖥", color: "#22c55e" },
   { kind: "process", label: "Process", icon: "⚙️", color: "#fbbf24" },
-  { kind: "database", label: "Database", icon: "🗄", color: "#6366f1" },
-  { kind: "api", label: "API", icon: "🔌", color: "#0ea5e9" },
+  { kind: "database", label: "Database", icon: "🗄", color: "#29a5e5" },
+  { kind: "api", label: "API", icon: "🔌", color: "#2192dd" },
   { kind: "queue", label: "Queue", icon: "📬", color: "#f59e0b" },
   { kind: "cache", label: "Cache", icon: "⚡", color: "#ef4444" },
   { kind: "cloud", label: "Cloud", icon: "☁️", color: "#8b5cf6" },
   { kind: "team", label: "Team", icon: "👥", color: "#14b8a6" },
   { kind: "vendor", label: "Vendor", icon: "🏢", color: "#f97316" },
-  { kind: "generic", label: "Generic", icon: "📦", color: "#6366f1" },
+  { kind: "generic", label: "Generic", icon: "📦", color: "#29a5e5" },
 ];
 
 const STATUS_OPTIONS: { value: NodeStatus; label: string; color: string; dot: string }[] = [
@@ -86,12 +86,12 @@ const ALL_RELATIONS = RELATION_GROUPS.flatMap((g) => g.items);
 
 const PALETTE = [
   "#3b82f6", "#22c55e", "#f59e0b", "#ec4899", "#8b5cf6",
-  "#ef4444", "#0ea5e9", "#f97316", "#6366f1", "#14b8a6", "#9ca3af",
+  "#ef4444", "#2192dd", "#f97316", "#29a5e5", "#14b8a6", "#9ca3af",
 ];
 
 const EDGE_COLORS = [
   "#64748b", "#3b82f6", "#22c55e", "#f59e0b", "#ef4444",
-  "#8b5cf6", "#ec4899", "#0ea5e9", "#f97316", "#14b8a6",
+  "#8b5cf6", "#ec4899", "#2192dd", "#f97316", "#14b8a6",
 ];
 
 /* ───────────────── Helpers ───────────────── */
@@ -127,7 +127,7 @@ function renderLine(line: string, index: number) {
   while ((match = urlRegex.exec(line)) !== null) {
     if (match.index > lastIndex) parts.push(line.slice(lastIndex, match.index));
     parts.push(
-      <a key={`${index}-${match.index}`} href={match[0]} target="_blank" rel="noreferrer" className="text-sky-400 underline hover:text-sky-300">
+      <a key={`${index}-${match.index}`} href={match[0]} target="_blank" rel="noreferrer" className="text-brand-400 underline hover:text-brand-300">
         {match[0]}
       </a>
     );
@@ -177,7 +177,7 @@ function TabBar({ tabs, active, onChange }: { tabs: { id: string; label: string;
           key={tab.id}
           className={`flex-1 px-2 py-2 text-[11px] font-semibold uppercase tracking-wider transition ${
             active === tab.id
-              ? "text-sky-400 border-b-2 border-sky-400"
+              ? "text-brand-400 border-b-2 border-brand-400"
               : "text-slate-500 hover:text-slate-300 border-b-2 border-transparent"
           }`}
           onClick={() => onChange(tab.id)}
@@ -215,7 +215,7 @@ function RelationDropdown({ value, onChange }: { value?: EdgeRelationType; onCha
       <button
         className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
           value
-            ? (isRelLight ? "border-sky-500/30 bg-sky-500/5 text-sky-600" : "border-sky-500/30 bg-sky-500/5 text-sky-300")
+            ? (isRelLight ? "border-brand-500/30 bg-brand-500/5 text-brand-600" : "border-brand-500/30 bg-brand-500/5 text-brand-300")
             : (isRelLight ? "border-slate-200 bg-white text-slate-500" : "border-slate-700/40 bg-slate-800/30 text-slate-400")
         } hover:border-slate-500`}
         onClick={() => setOpen(!open)}
@@ -244,7 +244,7 @@ function RelationDropdown({ value, onChange }: { value?: EdgeRelationType; onCha
                 <button
                   key={item.value}
                   className={`flex w-full items-center gap-2 px-3 py-1.5 text-sm transition ${isRelLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
-                    value === item.value ? (isRelLight ? "text-sky-600 bg-sky-500/10" : "text-sky-300 bg-sky-500/10") : (isRelLight ? "text-slate-600" : "text-slate-300")
+                    value === item.value ? (isRelLight ? "text-brand-600 bg-brand-500/10" : "text-brand-300 bg-brand-500/10") : (isRelLight ? "text-slate-600" : "text-slate-300")
                   }`}
                   onClick={() => { onChange(item.value); setOpen(false); }}
                 >
@@ -261,6 +261,104 @@ function RelationDropdown({ value, onChange }: { value?: EdgeRelationType; onCha
 }
 
 /** Compact node type selector as a dropdown */
+function StatusPriorityDropdown({
+  type,
+  currentValue,
+  isLight,
+  statusOpt,
+  priorityOpt,
+  onSelect,
+}: {
+  type: "status" | "priority";
+  currentValue?: string;
+  isLight: boolean;
+  statusOpt?: (typeof STATUS_OPTIONS)[number];
+  priorityOpt?: (typeof PRIORITY_OPTIONS)[number];
+  onSelect: (value: string) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  if (type === "status") {
+    return (
+      <div className="relative" ref={ref}>
+        <button
+          className="flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold transition"
+          style={
+            statusOpt
+              ? { borderColor: `${statusOpt.color}40`, backgroundColor: `${statusOpt.color}10`, color: statusOpt.color }
+              : { borderColor: "rgb(51 65 85 / 0.3)", backgroundColor: "rgb(30 41 59 / 0.2)", color: "#94a3b8" }
+          }
+          onClick={() => setOpen(!open)}
+        >
+          {statusOpt && <span className={`inline-block h-1.5 w-1.5 rounded-full ${statusOpt.dot}`} />}
+          {statusOpt?.label || "Status"}
+          <svg className={`h-3 w-3 transition ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" d="M19 9l-7 7-7-7" /></svg>
+        </button>
+        {open && (
+          <div className={`absolute left-0 top-full z-50 mt-1 w-32 rounded-lg border ${isLight ? "border-slate-200 bg-white" : "border-slate-700/40 bg-[#0a1628]"} shadow-xl shadow-black/40 py-1 animate-fade-in`}>
+            {STATUS_OPTIONS.map(({ value, label, dot }) => (
+              <button
+                key={value}
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11px] font-medium transition ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
+                  currentValue === value ? (isLight ? "text-brand-600" : "text-brand-300") : (isLight ? "text-slate-600" : "text-slate-300")
+                }`}
+                onClick={() => { onSelect(value); setOpen(false); }}
+              >
+                <span className={`inline-block h-2 w-2 rounded-full ${dot}`} />
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Priority
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        className="flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold transition"
+        style={
+          priorityOpt
+            ? { borderColor: `${priorityOpt.color}40`, backgroundColor: `${priorityOpt.color}10`, color: priorityOpt.color }
+            : { borderColor: "rgb(51 65 85 / 0.3)", backgroundColor: "rgb(30 41 59 / 0.2)", color: "#94a3b8" }
+        }
+        onClick={() => setOpen(!open)}
+      >
+        {priorityOpt?.label || "Priority"}
+        <svg className={`h-3 w-3 transition ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" d="M19 9l-7 7-7-7" /></svg>
+      </button>
+      {open && (
+        <div className={`absolute left-0 top-full z-50 mt-1 w-28 rounded-lg border ${isLight ? "border-slate-200 bg-white" : "border-slate-700/40 bg-[#0a1628]"} shadow-xl shadow-black/40 py-1 animate-fade-in`}>
+          {PRIORITY_OPTIONS.map(({ value, label, color }) => (
+            <button
+              key={value}
+              className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11px] font-medium transition ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
+                currentValue === value ? (isLight ? "text-brand-600" : "text-brand-300") : (isLight ? "text-slate-600" : "text-slate-300")
+              }`}
+              onClick={() => { onSelect(value); setOpen(false); }}
+            >
+              <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function NodeTypeDropdown({ value, onChange }: { value: NodeKind; onChange: (kind: NodeKind, label: string, color: string) => void }) {
   const { theme: ntTheme } = useTheme();
   const isNTLight = ntTheme === "light";
@@ -300,7 +398,7 @@ function NodeTypeDropdown({ value, onChange }: { value: NodeKind; onChange: (kin
             <button
               key={kind}
               className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition ${isNTLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
-                value === kind ? (isNTLight ? "text-sky-600 bg-sky-500/10" : "text-sky-300 bg-sky-500/10") : (isNTLight ? "text-slate-600" : "text-slate-300")
+                value === kind ? (isNTLight ? "text-brand-600 bg-brand-500/10" : "text-brand-300 bg-brand-500/10") : (isNTLight ? "text-slate-600" : "text-slate-300")
               }`}
               onClick={() => { onChange(kind, label, color); setOpen(false); }}
             >
@@ -334,8 +432,8 @@ function CommentsSection({ noteId }: { noteId: string }) {
   const listRef = React.useRef<HTMLDivElement>(null);
 
   const inputClass = isCSLight
-    ? "border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-sky-500/40 focus:ring-1 focus:ring-sky-500/30 rounded-lg"
-    : "border-slate-700/40 bg-slate-800/20 text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500/40 focus:ring-1 focus:ring-sky-500/30 rounded-lg";
+    ? "border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/30 rounded-lg"
+    : "border-slate-700/40 bg-slate-800/20 text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/30 rounded-lg";
 
   const fetchComments = React.useCallback(async () => {
     try {
@@ -421,7 +519,7 @@ function CommentsSection({ noteId }: { noteId: string }) {
           Comments
           {comments.length > 0 && (
             <span className={`inline-flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold ${
-              isCSLight ? "bg-sky-100 text-sky-600" : "bg-sky-500/20 text-sky-300"
+              isCSLight ? "bg-sky-100 text-brand-600" : "bg-brand-500/20 text-brand-300"
             }`}>
               {comments.length}
             </span>
@@ -462,7 +560,7 @@ function CommentsSection({ noteId }: { noteId: string }) {
               }`}>
                 <div className="flex items-start gap-2">
                   {/* Avatar initials */}
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-[9px] font-bold text-white">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-brand-400 text-[9px] font-bold text-white">
                     {getInitials(c.author?.name)}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -499,7 +597,7 @@ function CommentsSection({ noteId }: { noteId: string }) {
               rows={2}
             />
             <button
-              className="mt-1.5 w-full rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-sky-500/15 transition hover:shadow-sky-500/30 disabled:opacity-40"
+              className="mt-1.5 w-full rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-brand-500/15 transition hover:shadow-brand-500/30 disabled:opacity-40"
               onClick={handlePost}
               disabled={!text.trim() || posting}
             >
@@ -558,8 +656,8 @@ export default function NoteInspector({
   const prevEdgeIdRef = React.useRef<string | null>(selectedEdge?.id ?? null);
 
   const inputClass = isLight
-    ? "border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-sky-500/40 focus:ring-1 focus:ring-sky-500/30 rounded-lg"
-    : "border-slate-700/40 bg-slate-800/20 text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500/40 focus:ring-1 focus:ring-sky-500/30 rounded-lg";
+    ? "border-slate-300 bg-white text-slate-800 placeholder:text-slate-400 outline-none transition focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/30 rounded-lg"
+    : "border-slate-700/40 bg-slate-800/20 text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/30 rounded-lg";
 
   React.useEffect(() => {
     const newNodeId = selectedMeta?.id ?? null;
@@ -723,7 +821,7 @@ export default function NoteInspector({
           {protocolBadges.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {edgeDraft.protocol && (
-                <span className="inline-flex items-center rounded-md border border-sky-500/20 bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-sky-300">
+                <span className="inline-flex items-center rounded-md border border-brand-500/20 bg-brand-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-300">
                   {edgeDraft.protocol}
                 </span>
               )}
@@ -834,7 +932,7 @@ export default function NoteInspector({
                         key={value}
                         className={`flex-1 rounded-md px-1 py-1 text-[10px] font-medium transition ${
                           active
-                            ? "bg-sky-500/15 border border-sky-500/30 text-sky-300"
+                            ? "bg-brand-500/15 border border-brand-500/30 text-brand-300"
                             : isLight ? "bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-700" : "bg-slate-800/20 border border-slate-700/20 text-slate-500 hover:text-slate-300"
                         }`}
                         onClick={() => updateEdge({ edgeType: value })}
@@ -866,7 +964,7 @@ export default function NoteInspector({
                         key={value}
                         className={`flex-1 rounded-md py-2 text-center text-xs font-medium tracking-wider transition ${
                           active
-                            ? "bg-sky-500/15 border border-sky-500/30 text-sky-300"
+                            ? "bg-brand-500/15 border border-brand-500/30 text-brand-300"
                             : isLight ? "bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-700" : "bg-slate-800/20 border border-slate-700/20 text-slate-500 hover:text-slate-300"
                         }`}
                         onClick={() => updateEdge({ lineStyle: value })}
@@ -889,7 +987,7 @@ export default function NoteInspector({
                   min={1} max={5} step={1}
                   value={edgeDraft.weight ?? 2}
                   onChange={(e) => updateEdge({ weight: Number(e.target.value) })}
-                  className="mt-1 w-full accent-sky-500"
+                  className="mt-1 w-full accent-brand-500"
                 />
               </div>
 
@@ -903,7 +1001,7 @@ export default function NoteInspector({
                       <button
                         key={color}
                         className={`h-6 w-6 rounded-full border-2 transition ${
-                          active ? "border-white ring-2 ring-sky-500/30 scale-110" : (isLight ? "border-slate-300 hover:border-slate-400" : "border-slate-700/40 hover:border-slate-500")
+                          active ? "border-white ring-2 ring-brand-500/30 scale-110" : (isLight ? "border-slate-300 hover:border-slate-400" : "border-slate-700/40 hover:border-slate-500")
                         }`}
                         style={{ backgroundColor: color }}
                         onClick={() => updateEdge({ color })}
@@ -927,7 +1025,7 @@ export default function NoteInspector({
                 <button
                   className={`h-5 w-9 rounded-full border transition ${
                     edgeDraft.animated
-                      ? "border-sky-500/50 bg-sky-500/30"
+                      ? "border-brand-500/50 bg-brand-500/30"
                       : "border-slate-700 bg-slate-800"
                   }`}
                   onClick={() => updateEdge({ animated: !edgeDraft.animated })}
@@ -1028,7 +1126,7 @@ export default function NoteInspector({
             </div>
             {/* Pin */}
             <button
-              className={`rounded-md p-1 transition ${pinLabel ? "text-sky-400 bg-sky-500/10" : "text-slate-600 hover:text-slate-400"}`}
+              className={`rounded-md p-1 transition ${pinLabel ? "text-brand-400 bg-brand-500/10" : "text-slate-600 hover:text-slate-400"}`}
               onClick={handlePinToggle}
               title={pinLabel ? "Unpin" : "Pin"}
             >
@@ -1042,7 +1140,7 @@ export default function NoteInspector({
                 href={metaDraft.url}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-md p-1 text-slate-500 hover:text-sky-400 transition"
+                className="rounded-md p-1 text-slate-500 hover:text-brand-400 transition"
                 title="Open external link"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1060,62 +1158,22 @@ export default function NoteInspector({
             />
 
             {/* Status chip */}
-            <div className="relative group">
-              <button
-                className="flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold transition"
-                style={
-                  statusOpt
-                    ? { borderColor: `${statusOpt.color}40`, backgroundColor: `${statusOpt.color}10`, color: statusOpt.color }
-                    : { borderColor: "rgb(51 65 85 / 0.3)", backgroundColor: "rgb(30 41 59 / 0.2)", color: "#94a3b8" }
-                }
-              >
-                {statusOpt && <span className={`inline-block h-1.5 w-1.5 rounded-full ${statusOpt.dot}`} />}
-                {statusOpt?.label || "Status"}
-              </button>
-              {/* Status dropdown on hover */}
-              <div className={`absolute left-0 top-full z-50 mt-1 hidden group-hover:block w-32 rounded-lg border ${isLight ? "border-slate-200 bg-white" : "border-slate-700/40 bg-[#0a1628]"} shadow-xl shadow-black/40 py-1`}>
-                {STATUS_OPTIONS.map(({ value, label, dot }) => (
-                  <button
-                    key={value}
-                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11px] font-medium transition ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
-                      metaDraft.status === value ? (isLight ? "text-sky-600" : "text-sky-300") : (isLight ? "text-slate-600" : "text-slate-300")
-                    }`}
-                    onClick={() => updateMeta({ status: metaDraft.status === value ? undefined : value })}
-                  >
-                    <span className={`inline-block h-2 w-2 rounded-full ${dot}`} />
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <StatusPriorityDropdown
+              type="status"
+              currentValue={metaDraft.status}
+              isLight={isLight}
+              statusOpt={statusOpt}
+              onSelect={(value) => updateMeta({ status: metaDraft.status === value ? undefined : value as any })}
+            />
 
             {/* Priority chip */}
-            <div className="relative group">
-              <button
-                className="flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold transition"
-                style={
-                  priorityOpt
-                    ? { borderColor: `${priorityOpt.color}40`, backgroundColor: `${priorityOpt.color}10`, color: priorityOpt.color }
-                    : { borderColor: "rgb(51 65 85 / 0.3)", backgroundColor: "rgb(30 41 59 / 0.2)", color: "#94a3b8" }
-                }
-              >
-                {priorityOpt?.label || "Priority"}
-              </button>
-              <div className={`absolute left-0 top-full z-50 mt-1 hidden group-hover:block w-28 rounded-lg border ${isLight ? "border-slate-200 bg-white" : "border-slate-700/40 bg-[#0a1628]"} shadow-xl shadow-black/40 py-1`}>
-                {PRIORITY_OPTIONS.map(({ value, label, color }) => (
-                  <button
-                    key={value}
-                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11px] font-medium transition ${isLight ? "hover:bg-slate-100" : "hover:bg-slate-800/50"} ${
-                      metaDraft.priority === value ? (isLight ? "text-sky-600" : "text-sky-300") : (isLight ? "text-slate-600" : "text-slate-300")
-                    }`}
-                    onClick={() => updateMeta({ priority: metaDraft.priority === value ? undefined : value })}
-                  >
-                    <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <StatusPriorityDropdown
+              type="priority"
+              currentValue={metaDraft.priority}
+              isLight={isLight}
+              priorityOpt={priorityOpt}
+              onSelect={(value) => updateMeta({ priority: metaDraft.priority === value ? undefined : value as any })}
+            />
           </div>
 
           {/* Row 3: Owner + quick info badges */}
@@ -1218,7 +1276,7 @@ export default function NoteInspector({
                     href={metaDraft.url}
                     target="_blank"
                     rel="noreferrer"
-                    className={`flex items-center justify-center rounded-lg border px-2 text-sky-400 hover:bg-sky-500/10 transition ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/30 bg-slate-800/20"}`}
+                    className={`flex items-center justify-center rounded-lg border px-2 text-brand-400 hover:bg-brand-500/10 transition ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/30 bg-slate-800/20"}`}
                     title="Open link"
                   >
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1290,7 +1348,7 @@ export default function NoteInspector({
                     <button
                       key={color}
                       className={`h-6 w-6 rounded-full border-2 transition ${
-                        active ? "border-white ring-2 ring-sky-500/30 scale-110" : (isLight ? "border-slate-300 hover:border-slate-400" : "border-slate-700/40 hover:border-slate-500")
+                        active ? "border-white ring-2 ring-brand-500/30 scale-110" : (isLight ? "border-slate-300 hover:border-slate-400" : "border-slate-700/40 hover:border-slate-500")
                       }`}
                       style={{ backgroundColor: color }}
                       onClick={() => updateMeta({ color })}

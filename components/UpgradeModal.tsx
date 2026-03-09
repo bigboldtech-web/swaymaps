@@ -82,7 +82,7 @@ export function UpgradeModal({ currentUser, onSelectPlan, onClose }: UpgradeModa
           <button
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
               interval === "month"
-                ? "bg-sky-500/20 text-sky-300 border border-sky-500/40"
+                ? "bg-brand-500/20 text-brand-300 border border-brand-500/40"
                 : "text-slate-500 hover:text-slate-300"
             }`}
             onClick={() => setInterval("month")}
@@ -106,7 +106,7 @@ export function UpgradeModal({ currentUser, onSelectPlan, onClose }: UpgradeModa
 
         <div className="mt-5 grid gap-4 md:grid-cols-3">
           {/* Free plan */}
-          <div className={`rounded-xl border border-slate-700/40 bg-slate-800/30 p-4 ${currentPlan === "free" ? "ring-2 ring-sky-500/40" : ""}`}>
+          <div className={`rounded-xl border border-slate-700/40 bg-slate-800/30 p-4 ${currentPlan === "free" ? "ring-2 ring-brand-500/40" : ""}`}>
             <div className="text-sm font-semibold text-slate-400">Free</div>
             <div className="mt-1 text-2xl font-bold text-slate-100">$0</div>
             <div className="text-xs text-slate-600">forever</div>
@@ -125,15 +125,15 @@ export function UpgradeModal({ currentUser, onSelectPlan, onClose }: UpgradeModa
 
           {/* Pro plan */}
           <button
-            className={`rounded-xl border border-slate-700/40 bg-slate-800/30 p-4 text-left transition hover:-translate-y-[1px] hover:border-sky-500/40 hover:shadow-lg hover:shadow-sky-500/10 ${
-              currentPlan === "pro" ? "ring-2 ring-sky-500/40" : ""
+            className={`rounded-xl border border-slate-700/40 bg-slate-800/30 p-4 text-left transition hover:-translate-y-[1px] hover:border-brand-500/40 hover:shadow-lg hover:shadow-brand-500/10 ${
+              currentPlan === "pro" ? "ring-2 ring-brand-500/40" : ""
             }`}
             disabled={loading || currentPlan === "pro"}
             onClick={() => handleSelect("pro")}
           >
-            <div className="text-sm font-semibold text-sky-400">Pro</div>
+            <div className="text-sm font-semibold text-brand-400">Pro</div>
             <div className="mt-1 flex items-baseline gap-1">
-              <span className="text-2xl font-bold text-sky-300">${proPrice}</span>
+              <span className="text-2xl font-bold text-brand-300">${proPrice}</span>
               <span className="text-sm text-slate-500">/mo</span>
             </div>
             {interval === "year" && (
@@ -149,11 +149,11 @@ export function UpgradeModal({ currentUser, onSelectPlan, onClose }: UpgradeModa
               <li>Public sharing</li>
             </ul>
             {currentPlan === "pro" ? (
-              <div className="mt-4 rounded-lg bg-sky-500/20 py-2 text-center text-sm font-semibold text-sky-300">
+              <div className="mt-4 rounded-lg bg-brand-500/20 py-2 text-center text-sm font-semibold text-brand-300">
                 Current Plan
               </div>
             ) : (
-              <div className="mt-4 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 py-2 text-center text-sm font-semibold text-white shadow-lg shadow-sky-500/20">
+              <div className="mt-4 rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 py-2 text-center text-sm font-semibold text-white shadow-lg shadow-brand-500/20">
                 {loading ? "Redirecting..." : "Start 14-Day Free Trial"}
               </div>
             )}
