@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import bcrypt from "bcryptjs";
+import { logActivity } from "../../../../lib/activityLog";
+import { notifyWorkspaceMembers } from "../../../../lib/notify";
 
 interface Params {
   params: { token: string };
@@ -65,6 +67,31 @@ export async function POST(req: Request, { params }: Params) {
   await prisma.workspaceInvite.update({
     where: { id: invite.id },
     data: { acceptedAt: new Date(), acceptedByUserId: user.id }
+  });
+
+  await logActivity({
+    workspaceId: invite.workspaceId,
+    userId: user.id,
+    action: "invite.accepted",
+    entityType: "invite",
+    entityId: invite.id,
+    metadata: { email: invite.email, role: invite.role },
+  });
+  await logActivity({
+    workspaceId: invite.workspaceId,
+    userId: user.id,
+    action: "member.joined",
+    entityType: "workspace",
+    entityId: invite.workspaceId,
+    metadata: { role: invite.role },
+  });
+
+  // Notify workspace members about new member
+  await notifyWorkspaceMembers(invite.workspaceId, user.id, {
+    type: "member_joined",
+    title: "New Team Member",
+    body: `${user.name ?? invite.email} joined the workspace as ${invite.role}.`,
+    link: "/app",
   });
 
   return NextResponse.json({ ok: true, userId: user.id, workspaceId: invite.workspaceId });

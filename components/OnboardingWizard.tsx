@@ -98,24 +98,6 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
   const [role, setRole] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
-  const isDark =
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark");
-
-  const shell = isDark
-    ? "border-[#0f172a] bg-[#050b15] text-slate-100"
-    : "border-slate-200 bg-white text-slate-900";
-  const muted = isDark ? "text-slate-400" : "text-slate-500";
-  const selectStyle = isDark
-    ? "border-[#0f172a] bg-[#0b1422] text-slate-100"
-    : "border-slate-200 bg-white text-slate-900";
-  const cardBase = isDark
-    ? "border-[#0f172a] bg-[#0b1422] hover:border-slate-600"
-    : "border-slate-200 bg-slate-50 hover:border-slate-400";
-  const cardSelected = isDark
-    ? "border-sky-500 bg-[#0b1a2e] ring-1 ring-sky-500/40"
-    : "border-sky-500 bg-sky-50 ring-1 ring-sky-500/30";
-
   const handleComplete = useCallback(() => {
     if (selectedTemplate) {
       onComplete({ role, templateCategory: selectedTemplate });
@@ -123,14 +105,11 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
   }, [role, selectedTemplate, onComplete]);
 
   const selectedTemplateData = TEMPLATES.find((t) => t.category === selectedTemplate);
-
   const firstName = userName.split(" ")[0] || userName;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 px-4">
-      <div
-        className={`w-full max-w-xl rounded-3xl border p-8 shadow-2xl transition-all duration-300 ${shell}`}
-      >
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 animate-fade-in">
+      <div className="w-full max-w-xl max-sm:max-w-full rounded-2xl glass-panel-solid p-5 sm:p-8 shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto">
         {/* Step 1: Welcome */}
         {step === 0 && (
           <div className="flex flex-col items-center text-center">
@@ -142,19 +121,19 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
               </svg>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-100">
               Welcome to SwayMaps{firstName ? `, ${firstName}` : ""}
             </h1>
-            <p className={`mt-2 text-sm ${muted}`}>
+            <p className="mt-2 text-sm text-slate-400">
               Map every dependency. Ship safer changes.
             </p>
 
             <div className="mt-8 w-full max-w-xs text-left">
-              <label className={`mb-1.5 block text-xs font-medium uppercase tracking-wide ${muted}`}>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-500">
                 Your role
               </label>
               <select
-                className={`w-full rounded-lg border px-3 py-2.5 text-sm font-medium shadow-sm outline-none transition focus:border-sky-500 ${selectStyle}`}
+                className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2.5 text-sm font-medium text-slate-100 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
@@ -170,7 +149,7 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
             </div>
 
             <button
-              className="mt-8 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-500/20 transition hover:shadow-lg hover:shadow-sky-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-8 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!role}
               onClick={() => setStep(1)}
             >
@@ -182,10 +161,10 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
         {/* Step 2: Template Selection */}
         {step === 1 && (
           <div className="flex flex-col items-center text-center">
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-100">
               What will you map first?
             </h1>
-            <p className={`mt-2 text-sm ${muted}`}>
+            <p className="mt-2 text-sm text-slate-400">
               Pick a template to get started, or begin from scratch.
             </p>
 
@@ -197,10 +176,10 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
                     key={template.category}
                     type="button"
                     className={`group relative flex flex-col items-start rounded-xl border p-4 text-left transition-all duration-200 ${
-                      isSelected ? cardSelected : cardBase
-                    } ${
-                      template.category === "custom" ? "col-span-2" : ""
-                    }`}
+                      isSelected
+                        ? "border-sky-500/50 bg-sky-500/10 ring-1 ring-sky-500/30"
+                        : "border-slate-700/40 bg-slate-800/30 hover:border-slate-600"
+                    } ${template.category === "custom" ? "col-span-2" : ""}`}
                     onClick={() => setSelectedTemplate(template.category)}
                   >
                     <div
@@ -208,8 +187,8 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
                     >
                       {template.icon}
                     </div>
-                    <div className="text-sm font-semibold">{template.title}</div>
-                    <div className={`mt-0.5 text-xs leading-relaxed ${muted}`}>
+                    <div className="text-sm font-semibold text-slate-200">{template.title}</div>
+                    <div className="mt-0.5 text-xs leading-relaxed text-slate-500">
                       {template.description}
                     </div>
                     {isSelected && (
@@ -226,17 +205,13 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
 
             <div className="mt-6 flex items-center gap-3">
               <button
-                className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${
-                  isDark
-                    ? "border-[#0f172a] text-slate-200 hover:bg-slate-800"
-                    : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                }`}
+                className="rounded-lg border border-slate-700/50 px-5 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-slate-800/60"
                 onClick={() => setStep(0)}
               >
                 Back
               </button>
               <button
-                className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-500/20 transition hover:shadow-lg hover:shadow-sky-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!selectedTemplate}
                 onClick={() => setStep(2)}
               >
@@ -255,29 +230,25 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
               </svg>
             </div>
 
-            <h1 className="text-2xl font-bold tracking-tight">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-100">
               You&apos;re all set!
             </h1>
-            <p className={`mt-2 text-sm ${muted}`}>
+            <p className="mt-2 text-sm text-slate-400">
               Your workspace is ready. Start mapping your dependencies.
             </p>
 
-            <div
-              className={`mt-6 w-full max-w-xs rounded-xl border p-4 text-left ${
-                isDark ? "border-[#0f172a] bg-[#0b1422]" : "border-slate-200 bg-slate-50"
-              }`}
-            >
-              <div className={`text-xs font-medium uppercase tracking-wide ${muted}`}>
+            <div className="mt-6 w-full max-w-xs rounded-xl border border-slate-700/40 bg-slate-800/30 p-4 text-left">
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Your selections
               </div>
               <div className="mt-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs ${muted}`}>Role</span>
-                  <span className="text-sm font-medium">{role}</span>
+                  <span className="text-xs text-slate-500">Role</span>
+                  <span className="text-sm font-medium text-slate-200">{role}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className={`text-xs ${muted}`}>Template</span>
-                  <span className="text-sm font-medium">
+                  <span className="text-xs text-slate-500">Template</span>
+                  <span className="text-sm font-medium text-slate-200">
                     {selectedTemplateData?.title}
                   </span>
                 </div>
@@ -286,17 +257,13 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
 
             <div className="mt-8 flex items-center gap-3">
               <button
-                className={`rounded-lg border px-5 py-2.5 text-sm font-semibold transition ${
-                  isDark
-                    ? "border-[#0f172a] text-slate-200 hover:bg-slate-800"
-                    : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                }`}
+                className="rounded-lg border border-slate-700/50 px-5 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-slate-800/60"
                 onClick={() => setStep(1)}
               >
                 Back
               </button>
               <button
-                className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-md shadow-sky-500/20 transition hover:shadow-lg hover:shadow-sky-500/30"
+                className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40"
                 onClick={handleComplete}
               >
                 Start Mapping
@@ -314,12 +281,8 @@ export function OnboardingWizard({ userName, onComplete }: OnboardingWizardProps
                 i === step
                   ? "w-6 bg-gradient-to-r from-sky-500 to-indigo-500"
                   : i < step
-                  ? isDark
-                    ? "w-2 bg-sky-500/40"
-                    : "w-2 bg-sky-300"
-                  : isDark
-                  ? "w-2 bg-slate-700"
-                  : "w-2 bg-slate-300"
+                  ? "w-2 bg-sky-500/40"
+                  : "w-2 bg-slate-700"
               }`}
             />
           ))}

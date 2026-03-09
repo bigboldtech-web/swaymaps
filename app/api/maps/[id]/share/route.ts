@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "../../../../../lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../lib/auth";
+import { logActivity } from "../../../../../lib/activityLog";
+import { notifyWorkspaceMembers } from "../../../../../lib/notify";
 
 interface Params {
   params: { id: string };
@@ -33,8 +35,24 @@ export async function POST(_req: Request, { params }: Params) {
   const updated = await prisma.decodeMap.update({
     where: { id: params.id },
     data: { publicShareId: token },
-    select: { publicShareId: true }
+    include: { workspace: true }
   });
+
+  if (updated.workspaceId && userId) {
+    logActivity({
+      workspaceId: updated.workspaceId,
+      userId,
+      action: "map.shared",
+      entityType: "map",
+      entityId: params.id,
+    });
+    notifyWorkspaceMembers(updated.workspaceId, userId, {
+      type: "map_shared",
+      title: "Map Shared",
+      body: `"${updated.name}" was shared publicly.`,
+      link: `/app?map=${params.id}`,
+    });
+  }
 
   return NextResponse.json({ shareId: updated.publicShareId });
 }

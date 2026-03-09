@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../lib/auth";
 import { prisma } from "../../../../../lib/prisma";
 import { WorkspaceRole } from "../../../../../types/map";
+import { logActivity } from "../../../../../lib/activityLog";
+import { notify } from "../../../../../lib/notify";
 
 interface Params {
   params: { id: string };
@@ -53,9 +55,27 @@ export async function PUT(req: Request, params: Params) {
     return NextResponse.json({ error: "Member not found" }, { status: 404 });
   }
 
+  const oldRole = member.role;
   await prisma.workspaceMember.update({
     where: { id: member.id },
     data: { role }
+  });
+
+  await logActivity({
+    workspaceId: workspace.id,
+    userId: sessionUserId!,
+    action: "member.role_changed",
+    entityType: "member",
+    entityId: userId,
+    metadata: { oldRole, newRole: role },
+  });
+
+  await notify({
+    userId,
+    type: "role_changed",
+    title: "Role Updated",
+    body: `Your role in "${workspace.name}" was changed from ${oldRole} to ${role}.`,
+    link: "/app",
   });
 
   const updated = await prisma.workspace.findUnique({
@@ -91,6 +111,21 @@ export async function DELETE(req: Request, params: Params) {
   }
 
   await prisma.workspaceMember.delete({ where: { id: member.id } });
+
+  await logActivity({
+    workspaceId: workspace.id,
+    userId: sessionUserId!,
+    action: "member.removed",
+    entityType: "member",
+    entityId: userId,
+  });
+
+  await notify({
+    userId,
+    type: "removed",
+    title: "Removed from Workspace",
+    body: `You were removed from "${workspace.name}".`,
+  });
 
   const updated = await prisma.workspace.findUnique({
     where: { id: workspace.id },

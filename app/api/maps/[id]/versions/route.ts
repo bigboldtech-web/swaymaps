@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../lib/auth";
 import { prisma } from "../../../../../lib/prisma";
+import { logActivity } from "../../../../../lib/activityLog";
 
 // GET /api/maps/[id]/versions - List versions for a map
 export async function GET(req: Request, { params }: { params: { id: string } }) {
@@ -94,5 +95,109 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ id: version.id, version: version.version });
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Failed to create version" }, { status: 500 });
+  }
+}
+
+// PUT /api/maps/[id]/versions - Restore a map to a specific version
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  const userId = (session as any)?.user?.id;
+  const userPlan = (session as any)?.user?.plan ?? "free";
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (userPlan !== "team") {
+    return NextResponse.json({ error: "Version history requires a Team plan" }, { status: 403 });
+  }
+
+  const body = await req.json().catch(() => ({}));
+  const { versionId } = body as { versionId?: string };
+  if (!versionId) {
+    return NextResponse.json({ error: "versionId is required" }, { status: 400 });
+  }
+
+  try {
+    const version = await prisma.mapVersion.findUnique({ where: { id: versionId } });
+    if (!version || version.mapId !== params.id) {
+      return NextResponse.json({ error: "Version not found" }, { status: 404 });
+    }
+
+    const map = await prisma.decodeMap.findUnique({ where: { id: params.id } });
+    if (!map) return NextResponse.json({ error: "Map not found" }, { status: 404 });
+
+    const snapshot = JSON.parse(version.snapshot) as {
+      nodes: Array<{ id: string; kind: string; kindLabel: string; title: string; tags: string; color: string; posX: number; posY: number }>;
+      edges: Array<{ id: string; sourceNodeId: string; targetNodeId: string; sourceHandle?: string; targetHandle?: string; label?: string }>;
+      notes: Array<{ id: string; title: string; tags: string; content: string }>;
+    };
+
+    // Use a transaction to atomically replace map contents
+    await prisma.$transaction(async (tx) => {
+      // Delete existing edges first (they reference nodes)
+      await tx.mapEdge.deleteMany({ where: { mapId: params.id } });
+      // Delete existing nodes (clear noteId links first)
+      await tx.mapNode.deleteMany({ where: { mapId: params.id } });
+      // Delete existing notes
+      await tx.note.deleteMany({ where: { mapId: params.id } });
+
+      // Recreate notes
+      if (snapshot.notes.length > 0) {
+        await tx.note.createMany({
+          data: snapshot.notes.map((n) => ({
+            id: n.id,
+            mapId: params.id,
+            title: n.title,
+            tags: n.tags,
+            content: n.content,
+          })),
+        });
+      }
+
+      // Recreate nodes
+      if (snapshot.nodes.length > 0) {
+        await tx.mapNode.createMany({
+          data: snapshot.nodes.map((n) => ({
+            id: n.id,
+            mapId: params.id,
+            kind: n.kind,
+            kindLabel: n.kindLabel,
+            title: n.title,
+            tags: n.tags,
+            color: n.color,
+            posX: n.posX,
+            posY: n.posY,
+          })),
+        });
+      }
+
+      // Recreate edges
+      if (snapshot.edges.length > 0) {
+        await tx.mapEdge.createMany({
+          data: snapshot.edges.map((e) => ({
+            id: e.id,
+            mapId: params.id,
+            sourceNodeId: e.sourceNodeId,
+            targetNodeId: e.targetNodeId,
+            sourceHandle: e.sourceHandle ?? null,
+            targetHandle: e.targetHandle ?? null,
+            label: e.label ?? null,
+          })),
+        });
+      }
+    });
+
+    // Log the restore
+    if (map.workspaceId) {
+      await logActivity({
+        workspaceId: map.workspaceId,
+        userId,
+        action: "version.restored",
+        entityType: "map",
+        entityId: params.id,
+        metadata: { restoredVersion: version.version },
+      });
+    }
+
+    return NextResponse.json({ ok: true, restoredVersion: version.version });
+  } catch (err: any) {
+    return NextResponse.json({ error: err?.message ?? "Failed to restore version" }, { status: 500 });
   }
 }

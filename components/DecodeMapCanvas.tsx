@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
+import { useTheme } from "./providers/ThemeProvider";
 import ReactFlow, {
   Background,
   Connection,
@@ -29,10 +30,26 @@ import ReactFlow, {
   NodeMouseHandler,
   ConnectionMode,
   ConnectionLineType,
-  EdgeLabelRenderer
+  EdgeLabelRenderer,
+  useStore
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { MapEdgeMeta, MapNodeMeta } from "../types/map";
+import { MapEdgeMeta, MapNodeMeta, NodeStatus } from "../types/map";
+
+/** Returns the set of currently selected node IDs from ReactFlow internal store */
+const selectedNodeIdsSelector = (state: any): Set<string> => {
+  const set = new Set<string>();
+  if (state.nodeInternals) {
+    for (const [id, node] of state.nodeInternals) {
+      if (node.selected) set.add(id);
+    }
+  }
+  return set;
+};
+
+function useSelectedNodeIds(): Set<string> {
+  return useStore(selectedNodeIdsSelector);
+}
 
 export type FlowNodeData = {
   meta: MapNodeMeta;
@@ -112,6 +129,20 @@ const kindStyles: Record<
   }
 };
 
+const kindAccentColors: Record<MapNodeMeta["kind"], string> = {
+  person: "#38bdf8",
+  system: "#22c55e",
+  process: "#fbbf24",
+  generic: "#6366f1",
+  database: "#818cf8",
+  api: "#0ea5e9",
+  queue: "#f59e0b",
+  cache: "#ef4444",
+  cloud: "#8b5cf6",
+  team: "#14b8a6",
+  vendor: "#f97316"
+};
+
 const grayHex = "#9ca3af";
 type EdgeShape = "smoothstep" | "default" | "straight" | "step";
 
@@ -124,8 +155,30 @@ const edgePathForType = (type: EdgeShape, props: EdgeProps<FlowEdgeData>) => {
     case "step":
     case "smoothstep":
     default:
-      return getSmoothStepPath(props);
+      return getSmoothStepPath({ ...props, borderRadius: 16 });
   }
+};
+
+/** Compute strokeDasharray from lineStyle */
+function dashForStyle(s?: string): string | undefined {
+  if (s === "dashed") return "8 4";
+  if (s === "dotted") return "2 4";
+  return undefined;
+}
+
+/** Compute strokeWidth from weight (1-5 scale) */
+function widthForWeight(w?: number, selected?: boolean): number {
+  const base = w ? Math.max(1, Math.min(5, w)) : 2;
+  return selected ? base + 1 : base;
+}
+
+const statusColors: Record<NodeStatus, string> = {
+  active: "#22c55e",
+  degraded: "#f59e0b",
+  down: "#ef4444",
+  deprecated: "#6b7280",
+  planned: "#8b5cf6",
+  maintenance: "#f97316",
 };
 
 function GradientEdge({
@@ -138,7 +191,8 @@ function GradientEdge({
   targetPosition,
   markerEnd,
   style,
-  data
+  data,
+  selected
 }: EdgeProps<FlowEdgeData>) {
   const { getNode } = useReactFlow();
   const sourceNode = data?.meta.sourceId ? getNode?.(data.meta.sourceId) : undefined;
@@ -161,9 +215,27 @@ function GradientEdge({
     data
   } as EdgeProps<FlowEdgeData>);
   const label = data?.meta?.label;
-  const isDark =
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark");
+  const { theme: edgeTheme } = useTheme();
+  const isDark = edgeTheme === "dark";
+
+  const meta = data?.meta;
+  const customColor = meta?.color;
+  const strokeWidth = widthForWeight(meta?.weight, !!selected);
+  const strokeDasharray = dashForStyle(meta?.lineStyle);
+  const strokeVal = customColor || `url(#grad-${id})`;
+  const protocol = meta?.protocol;
+  const latency = meta?.latency;
+  const labelParts = [label, protocol].filter(Boolean).join(" · ");
+
+  const glowColor = customColor || fromColor;
+  const selectedIds = useSelectedNodeIds();
+  const edgeSourceId = meta?.sourceId;
+  const edgeTargetId = meta?.targetId;
+  const isConnected = !!(edgeSourceId && selectedIds.has(edgeSourceId)) || !!(edgeTargetId && selectedIds.has(edgeTargetId));
+  const hasSelection = selectedIds.size > 0;
+  // Dim unconnected edges when a node is selected; show orb on all edges (or only connected when filtered)
+  const showOrb = hasSelection ? isConnected : true;
+  const dimmed = hasSelection && !isConnected;
 
   return (
     <>
@@ -172,43 +244,105 @@ function GradientEdge({
           <stop offset="0%" stopColor={fromColor} />
           <stop offset="100%" stopColor={toColor} />
         </linearGradient>
+        <filter id={`glow-${id}`} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
+      {/* Invisible wide path for easier click targeting */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={20}
+        style={{ pointerEvents: "stroke" }}
+      />
       <BaseEdge
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
-        style={{ ...(style || {}), stroke: `url(#grad-${id})`, strokeWidth: (style as any)?.strokeWidth ?? 1.6 }}
+        style={{
+          ...(style || {}),
+          stroke: strokeVal,
+          strokeWidth: isConnected && hasSelection ? strokeWidth + 0.5 : strokeWidth,
+          strokeDasharray,
+          opacity: dimmed ? 0.15 : 1,
+          filter: selected ? "drop-shadow(0 0 4px rgba(56,189,248,0.5))" : isConnected && hasSelection ? `drop-shadow(0 0 6px ${glowColor}60)` : undefined,
+          transition: "stroke-width 0.2s ease, filter 0.2s ease, opacity 0.3s ease"
+        }}
       />
-      {label && (
+      {/* Flowing glow orb — always flows from source toward arrowhead */}
+      {showOrb && (
+        <circle r={4.5} fill={glowColor} filter={`url(#glow-${id})`} opacity={dimmed ? 0 : 0.9}>
+          <animateMotion dur="3s" repeatCount="indefinite" path={edgePath} />
+        </circle>
+      )}
+      {(labelParts || latency) && (
         <EdgeLabelRenderer>
           <div
             style={{
               position: "absolute",
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
-              pointerEvents: "none"
+              pointerEvents: "all",
+              opacity: dimmed ? 0.15 : 1,
+              transition: "opacity 0.3s ease"
             }}
-            className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${
-              isDark ? "bg-[#0b1422] text-slate-100" : "bg-white text-slate-800"
-            }`}
+            className={`cursor-pointer rounded-md px-2 py-1 text-xs font-medium shadow-sm transition-all hover:scale-105 ${isDark ? "border border-slate-700 bg-[#0b1422]/95 text-slate-200 hover:border-slate-500" : "border border-slate-300 bg-white/95 text-slate-700 hover:border-slate-400"}`}
           >
-            {label}
+            <span>{labelParts}</span>
+            {latency && <span className={`ml-1.5 text-[10px] ${isDark ? "text-slate-500" : "text-slate-400"}`}>{latency}</span>}
           </div>
         </EdgeLabelRenderer>
       )}
     </>
   );
 }
-// Fallback straight edge that uses current theme for stroke
+
 const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
-  const isDark =
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark");
-  const strokeColor = (props.style as any)?.stroke || (isDark ? "#ffffff" : "#0f172a");
-  const edgeShape = (props.data as any)?.meta?.edgeType || "smoothstep";
-  const [edgePath, labelX, labelY] = edgePathForType(edgeShape as EdgeShape, props);
-  const label = (props.data as any)?.meta?.label as string | undefined;
+  const { theme: basicEdgeTheme } = useTheme();
+  const isBasicDark = basicEdgeTheme === "dark";
+  const meta = props.data?.meta;
+  const customColor = meta?.color;
+  const strokeColor = customColor || (props.style as any)?.stroke || "#94a3b8";
+  const edgeShape = (meta?.edgeType as EdgeShape) || "smoothstep";
+  const [edgePath, labelX, labelY] = edgePathForType(edgeShape, props);
+  const label = meta?.label;
+  const strokeWidth = widthForWeight(meta?.weight, !!props.selected);
+  const strokeDasharray = dashForStyle(meta?.lineStyle);
+  const protocol = meta?.protocol;
+  const latency = meta?.latency;
+  const labelParts = [label, protocol].filter(Boolean).join(" · ");
+
+  const selectedIds = useSelectedNodeIds();
+  const edgeSourceId = meta?.sourceId;
+  const edgeTargetId = meta?.targetId;
+  const isConnected = !!(edgeSourceId && selectedIds.has(edgeSourceId)) || !!(edgeTargetId && selectedIds.has(edgeTargetId));
+  const hasSelection = selectedIds.size > 0;
+  const showOrb = hasSelection ? isConnected : true;
+  const dimmed = hasSelection && !isConnected;
+
   return (
     <>
+      <defs>
+        <filter id={`glow-b-${props.id}`} x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      {/* Invisible wide path for easier click targeting */}
+      <path
+        d={edgePath}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={20}
+        style={{ pointerEvents: "stroke" }}
+      />
       <BaseEdge
         id={props.id}
         path={edgePath}
@@ -216,22 +350,37 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
         style={{
           ...(props.style || {}),
           stroke: strokeColor,
-          strokeWidth: (props.style as any)?.strokeWidth ?? 1.6
+          strokeWidth: isConnected ? strokeWidth + 0.5 : strokeWidth,
+          strokeDasharray,
+          opacity: dimmed ? 0.15 : 1,
+          filter: props.selected ? `drop-shadow(0 0 4px ${strokeColor}50)` : isConnected ? `drop-shadow(0 0 6px ${strokeColor}60)` : undefined,
+          transition: "stroke-width 0.2s ease, filter 0.2s ease, opacity 0.3s ease"
         }}
       />
-      {label && (
+      {/* Flowing glow orb — always visible, dims when unconnected node selected */}
+      {showOrb && (
+        <circle r={4.5} fill={strokeColor} filter={`url(#glow-b-${props.id})`} opacity={0.9}>
+          <animateMotion
+            dur="2.5s"
+            repeatCount="indefinite"
+            path={edgePath}
+          />
+        </circle>
+      )}
+      {(labelParts || latency) && (
         <EdgeLabelRenderer>
           <div
             style={{
               position: "absolute",
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY - 8}px)`,
-              pointerEvents: "none"
+              pointerEvents: "all",
+              opacity: dimmed ? 0.15 : 1,
+              transition: "opacity 0.3s ease"
             }}
-            className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${
-              isDark ? "bg-[#0b1422] text-slate-100" : "bg-white text-slate-800"
-            }`}
+            className={`cursor-pointer rounded-md px-2 py-1 text-xs font-medium shadow-sm transition-all hover:scale-105 ${isBasicDark ? "border border-slate-700 bg-[#0b1422]/95 text-slate-200 hover:border-slate-500" : "border border-slate-300 bg-white/95 text-slate-700 hover:border-slate-400"}`}
           >
-            {label}
+            <span>{labelParts}</span>
+            {latency && <span className={`ml-1.5 text-[10px] ${isBasicDark ? "text-slate-500" : "text-slate-400"}`}>{latency}</span>}
           </div>
         </EdgeLabelRenderer>
       )}
@@ -240,13 +389,10 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
 };
 
 function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
-  const styles = kindStyles[data.meta.kind];
-  const isDark =
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark");
-
-  const bgClass = data.meta.color ? "" : styles.bg;
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [title, setTitle] = React.useState(data.meta.title);
+  const [isHovered, setIsHovered] = useState(false);
 
   React.useEffect(() => {
     setTitle(data.meta.title);
@@ -259,125 +405,99 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
   const pinTag = data.meta.tags.find((t) => t.startsWith("__pin:"));
   const pinLabel = pinTag?.replace("__pin:", "");
   const visibleTags = data.meta.tags.filter((tag) => !tag.startsWith("__pin:"));
+  const nodeStatus = data.meta.status;
+  const statusColor = nodeStatus ? statusColors[nodeStatus] : undefined;
 
-  const darkDefaults: Record<MapNodeMeta["kind"], string> = {
-    person: "#0f2f4a",
-    system: "#0e3727",
-    process: "#3a2a0c",
-    generic: "#0f172a",
-    database: "#1e1b4b",
-    api: "#083344",
-    queue: "#431407",
-    cache: "#4c0519",
-    cloud: "#2e1065",
-    team: "#042f2e",
-    vendor: "#451a03"
-  };
+  const accentColor = data.meta.color || kindAccentColors[data.meta.kind];
+  const textColor = "#e2e8f0";
 
-  const baseDefaults: Record<MapNodeMeta["kind"], string> = {
-    person: "#38bdf8",
-    system: "#22c55e",
-    process: "#fbbf24",
-    generic: "#6366f1",
-    database: "#6366f1",
-    api: "#0ea5e9",
-    queue: "#f59e0b",
-    cache: "#ef4444",
-    cloud: "#8b5cf6",
-    team: "#14b8a6",
-    vendor: "#f97316"
-  };
-
-  const darkenColor = (hex: string, factor = 0.85) => {
-    const h = hex.replace("#", "");
-    if (h.length !== 6) return hex;
-    const num = parseInt(h, 16);
-    const r = Math.max(0, Math.floor(((num >> 16) & 255) * factor));
-    const g = Math.max(0, Math.floor(((num >> 8) & 255) * factor));
-    const b = Math.max(0, Math.floor((num & 255) * factor));
-    return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
-  };
-
-  const pastelize = (hex: string, mix = 0.8) => {
-    const h = hex.replace("#", "");
-    if (h.length !== 6) return hex;
-    const num = parseInt(h, 16);
-    const r = (num >> 16) & 255;
-    const g = (num >> 8) & 255;
-    const b = num & 255;
-    const blend = (channel: number) =>
-      Math.round(channel * (1 - mix) + 255 * mix)
-        .toString(16)
-        .padStart(2, "0");
-    return `#${blend(r)}${blend(g)}${blend(b)}`;
-  };
-
-  const contrastText = (hex?: string) => {
-    if (!hex) return isDark ? "#e2e8f0" : "#0f172a";
-    const c = hex.replace("#", "");
-    if (c.length !== 6) return isDark ? "#e2e8f0" : "#0f172a";
-    const num = parseInt(c, 16);
-    const r = (num >> 16) & 255;
-    const g = (num >> 8) & 255;
-    const b = num & 255;
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return luminance > 0.6 ? "#0b0f19" : "#e5e7eb";
-  };
-
-  const effectiveBg = (() => {
-    const base = data.meta.color || baseDefaults[data.meta.kind];
-    if (isDark) return darkenColor(base);
-    return base === grayHex ? base : pastelize(base, 0.8);
-  })();
-
-  const textColor = contrastText(effectiveBg);
+  const handlePositions = [
+    { id: "top-source", position: Position.Top, type: "source" as const },
+    { id: "bottom-source", position: Position.Bottom, type: "source" as const },
+    { id: "left-source", position: Position.Left, type: "source" as const },
+    { id: "right-source", position: Position.Right, type: "source" as const },
+    { id: "top-target", position: Position.Top, type: "target" as const },
+    { id: "bottom-target", position: Position.Bottom, type: "target" as const },
+    { id: "left-target", position: Position.Left, type: "target" as const },
+    { id: "right-target", position: Position.Right, type: "target" as const }
+  ];
 
   return (
     <div
-      className={`relative w-[240px] rounded-xl px-3 py-2 text-sm shadow-sm transition ${bgClass} ${
-        selected ? "ring-2 ring-blue-300" : "ring-0 ring-transparent"
-      }`}
-      style={{ backgroundColor: effectiveBg, overflow: "visible" }}
+      className={`decode-node relative min-w-[200px] max-w-[280px] w-auto rounded-xl px-3.5 py-3 text-sm transition-all duration-200`}
+      style={{
+        backgroundColor: isLight ? "rgba(255,255,255,0.92)" : "rgba(11,20,34,0.80)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        border: selected
+          ? `1px solid ${accentColor}60`
+          : isHovered
+            ? isLight ? "1px solid rgba(203,213,225,0.80)" : "1px solid rgba(51,65,85,0.60)"
+            : isLight ? "1px solid rgba(203,213,225,0.50)" : "1px solid rgba(51,65,85,0.30)",
+        borderRadius: "12px",
+        overflow: "visible",
+        boxShadow: selected
+          ? `0 0 0 1px ${accentColor}40, 0 0 24px ${accentColor}20, 0 4px 16px ${isLight ? "rgba(0,0,0,0.08)" : "rgba(0,0,0,0.3)"}`
+          : isHovered
+            ? isLight ? "0 4px 20px rgba(0,0,0,0.08), 0 0 0 1px rgba(203,213,225,0.60)" : "0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(51,65,85,0.40)"
+            : isLight ? "0 2px 8px rgba(0,0,0,0.05)" : "0 2px 8px rgba(0,0,0,0.2)",
+        transform: isHovered && !selected ? "translateY(-1px)" : "none"
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {[
-        { id: "top-source", position: Position.Top, type: "source" as const },
-        { id: "bottom-source", position: Position.Bottom, type: "source" as const },
-        { id: "left-source", position: Position.Left, type: "source" as const },
-        { id: "right-source", position: Position.Right, type: "source" as const },
-        { id: "top-target", position: Position.Top, type: "target" as const },
-        { id: "bottom-target", position: Position.Bottom, type: "target" as const },
-        { id: "left-target", position: Position.Left, type: "target" as const },
-        { id: "right-target", position: Position.Right, type: "target" as const }
-      ].map((h) => (
+      {handlePositions.map((h) => (
         <Handle
           key={`${h.id}-${h.type}`}
           id={h.id}
           type={h.type}
           position={h.position}
           isConnectable
-          style={{ pointerEvents: "all", zIndex: 50, cursor: "crosshair" }}
-          className="h-3 w-3 rounded-full border border-slate-400 bg-slate-700 opacity-90 transition hover:scale-125 hover:ring-2 hover:ring-blue-300"
+          style={{
+            pointerEvents: "all",
+            zIndex: 50,
+            cursor: "crosshair",
+            width: isHovered || selected ? 10 : 6,
+            height: isHovered || selected ? 10 : 6,
+            backgroundColor: isHovered || selected ? accentColor : "#475569",
+            border: `2px solid ${isHovered || selected ? "#0f172a" : "transparent"}`,
+            borderRadius: "50%",
+            opacity: isHovered || selected ? 1 : 0,
+            transition: "all 0.2s ease",
+            boxShadow: isHovered || selected ? `0 0 6px ${accentColor}60` : "none"
+          }}
         />
       ))}
+
       <div className="flex items-center justify-between gap-2">
         <input
-          className={`w-full min-w-0 flex-1 rounded border border-transparent bg-transparent text-sm font-semibold leading-tight outline-none ${styles.text} truncate`}
+          className={`w-full min-w-0 flex-1 rounded border border-transparent bg-transparent text-sm font-semibold leading-tight outline-none ${isLight ? "text-slate-800" : "text-slate-100"}`}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={() => commitMeta({ title })}
-          style={{ color: textColor }}
+          style={{ color: isLight ? undefined : textColor }}
         />
         <div className="flex items-center gap-1">
           <span
-            className={`max-w-[80px] truncate whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide ${styles.pill}`}
-            style={
-              effectiveBg
-                ? { backgroundColor: effectiveBg, borderColor: "#0b0f19", color: textColor }
-                : { borderColor: "#0b0f19", color: textColor }
-            }
+            className="max-w-[100px] truncate whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide shrink-0"
+            style={{
+              backgroundColor: `${accentColor}15`,
+              border: `1px solid ${accentColor}30`,
+              color: accentColor
+            }}
           >
             {data.meta.kindLabel || data.meta.kind}
           </span>
+          {/* Status dot */}
+          {statusColor && (
+            <span
+              className="absolute -left-1 -top-1 flex h-3 w-3 items-center justify-center"
+              title={nodeStatus}
+            >
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-40" style={{ backgroundColor: statusColor }} />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-[#0b1422]" style={{ backgroundColor: statusColor }} />
+            </span>
+          )}
           {pinTag && (
             <span
               className="absolute -right-2 -top-2 inline-flex h-4 w-4 items-center justify-center text-[9px] leading-none shrink-0"
@@ -398,11 +518,24 @@ function DecodeNode({ data, selected }: NodeProps<FlowNodeData>) {
           {visibleTags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] uppercase tracking-wide text-slate-600"
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${isLight ? "border border-slate-300/60 bg-slate-100/80 text-slate-500" : "border border-slate-700/40 bg-slate-800/40 text-slate-400"}`}
             >
               {tag}
             </span>
           ))}
+        </div>
+      )}
+      {/* Description preview */}
+      {data.meta.description && (
+        <div className={`mt-1.5 text-[10px] leading-tight line-clamp-2 ${isLight ? "text-slate-500" : "text-slate-500"}`}>
+          {data.meta.description}
+        </div>
+      )}
+      {/* Bottom meta badges (version / SLA) */}
+      {(data.meta.version || data.meta.sla) && (
+        <div className={`mt-1.5 flex items-center gap-1.5 text-[9px] ${isLight ? "text-slate-500" : "text-slate-500"}`}>
+          {data.meta.version && <span className={`rounded px-1 py-px ${isLight ? "border border-slate-300/50 bg-slate-100/60" : "border border-slate-700/30 bg-slate-800/30"}`}>v{data.meta.version}</span>}
+          {data.meta.sla && <span className={`rounded px-1 py-px ${isLight ? "border border-slate-300/50 bg-slate-100/60" : "border border-slate-700/30 bg-slate-800/30"}`}>{data.meta.sla}</span>}
         </div>
       )}
     </div>
@@ -495,17 +628,22 @@ function CanvasBody(props: DecodeMapCanvasProps) {
   const reactFlowInstance = useReactFlow();
   const connectFrom = React.useRef<{ nodeId: string; handleId?: string } | null>(null);
   const [isPanning, setIsPanning] = React.useState(false);
-  const handCursor = isPanning ? "grabbing" : "grab";
+  const [isConnecting, setIsConnecting] = useState(false);
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
   const defaultEdgeOptions = useMemo(
     () => ({
       type: "smoothstep" as const,
-      markerEnd: { type: MarkerType.ArrowClosed, width: 16, height: 16 },
-      animated: true,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 18,
+        height: 18,
+        color: isDark ? "#94a3b8" : "#475569"
+      },
+      animated: false,
       style: {
-        stroke: isDark ? "#cbd5e1" : "#0f172a",
-        strokeWidth: 1.6,
+        stroke: isDark ? "#94a3b8" : "#475569",
+        strokeWidth: 2,
         zIndex: 10
       }
     }),
@@ -523,6 +661,7 @@ function CanvasBody(props: DecodeMapCanvasProps) {
   const handleConnect: OnConnect = (connection) => {
     onConnectEdge(connection);
     connectFrom.current = null;
+    setIsConnecting(false);
   };
 
   const handleEdgeClick: EdgeMouseHandler = (_, edge) => {
@@ -536,10 +675,12 @@ function CanvasBody(props: DecodeMapCanvasProps) {
 
   const handleConnectStart: OnConnectStart = (_, params) => {
     connectFrom.current = { nodeId: params.nodeId ?? "", handleId: params.handleId ?? undefined };
+    setIsConnecting(true);
   };
 
   const handleConnectEnd: OnConnectEnd = (event) => {
     const from = connectFrom.current;
+    setIsConnecting(false);
     if (!from) return;
     const target = event.target as HTMLElement | null;
     if (
@@ -567,7 +708,7 @@ function CanvasBody(props: DecodeMapCanvasProps) {
     setIsPanning(false);
   };
 
-  const reportCenter = React.useCallback(() => {
+  const reportCenter = useCallback(() => {
     if (!containerRef.current) return;
     const bounds = containerRef.current.getBoundingClientRect();
     const center = reactFlowInstance.project({
@@ -596,7 +737,7 @@ function CanvasBody(props: DecodeMapCanvasProps) {
     const rect = node.positionAbsolute ?? {
       x: node.position.x,
       y: node.position.y,
-      width: 240,
+      width: 180,
       height: 80
     };
     const width = (rect as any).width ?? 0;
@@ -611,10 +752,16 @@ function CanvasBody(props: DecodeMapCanvasProps) {
     );
   }, [focusNodeId, reactFlowInstance]);
 
+  const miniMapNodeColor = useCallback((node: Node) => {
+    const kind = (node.data as FlowNodeData | undefined)?.meta?.kind;
+    return kindAccentColors[kind as MapNodeMeta["kind"]] ?? "#cbd5e1";
+  }, []);
+
+  const cursorClass = isConnecting ? "connecting" : isPanning ? "is-panning" : "";
+
   return (
     <div
-      className={`decode-canvas h-full w-full relative pan-mode ${isPanning ? "is-panning" : ""}`}
-      style={{ cursor: handCursor }}
+      className={`decode-canvas h-full w-full relative pan-mode ${cursorClass}`}
       ref={containerRef}
     >
       <ReactFlow
@@ -633,13 +780,14 @@ function CanvasBody(props: DecodeMapCanvasProps) {
         panOnDrag={[0, 1, 2]}
         selectionOnDrag={false}
         selectNodesOnDrag={false}
-        edgeUpdaterRadius={16}
+        edgeUpdaterRadius={20}
         connectionMode={ConnectionMode.Loose}
         snapToGrid
         snapGrid={[10, 10]}
         connectionLineStyle={{
-          stroke: isDark ? "#cbd5e1" : "#0f172a",
-          strokeWidth: 2.4,
+          stroke: "#38bdf8",
+          strokeWidth: 2.5,
+          strokeDasharray: "8 4",
           pointerEvents: "none"
         }}
         connectionLineType={ConnectionLineType.SmoothStep}
@@ -662,58 +810,38 @@ function CanvasBody(props: DecodeMapCanvasProps) {
         fitViewOptions={{ padding: 0.2 }}
         defaultEdgeOptions={defaultEdgeOptions}
         proOptions={{ hideAttribution: true }}
-        className={`${isDark ? "bg-slate-900" : "bg-slate-50"}`}
-        style={{ cursor: handCursor }}
+        className={isDark ? "bg-[#030712]" : "bg-[#f8fafc]"}
       >
-        <Background gap={14} size={1} color={isDark ? "#475569" : "#cbd5e1"} />
+        <Background
+          gap={20}
+          size={1}
+          color={isDark ? "#1e293b" : "#cbd5e1"}
+        />
         <style>{`
-          .react-flow__edge-path.edge-glow {
-            stroke-dasharray: 14 8;
-            stroke-linecap: round;
-            stroke-dashoffset: 0;
-            stroke-width: 1.6 !important;
-            animation: edge-glow-move 1.1s linear infinite;
-          }
-          @keyframes edge-glow-move {
-            to {
-              stroke-dashoffset: -44;
-            }
-          }
           .decode-canvas.pan-mode,
           .decode-canvas.pan-mode .react-flow__pane,
           .decode-canvas.pan-mode .react-flow__background,
           .decode-canvas.pan-mode .react-flow__viewport,
-          .decode-canvas.pan-mode .react-flow__renderer {
-            cursor: grab !important;
-          }
+          .decode-canvas.pan-mode .react-flow__renderer { cursor: grab !important; }
           .decode-canvas.pan-mode.is-panning,
           .decode-canvas.pan-mode.is-panning .react-flow__pane,
           .decode-canvas.pan-mode.is-panning .react-flow__background,
           .decode-canvas.pan-mode.is-panning .react-flow__viewport,
-          .decode-canvas.pan-mode.is-panning .react-flow__renderer {
-            cursor: grabbing !important;
-          }
+          .decode-canvas.pan-mode.is-panning .react-flow__renderer { cursor: grabbing !important; }
+          .decode-canvas.connecting,
+          .decode-canvas.connecting .react-flow__pane { cursor: crosshair !important; }
+          .decode-canvas.connecting .react-flow__handle { opacity: 1 !important; width: 10px !important; height: 10px !important; }
+          .react-flow__edgeupdater { cursor: move; }
+          .react-flow__edgeupdater circle { r: 8; fill: #38bdf8; stroke: #0f172a; stroke-width: 2; }
         `}</style>
         <MiniMap
-          className="bg-white/90"
           pannable
           zoomable
-          nodeStrokeWidth={3}
-          nodeColor={(node) => {
-            const kind = (node.data as FlowNodeData | undefined)?.meta?.kind;
-            if (kind === "person") return "#38bdf8";
-            if (kind === "system") return "#34d399";
-            if (kind === "process") return "#facc15";
-            return "#cbd5e1";
-          }}
+          nodeStrokeWidth={2}
+          nodeColor={miniMapNodeColor}
+          maskColor="rgba(3,7,18,0.7)"
         />
-        <Controls
-          className={
-            isDark
-              ? "bg-slate-800/90 text-slate-100 border border-slate-700 shadow"
-              : "bg-white text-slate-900 shadow-md"
-          }
-        />
+        <Controls />
       </ReactFlow>
     </div>
   );

@@ -2,36 +2,293 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Base ─── */
 :root {
-  color-scheme: light;
   --font-decode: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
 }
 
-body {
+/* Dark theme (default) */
+html.dark {
+  color-scheme: dark;
+}
+html.dark body {
+  font-family: var(--font-decode);
+  background-color: #030712;
+  color: #f1f5f9;
+}
+
+/* Light theme */
+html.light {
+  color-scheme: light;
+}
+html.light body {
   font-family: var(--font-decode);
   background-color: #f8fafc;
-  color: #0f172a;
+  color: #1e293b;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Edge glow animation */
-.react-flow__edge.edge-glow .react-flow__edge-path,
-.react-flow__edge.edge-glow path {
-  stroke-linecap: round;
-  stroke-dasharray: 6 10;
-  animation: edge-flow 1.5s linear infinite;
-  filter: drop-shadow(0 0 4px rgba(14, 165, 233, 0.6));
+/* ─── Custom Scrollbar (Dark) ─── */
+html.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.5);
+  border-radius: 3px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.7);
 }
 
-@keyframes edge-flow {
-  from {
-    stroke-dashoffset: 0;
+/* ─── Custom Scrollbar (Light) ─── */
+html.light ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+html.light ::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 3px;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
+}
+
+/* ─── Glass Utilities ─── */
+@layer utilities {
+  .glass-panel {
+    background: rgba(11, 20, 34, 0.70);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(51, 65, 85, 0.40);
   }
-  to {
-    stroke-dashoffset: -16;
+  .glass-panel-solid {
+    background: rgba(11, 20, 34, 0.90);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(51, 65, 85, 0.50);
   }
+  .glass-border {
+    border: 1px solid rgba(51, 65, 85, 0.40);
+  }
+  .glass-glow {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+  }
+  .glass-glow-lg {
+    box-shadow: 0 0 40px rgba(14, 165, 233, 0.20);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #ffffff, #bae6fd, #c7d2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(14,165,233,0.3), rgba(99,102,241,0.3));
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+  }
+}
+
+/* ─── Light Mode Glass ─── */
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(203, 213, 225, 0.60);
+}
+html.light .glass-panel-solid {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(203, 213, 225, 0.70);
+}
+html.light .glass-border {
+  border: 1px solid rgba(203, 213, 225, 0.60);
+}
+html.light .gradient-text {
+  background: linear-gradient(135deg, #0f172a, #0369a1, #4338ca);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── ReactFlow Dark Overrides ─── */
+.react-flow__background {
+  background-color: #030712 !important;
+}
+.react-flow__minimap {
+  background: rgba(11, 20, 34, 0.90) !important;
+  border-radius: 12px;
+  border: 1px solid rgba(51, 65, 85, 0.40) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.react-flow__controls {
+  background: rgba(11, 20, 34, 0.90) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(51, 65, 85, 0.40) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+.react-flow__controls button {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.30) !important;
+  fill: #94a3b8 !important;
+}
+.react-flow__controls button:hover {
+  background: rgba(51, 65, 85, 0.30) !important;
+  color: #f1f5f9 !important;
+  fill: #f1f5f9 !important;
+}
+.react-flow__controls button:last-child {
+  border-bottom: none !important;
+}
+.react-flow__controls svg {
+  fill: currentColor !important;
+}
+.react-flow__attribution {
+  display: none !important;
+}
+
+/* ─── Light Mode ReactFlow Overrides ─── */
+html.light .react-flow__background {
+  background-color: #f8fafc !important;
+}
+html.light .react-flow__minimap {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(203, 213, 225, 0.60) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+html.light .react-flow__controls {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(203, 213, 225, 0.60) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+html.light .react-flow__controls button {
+  background: transparent !important;
+  color: #475569 !important;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.40) !important;
+  fill: #475569 !important;
+}
+html.light .react-flow__controls button:hover {
+  background: rgba(241, 245, 249, 0.80) !important;
+  color: #0f172a !important;
+  fill: #0f172a !important;
+}
+html.light .react-flow__selection,
+html.light .react-flow__nodesselection-rect {
+  background: rgba(14, 165, 233, 0.06) !important;
+  border: 1px solid rgba(14, 165, 233, 0.25) !important;
+}
+
+/* ─── Edge Animations ─── */
+.react-flow__edge-path {
+  transition: stroke-width 0.15s ease;
+}
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 0 4px rgba(14, 165, 233, 0.3));
+}
+.react-flow__connection-path {
+  animation: connection-dash 0.6s linear infinite;
+}
+@keyframes connection-dash {
+  to { stroke-dashoffset: -24; }
+}
+@keyframes edgeFlow {
+  to { stroke-dashoffset: -28; }
+}
+
+/* ─── Node Interactions ─── */
+.react-flow__node.dragging .decode-node {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(14, 165, 233, 0.3) !important;
+  transform: scale(1.02) !important;
+}
+.react-flow__node {
+  transition: box-shadow 0.2s ease;
+}
+
+/* ─── Selection ─── */
+.react-flow__nodesselection-rect,
+.react-flow__selection {
+  background: rgba(14, 165, 233, 0.08) !important;
+  border: 1px solid rgba(14, 165, 233, 0.3) !important;
+  border-radius: 8px;
+}
+
+/* ─── Accessibility ─── */
+*:focus-visible {
+  outline: 2px solid rgba(14, 165, 233, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(14, 165, 233, 0.6);
+  outline-offset: 2px;
+}
+
+/* Remove focus ring for mouse clicks */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Mobile Utilities ─── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Skip to content (screen reader) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

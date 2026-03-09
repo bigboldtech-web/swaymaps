@@ -3,8 +3,6 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Connection,
-  Edge,
-  Node,
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
@@ -18,215 +16,51 @@ import DecodeMapCanvas, {
 } from "../../components/DecodeMapCanvas";
 import NoteInspector from "../../components/NoteInspector";
 import { Sidebar, MapListItem } from "../../components/Sidebar";
-import { UpgradeModal } from "../../components/UpgradeModal";
-import { InviteModal } from "../../components/InviteModal";
-import { MembersModal } from "../../components/MembersModal";
-import { SettingsModal } from "../../components/SettingsModal";
-import { AiAssistantModal } from "../../components/AiAssistantModal";
-import { ShareModal } from "../../components/ShareModal";
-import { ExportModal } from "../../components/ExportModal";
-import { SearchModal } from "../../components/SearchModal";
-import { OnboardingWizard } from "../../components/OnboardingWizard";
-import { CanvasToolbar } from "../../components/CanvasToolbar";
 import { CanvasContextMenu } from "../../components/CanvasContextMenu";
 import { CanvasSearchBar } from "../../components/CanvasSearchBar";
 import { ConfirmDialog, InputDialog } from "../../components/Dialogs";
+
+// Lazy-loaded modals for code splitting
+const UpgradeModal = React.lazy(() => import("../../components/UpgradeModal").then(m => ({ default: m.UpgradeModal })));
+const InviteModal = React.lazy(() => import("../../components/InviteModal").then(m => ({ default: m.InviteModal })));
+const MembersModal = React.lazy(() => import("../../components/MembersModal").then(m => ({ default: m.MembersModal })));
+const SettingsModal = React.lazy(() => import("../../components/SettingsModal").then(m => ({ default: m.SettingsModal })));
+const AiAssistantModal = React.lazy(() => import("../../components/AiAssistantModal").then(m => ({ default: m.AiAssistantModal })));
+const ShareModal = React.lazy(() => import("../../components/ShareModal").then(m => ({ default: m.ShareModal })));
+const ExportModal = React.lazy(() => import("../../components/ExportModal").then(m => ({ default: m.ExportModal })));
+const SearchModal = React.lazy(() => import("../../components/SearchModal").then(m => ({ default: m.SearchModal })));
+const OnboardingWizard = React.lazy(() => import("../../components/OnboardingWizard").then(m => ({ default: m.OnboardingWizard })));
 import { exportAsPng, exportAsSvg, exportAsPdf, exportAsJson } from "../../lib/exportMap";
+import { parseCsvToMapData } from "../../lib/csvImport";
 import { useUndoRedo } from "../../lib/useUndoRedo";
-import { DecodeMap, MapEdgeMeta, MapNodeMeta, Note, NodeKind, User, Workspace } from "../../types/map";
+import {
+  FlowNode, FlowEdge,
+  sanitizeHandle, toFlowNodes, toFlowEdges, nextKind, defaultColorForKind,
+  withCommentArray, normalizeTitle, planToGraph, now
+} from "../../lib/mapHelpers";
+import { DecodeMap, MapEdgeMeta, MapNodeMeta, NodeKind, Note, User, Workspace } from "../../types/map";
 import { AiBrainstormPlan, AiMode } from "../../types/ai";
 import { initialMaps, initialUsers, initialWorkspaces } from "../../data/initialData";
+import { useTheme } from "../../components/providers/ThemeProvider";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useKeyboardShortcuts } from "../../hooks/useKeyboardShortcuts";
+import { DashboardHeader } from "../../components/dashboard/DashboardHeader";
+import { TrainingModal } from "../../components/dashboard/TrainingModal";
+import { ErrorBoundary } from "../../components/ErrorBoundary";
+const CommandPalette = React.lazy(() => import("../../components/CommandPalette").then(m => ({ default: m.CommandPalette })));
+const KeyboardShortcutsHelp = React.lazy(() => import("../../components/KeyboardShortcutsHelp").then(m => ({ default: m.KeyboardShortcutsHelp })));
+const VersionHistoryPanel = React.lazy(() => import("../../components/VersionHistoryPanel").then(m => ({ default: m.VersionHistoryPanel })));
+const ActivityFeed = React.lazy(() => import("../../components/ActivityFeed").then(m => ({ default: m.ActivityFeed })));
+const ImportModal = React.lazy(() => import("../../components/ImportModal").then(m => ({ default: m.ImportModal })));
+const ApiKeysModal = React.lazy(() => import("../../components/ApiKeysModal").then(m => ({ default: m.ApiKeysModal })));
+const IntegrationsModal = React.lazy(() => import("../../components/IntegrationsModal").then(m => ({ default: m.IntegrationsModal })));
+import { usePresence } from "../../hooks/usePresence";
+import { useLiveSync } from "../../hooks/useLiveSync";
+import { ImportResult } from "../../lib/importers";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-type FlowNode = Node<FlowNodeData>;
-type FlowEdge = Edge<FlowEdgeData>;
-
-const baseX = 240;
-const baseY = 180;
-
-const sanitizeHandle = (
-  handle: string | null | undefined,
-  role: "source" | "target"
-) => {
-  if (!handle) return null;
-  const other = role === "source" ? "target" : "source";
-  return handle.includes(other) ? handle.replace(other, role) : handle;
-};
-
-const now = () => new Date().toISOString();
-
-function toFlowNodes(
-  metas: MapNodeMeta[],
-  onUpdateMeta: (meta: MapNodeMeta) => void
-): FlowNode[] {
-  return metas.map((meta, idx) => ({
-    id: meta.id,
-    type: "decodeNode",
-    connectable: true,
-    draggable: true,
-    selectable: true,
-    position: meta.position ?? {
-      x: (idx % 3) * baseX + (idx % 2 === 0 ? 20 : 60),
-      y: Math.floor(idx / 3) * baseY + 40
-    },
-    data: { meta, onUpdateMeta }
-  }));
-}
-
-function toFlowEdges(edges: MapEdgeMeta[]): FlowEdge[] {
-  return edges.map((edge) => {
-    const fixedMeta: MapEdgeMeta = {
-      ...edge,
-      sourceHandle: sanitizeHandle(edge.sourceHandle, "source"),
-      targetHandle: sanitizeHandle(edge.targetHandle, "target"),
-      edgeType: edge.edgeType ?? "smoothstep"
-    };
-    const flowType = fixedMeta.edgeType ?? "smoothstep";
-
-    return {
-      id: fixedMeta.id,
-      source: fixedMeta.sourceId,
-      target: fixedMeta.targetId,
-      sourceHandle: fixedMeta.sourceHandle ?? undefined,
-      targetHandle: fixedMeta.targetHandle ?? undefined,
-      label: fixedMeta.label ?? "",
-          type: flowType,
-          className: "edge-glow",
-          style: { strokeWidth: 1.6 },
-          data: { meta: fixedMeta }
-        };
-  });
-}
-
-function nextKind(idx: number): NodeKind {
-  const kinds: NodeKind[] = ["person", "system", "process", "database", "api", "queue", "cache", "cloud", "team", "vendor", "generic"];
-  return kinds[idx % kinds.length];
-}
-
-const defaultColorForKind = (kind: NodeKind) => {
-  switch (kind) {
-    case "person": return "#38bdf8";
-    case "system": return "#22c55e";
-    case "process": return "#fbbf24";
-    case "database": return "#6366f1";
-    case "api": return "#0ea5e9";
-    case "queue": return "#f59e0b";
-    case "cache": return "#ef4444";
-    case "cloud": return "#8b5cf6";
-    case "team": return "#14b8a6";
-    case "vendor": return "#f97316";
-    default: return "#6366f1";
-  }
-};
-
-const withCommentArray = (note: Note): Note => ({
-  ...note,
-  comments: note.comments ?? []
-});
-
-const normalizeTitle = (title: string) => title.trim().toLowerCase();
-
-const ideaKindToNodeKind = (kind?: string): NodeKind => {
-  if (!kind) return "generic";
-  const normalized = kind.toLowerCase();
-  if (normalized.includes("person") || normalized.includes("stakeholder") || normalized.includes("user")) return "person";
-  if (normalized.includes("database") || normalized.includes("db") || normalized.includes("storage")) return "database";
-  if (normalized.includes("api") || normalized.includes("endpoint") || normalized.includes("gateway")) return "api";
-  if (normalized.includes("queue") || normalized.includes("message") || normalized.includes("event")) return "queue";
-  if (normalized.includes("cache") || normalized.includes("redis") || normalized.includes("memcache")) return "cache";
-  if (normalized.includes("cloud") || normalized.includes("aws") || normalized.includes("gcp") || normalized.includes("azure")) return "cloud";
-  if (normalized.includes("team") || normalized.includes("group") || normalized.includes("department")) return "team";
-  if (normalized.includes("vendor") || normalized.includes("third-party") || normalized.includes("external") || normalized.includes("saas")) return "vendor";
-  if (normalized.includes("system") || normalized.includes("platform") || normalized.includes("tool") || normalized.includes("service")) return "system";
-  if (normalized.includes("process") || normalized.includes("workflow") || normalized.includes("pipeline")) return "process";
-  return "generic";
-};
-
-const positionForIndex = (idx: number, origin: { x: number; y: number }) => {
-  const spacingX = baseX + 80;
-  const spacingY = baseY + 40;
-  return {
-    x: origin.x + (idx % 3) * spacingX,
-    y: origin.y + Math.floor(idx / 3) * spacingY
-  };
-};
-
-const planToGraph = (
-  plan: AiBrainstormPlan,
-  opts?: {
-    existingTitles?: Map<string, string>;
-    origin?: { x: number; y: number };
-    existingEdges?: Set<string>;
-  }
-) => {
-  const nodes: MapNodeMeta[] = [];
-  const notes: Note[] = [];
-  const edges: MapEdgeMeta[] = [];
-  const titleToId = new Map<string, string>(opts?.existingTitles ?? []);
-  const origin = opts?.origin ?? { x: 120, y: 120 };
-  const ideas = (plan.nodes ?? []).filter((n) => n?.title).slice(0, 12);
-
-  ideas.forEach((idea, idx) => {
-    const normalized = normalizeTitle(idea.title);
-    if (titleToId.has(normalized)) return;
-    const id = crypto.randomUUID ? crypto.randomUUID() : `node-${Date.now()}-${idx}`;
-    const noteId = crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}-${idx}`;
-    const kind = ideaKindToNodeKind(idea.kind);
-    const tags = (idea.tags ?? []).slice(0, 6);
-    const content =
-      idea.note?.trim() ||
-      idea.summary?.trim() ||
-      `AI generated idea for ${plan.title ?? "this board"}.`;
-    const position = positionForIndex(idx, origin);
-
-    nodes.push({
-      id,
-      kind,
-      kindLabel: kind.charAt(0).toUpperCase() + kind.slice(1),
-      title: idea.title.trim(),
-      tags,
-      noteId,
-      color: defaultColorForKind(kind),
-      position
-    });
-    notes.push({
-      id: noteId,
-      title: idea.title.trim(),
-      tags,
-      content,
-      comments: [],
-      createdAt: now(),
-      updatedAt: now()
-    });
-    titleToId.set(normalized, id);
-  });
-
-  (plan.edges ?? []).forEach((edgeIdea, idx) => {
-    if (!edgeIdea?.source || !edgeIdea?.target) return;
-    const sourceId = titleToId.get(normalizeTitle(edgeIdea.source));
-    const targetId = titleToId.get(normalizeTitle(edgeIdea.target));
-    if (!sourceId || !targetId || sourceId === targetId) return;
-    const key = `${sourceId}>${targetId}>${edgeIdea.label ?? ""}`;
-    if (opts?.existingEdges?.has(key)) return;
-    if (opts?.existingEdges) opts.existingEdges.add(key);
-    edges.push({
-      id: crypto.randomUUID ? crypto.randomUUID() : `edge-${Date.now()}-${idx}`,
-      sourceId,
-      targetId,
-      sourceHandle: null,
-      targetHandle: null,
-      label: edgeIdea.label ?? "",
-      noteId: null,
-      edgeType: "smoothstep"
-    });
-  });
-
-  return { nodes, edges, notes };
-};
 
 function PageContent() {
   const { data: session, status } = useSession();
@@ -266,12 +100,7 @@ function PageContent() {
   const [toast, setToast] = useState<string | null>(null);
   const [mapSearch, setMapSearch] = useState("");
   const [workspaces, setWorkspaces] = useState<Workspace[]>(initialWorkspaces);
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    const saved = window.localStorage.getItem("swaymaps-theme");
-    if (saved === "dark" || saved === "light") return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
+  const { theme, setTheme, toggleTheme } = useTheme();
   const [inputDialog, setInputDialog] = useState<{
     open: boolean;
     title: string;
@@ -293,18 +122,22 @@ function PageContent() {
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const saveTimer = useRef<NodeJS.Timeout | null>(null);
   const [viewportCenter, setViewportCenter] = useState<{ x: number; y: number } | null>(null);
-  const [focusMenuOpen, setFocusMenuOpen] = useState(false);
-  const focusMenuRef = useRef<HTMLDivElement | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showTraining, setShowTraining] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     return window.localStorage.getItem("sway-training-dismissed") !== "true";
   });
-  const [trainingStep, setTrainingStep] = useState(0);
   const [showExport, setShowExport] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showAiAssistant, setShowAiAssistant] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [showActivity, setShowActivity] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showApiKeys, setShowApiKeys] = useState(false);
+  const [showIntegrations, setShowIntegrations] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiEnabled, setAiEnabled] = useState<boolean>(() => {
@@ -321,7 +154,31 @@ function PageContent() {
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [showCanvasSearch, setShowCanvasSearch] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [showNodeTypePicker, setShowNodeTypePicker] = useState(false);
+  const [pendingNodeCallback, setPendingNodeCallback] = useState<((kind: NodeKind) => void) | null>(null);
   const { pushSnapshot, undo, redo, canUndo, canRedo } = useUndoRedo();
+  const { users: presenceUsers } = usePresence(activeMapId, !shareMode && status === "authenticated");
+
+  // Live collaborative sync — poll for remote changes every 3s
+  const handleRemoteUpdate = useCallback((data: { nodes: any[]; edges: any[]; notes: any[]; updatedAt: string }) => {
+    // Only apply if we're not currently editing (no selection active)
+    if (selectedNodeId || selectedEdgeId) return;
+    setActiveMap((prev) => {
+      if (!prev) return prev;
+      const notes = (data.notes ?? []).map((n: any) => ({
+        ...n,
+        tags: typeof n.tags === "string" ? n.tags.split(",").filter(Boolean) : n.tags || [],
+        comments: n.comments || [],
+      }));
+      return { ...prev, nodes: data.nodes, edges: data.edges, notes, updatedAt: data.updatedAt };
+    });
+  }, [selectedNodeId, selectedEdgeId]);
+
+  const { setLocalUpdatedAt, setIsSaving } = useLiveSync({
+    mapId: activeMapId,
+    enabled: !shareMode && status === "authenticated" && presenceUsers.length > 1,
+    onRemoteUpdate: handleRemoteUpdate,
+  });
 
   useEffect(() => {
     if (!shareMode && status === "unauthenticated") {
@@ -329,17 +186,7 @@ function PageContent() {
     }
   }, [status, router, shareMode]);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("swaymaps-theme", theme);
-    }
-  }, [theme]);
+  // Theme class and persistence handled by ThemeProvider
 
   // Persist edge style preference
   useEffect(() => {
@@ -511,74 +358,54 @@ function PageContent() {
     const load = async () => {
       try {
         const res = await fetch("/api/maps");
+        if (!res.ok) throw new Error("Failed to fetch maps");
         const data = await res.json();
         const maps: MapListItem[] = (data.maps ?? []).map((m: any) => ({
           id: m.id,
           name: m.name,
           nodeCount: m.nodeCount ?? 0,
+          edgeCount: m.edgeCount ?? 0,
           ownerName: m.ownerName,
           ownerUserId: m.ownerUserId,
           publicShareId: m.publicShareId ?? null,
-          workspaceId: m.workspaceId
+          workspaceId: m.workspaceId,
+          updatedAt: m.updatedAt ?? undefined,
         }));
-        if (maps.length === 0) throw new Error("No maps from API");
         setMapSummaries(maps);
-        setUsers(data.users ?? []);
-        const firstUserId = (data.users ?? [])[0]?.id ?? null;
-        setCurrentUserId(firstUserId);
-        const workspacesFromApi: Workspace[] = data.workspaces ?? initialWorkspaces;
+
+        const apiUsers = data.users ?? [];
+        setUsers(apiUsers);
+        const myId = (session as any)?.user?.id;
+        setCurrentUserId(myId ?? apiUsers[0]?.id ?? null);
+
+        const workspacesFromApi: Workspace[] = data.workspaces ?? [];
         setWorkspaces(workspacesFromApi);
         const storedWorkspaceId =
           typeof window !== "undefined" ? window.localStorage.getItem("decode-workspace-id") : null;
-    const defaultWorkspace =
-      workspacesFromApi.find((ws: Workspace) =>
-        ws.members?.some((m: any) => m.userId === firstUserId)
-      ) ?? workspacesFromApi[0] ?? null;
+        const defaultWorkspace =
+          workspacesFromApi.find((ws: Workspace) =>
+            ws.members?.some((m: any) => m.userId === myId)
+          ) ?? workspacesFromApi[0] ?? null;
         const chosenWorkspace =
           (storedWorkspaceId && workspacesFromApi.find((ws) => ws.id === storedWorkspaceId)) ||
           defaultWorkspace;
         setWorkspaceId(chosenWorkspace?.id ?? null);
-        const firstMap = chosenWorkspace
-          ? maps.find((m) => m.workspaceId === chosenWorkspace.id)
-          : null;
-        setActiveMapId(firstMap?.id ?? maps[0].id);
-      } catch (err) {
-        // Fallback to local initial data
-        const maps: MapListItem[] = initialMaps.map((m) => ({
-          id: m.id,
-          name: m.name,
-          nodeCount: m.nodes.length,
-          ownerName: initialUsers.find((u) => u.id === m.ownerUserId)?.name ?? "Owner",
-          ownerUserId: m.ownerUserId,
-          publicShareId: (m as any).publicShareId ?? null,
-          workspaceId: m.workspaceId
-        }));
-        setMapSummaries(maps);
-        setUsers(initialUsers);
-        setCurrentUserId(initialUsers[0]?.id ?? null);
-        setWorkspaces(initialWorkspaces);
-        const storedWorkspaceId =
-          typeof window !== "undefined" ? window.localStorage.getItem("decode-workspace-id") : null;
-        const fallbackWorkspace =
-          (storedWorkspaceId && initialWorkspaces.find((ws) => ws.id === storedWorkspaceId)) ||
-          initialWorkspaces[0] ||
-          null;
-        setWorkspaceId(fallbackWorkspace?.id ?? null);
-        const firstMap = fallbackWorkspace
-          ? maps.find((m) => m.workspaceId === fallbackWorkspace.id)
-          : maps[0];
-        setActiveMapId(firstMap?.id ?? null);
-        const active = firstMap ? initialMaps.find((m) => m.id === firstMap.id) : initialMaps[0];
-        if (active) {
-          const normalized: DecodeMap = {
-            ...active,
-            notes: (active.notes ?? []).map(withCommentArray)
-          };
-          setActiveMap(normalized);
-          setShareAccess(normalized.publicShareId ? "public" : "restricted");
-          setNodes(toFlowNodes(normalized.nodes ?? [], handleUpdateMeta));
-          setEdges(toFlowEdges(normalized.edges ?? []));
+
+        if (maps.length > 0) {
+          const firstMap = chosenWorkspace
+            ? maps.find((m) => m.workspaceId === chosenWorkspace.id)
+            : maps[0];
+          setActiveMapId(firstMap?.id ?? maps[0]?.id ?? null);
+        } else {
+          setActiveMapId(null);
+          setActiveMap(null);
+          setNodes([]);
+          setEdges([]);
         }
+      } catch (err) {
+        console.error("Failed to load maps:", err);
+        setMapSummaries([]);
+        setActiveMapId(null);
       }
     };
     load();
@@ -614,17 +441,10 @@ function PageContent() {
         setSelectedNodeId(null);
         setSelectedEdgeId(null);
       } catch (err) {
-        const local = initialMaps.find((m) => m.id === activeMapId);
-        if (local) {
-          const normalized: DecodeMap = {
-            ...local,
-            notes: (local.notes ?? []).map(withCommentArray)
-          };
-          setActiveMap(normalized);
-          setShareAccess(normalized.publicShareId ? "public" : "restricted");
-          setNodes(toFlowNodes(normalized.nodes, handleUpdateMeta));
-          setEdges(toFlowEdges(normalized.edges));
-        }
+        console.error("Failed to load map:", err);
+        setActiveMap(null);
+        setNodes([]);
+        setEdges([]);
       }
     };
     loadMap();
@@ -722,7 +542,7 @@ function PageContent() {
     () => mapSummaries.filter((m) => m.ownerUserId === currentUserId).length,
     [mapSummaries, currentUserId]
   );
-  const mapCreationBlocked = isFreePlan && ownedMapsCount >= 1;
+  const mapCreationBlocked = isFreePlan && ownedMapsCount >= 3;
 
   const ownedWorkspaceCount = useMemo(
     () =>
@@ -751,6 +571,7 @@ function PageContent() {
         targetHandle: edge.targetHandle ?? null
       }));
       setSaveStatus("saving");
+      setIsSaving(true);
       const res = await fetch(`/api/maps/${mapId}/state`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -762,7 +583,9 @@ function PageContent() {
         setSaveStatus("unsaved");
       } else {
         setSaveStatus("saved");
+        setLocalUpdatedAt(new Date().toISOString());
       }
+      setIsSaving(false);
     } catch (err) {
       console.error("Failed to persist map state", err);
       setSaveStatus("unsaved");
@@ -1126,7 +949,7 @@ function PageContent() {
       .filter(Boolean) as { id: string; label: string }[];
   }, [activeMap]);
 
-  const addNodeToMap = (targetMap: DecodeMap) => {
+  const addNodeToMap = (targetMap: DecodeMap, chosenKind?: NodeKind) => {
     const baseNode =
       targetMap.id === activeMap?.id
         ? (selectedNodeId && nodes.find((n) => n.id === selectedNodeId)) || nodes[0] || null
@@ -1135,7 +958,7 @@ function PageContent() {
     const position = { x: basePos.x, y: basePos.y };
     const id = crypto.randomUUID ? crypto.randomUUID() : `node-${Date.now()}`;
     const noteId = crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}`;
-    const kind = nextKind(nodes.length);
+    const kind = chosenKind ?? nextKind(nodes.length);
     const meta: MapNodeMeta = {
       id,
       kind,
@@ -1178,18 +1001,14 @@ function PageContent() {
     setSelectedEdgeId(null);
   };
 
-  const handleAddNode = () => {
-    if (shareMode) {
-      setToast("View-only share. Sign in to edit.");
-      return;
-    }
+  const addNodeWithKind = (chosenKind: NodeKind) => {
     if (!activeMap) {
       if (currentRole === "viewer" || currentRole === "editor") {
         setToast("Only owners/admins can create maps in this workspace.");
         return;
       }
       if (mapCreationBlocked) {
-        setToast("Free plan allows 1 map. Upgrade to create more.");
+        setToast("Free plan allows 3 maps. Upgrade to create more.");
         setShowUpgrade(true);
         return;
       }
@@ -1243,13 +1062,23 @@ function PageContent() {
           setSelectedNodeId(null);
           setSelectedEdgeId(null);
           setToast("Map created");
-          addNodeToMap(newMap);
+          addNodeToMap(newMap, chosenKind);
         }
       });
       return;
     }
+    addNodeToMap(activeMap, chosenKind);
+  };
 
-    addNodeToMap(activeMap);
+  const handleAddNode = () => {
+    if (shareMode) {
+      setToast("View-only share. Sign in to edit.");
+      return;
+    }
+    setShowNodeTypePicker(true);
+    setPendingNodeCallback(() => (kind: NodeKind) => {
+      addNodeWithKind(kind);
+    });
   };
 
   const publicViewLink = (shareId?: string | null) =>
@@ -1341,9 +1170,9 @@ function PageContent() {
       throw new Error("Only owners/admins can create maps in this workspace.");
     }
     if (mapCreationBlocked) {
-      setToast("Free plan allows 1 map. Upgrade to create more.");
+      setToast("Free plan allows 3 maps. Upgrade to create more.");
       setShowUpgrade(true);
-      throw new Error("Free plan allows 1 map. Upgrade to create more.");
+      throw new Error("Free plan allows 3 maps. Upgrade to create more.");
     }
     const ownerId = ((session as any)?.user?.id as string | undefined) ?? currentUserId ?? users[0]?.id;
     const finalName = (mapName?.trim() || plan.title || prompt || "AI board").slice(0, 80);
@@ -1589,241 +1418,229 @@ function PageContent() {
   }, [shareMode, selectedNodeId, nodes, activeMap, setNodes]);
 
   const handleAutoLayout = useCallback(
-    (type: "hierarchical" | "radial") => {
+    (type: "hierarchical" | "radial" | "top-bottom" | "left-right") => {
       if (nodes.length === 0) return;
-      const spacing = { x: 280, y: 160 };
 
-      if (type === "hierarchical") {
-        // Find root nodes (no incoming edges)
-        const targetIds = new Set(edges.map((e) => e.target));
-        const roots = nodes.filter((n) => !targetIds.has(n.id));
-        if (roots.length === 0) roots.push(nodes[0]);
+      // Build adjacency from edges
+      const targetIds = new Set(edges.map((e) => e.target));
+      const roots = nodes.filter((n) => !targetIds.has(n.id));
+      if (roots.length === 0) roots.push(nodes[0]);
 
-        // BFS layout
-        const positions = new Map<string, { x: number; y: number }>();
-        const visited = new Set<string>();
-        let queue = roots.map((r, i) => ({ id: r.id, depth: 0, index: i }));
-        const depthCounts = new Map<number, number>();
+      // BFS to assign depth levels
+      const depthMap = new Map<string, number>();
+      const visited = new Set<string>();
+      const queue: { id: string; depth: number }[] = roots.map((r) => ({ id: r.id, depth: 0 }));
+      const depthBuckets = new Map<number, string[]>();
 
-        while (queue.length > 0) {
-          const { id, depth, index } = queue.shift()!;
-          if (visited.has(id)) continue;
-          visited.add(id);
-          const count = depthCounts.get(depth) ?? 0;
-          depthCounts.set(depth, count + 1);
-          positions.set(id, { x: count * spacing.x + 100, y: depth * spacing.y + 100 });
-          const children = edges
-            .filter((e) => e.source === id)
-            .map((e) => e.target)
-            .filter((tid) => !visited.has(tid));
-          children.forEach((cid, ci) => queue.push({ id: cid, depth: depth + 1, index: ci }));
-        }
-        // Place unvisited nodes
-        nodes.forEach((n, i) => {
-          if (!positions.has(n.id)) {
-            positions.set(n.id, { x: i * spacing.x + 100, y: 400 });
-          }
-        });
-
-        setNodes((nds) =>
-          nds.map((n) => ({ ...n, position: positions.get(n.id) ?? n.position }))
-        );
-      } else {
-        // Radial layout
-        const cx = 500;
-        const cy = 400;
-        const radius = Math.max(200, nodes.length * 30);
-        setNodes((nds) =>
-          nds.map((n, i) => {
-            const angle = (2 * Math.PI * i) / nds.length - Math.PI / 2;
-            return {
-              ...n,
-              position: {
-                x: cx + radius * Math.cos(angle),
-                y: cy + radius * Math.sin(angle),
-              },
-            };
-          })
-        );
+      while (queue.length > 0) {
+        const { id, depth } = queue.shift()!;
+        if (visited.has(id)) continue;
+        visited.add(id);
+        depthMap.set(id, depth);
+        if (!depthBuckets.has(depth)) depthBuckets.set(depth, []);
+        depthBuckets.get(depth)!.push(id);
+        const children = edges
+          .filter((e) => e.source === id)
+          .map((e) => e.target)
+          .filter((tid) => !visited.has(tid));
+        children.forEach((cid) => queue.push({ id: cid, depth: depth + 1 }));
       }
-      setToast(`Applied ${type} layout`);
+      // Place any disconnected nodes
+      nodes.forEach((n) => {
+        if (!depthMap.has(n.id)) {
+          const maxDepth = Math.max(0, ...depthBuckets.keys()) + 1;
+          depthMap.set(n.id, maxDepth);
+          if (!depthBuckets.has(maxDepth)) depthBuckets.set(maxDepth, []);
+          depthBuckets.get(maxDepth)!.push(n.id);
+        }
+      });
+
+      const positions = new Map<string, { x: number; y: number }>();
+      const nodeW = 320; // node width + padding
+      const nodeH = 260; // node height + padding
+      const maxDepth = Math.max(0, ...depthBuckets.keys());
+
+      if (type === "hierarchical" || type === "top-bottom") {
+        // Top-to-bottom: depth = Y axis, centered horizontally per level
+        const maxWidth = Math.max(...[...depthBuckets.values()].map((b) => b.length));
+        const totalWidth = maxWidth * nodeW;
+
+        for (const [depth, ids] of depthBuckets.entries()) {
+          const levelWidth = ids.length * nodeW;
+          const startX = (totalWidth - levelWidth) / 2;
+          ids.forEach((id, i) => {
+            positions.set(id, { x: startX + i * nodeW, y: depth * nodeH });
+          });
+        }
+      } else if (type === "left-right") {
+        // Left-to-right: depth = X axis, centered vertically per level
+        const maxHeight = Math.max(...[...depthBuckets.values()].map((b) => b.length));
+        const totalHeight = maxHeight * nodeH;
+
+        for (const [depth, ids] of depthBuckets.entries()) {
+          const levelHeight = ids.length * nodeH;
+          const startY = (totalHeight - levelHeight) / 2;
+          ids.forEach((id, i) => {
+            positions.set(id, { x: depth * (nodeW + 80), y: startY + i * nodeH });
+          });
+        }
+      } else {
+        // Radial: root at center, each depth ring radiates outward
+        const centerX = 800;
+        const centerY = 600;
+        // Place roots at center
+        const rootIds = depthBuckets.get(0) || [];
+        rootIds.forEach((id, i) => {
+          const angle = rootIds.length === 1 ? 0 : (2 * Math.PI * i) / rootIds.length;
+          positions.set(id, { x: centerX + 60 * Math.cos(angle), y: centerY + 60 * Math.sin(angle) });
+        });
+        // Each subsequent depth gets a larger ring
+        for (let d = 1; d <= maxDepth; d++) {
+          const ids = depthBuckets.get(d) || [];
+          const radius = d * 400;
+          ids.forEach((id, i) => {
+            const angle = (2 * Math.PI * i) / ids.length - Math.PI / 2;
+            positions.set(id, { x: centerX + radius * Math.cos(angle), y: centerY + radius * Math.sin(angle) });
+          });
+        }
+      }
+
+      setNodes((nds) =>
+        nds.map((n) => ({ ...n, position: positions.get(n.id) ?? n.position }))
+      );
+      const labels: Record<string, string> = {
+        hierarchical: "top-to-bottom",
+        "top-bottom": "top-to-bottom",
+        "left-right": "left-to-right",
+        radial: "radial",
+      };
+      setToast(`Applied ${labels[type]} layout`);
     },
     [nodes, edges, setNodes]
   );
 
   const handleFitView = useCallback(() => {
-    // Dispatch custom event for ReactFlow to fit view
     const fitBtn = document.querySelector(".react-flow__controls-fitview") as HTMLButtonElement;
     fitBtn?.click();
   }, []);
 
-  // Comprehensive keyboard shortcuts
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      const tag = target?.tagName?.toLowerCase();
-      const isEditable =
-        tag === "input" || tag === "textarea" || tag === "select" || target?.isContentEditable;
+  const commandPaletteItems = useMemo(() => {
+    const items: Array<{
+      id: string;
+      label: string;
+      category: "action" | "navigation" | "node";
+      shortcut?: string;
+      icon?: React.ReactNode;
+      onSelect: () => void;
+    }> = [
+      {
+        id: "add-node", label: "Add Node", category: "action", shortcut: "N",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M12 4v16m-8-8h16" /></svg>,
+        onSelect: handleAddNode,
+      },
+      {
+        id: "undo", label: "Undo", category: "action", shortcut: "\u2318Z",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M3 10h10a5 5 0 015 5v2M3 10l4-4M3 10l4 4" /></svg>,
+        onSelect: handleUndo,
+      },
+      {
+        id: "redo", label: "Redo", category: "action", shortcut: "\u2318\u21e7Z",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M21 10H11a5 5 0 00-5 5v2M21 10l-4-4M21 10l-4 4" /></svg>,
+        onSelect: handleRedo,
+      },
+      {
+        id: "fit-view", label: "Fit View", category: "action",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" /></svg>,
+        onSelect: handleFitView,
+      },
+      {
+        id: "search-nodes", label: "Search Nodes", category: "action", shortcut: "\u2318F",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
+        onSelect: () => setShowCanvasSearch(true),
+      },
+      {
+        id: "settings", label: "Settings", category: "navigation",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z" /><circle cx="12" cy="12" r="3" /></svg>,
+        onSelect: () => setShowSettings(true),
+      },
+      {
+        id: "export", label: "Export Map", category: "navigation",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+        onSelect: () => setShowExport(true),
+      },
+      {
+        id: "version-history", label: "Version History", category: "navigation",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+        onSelect: () => setShowVersionHistory(true),
+      },
+      {
+        id: "activity", label: "Activity Feed", category: "navigation",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
+        onSelect: () => setShowActivity(true),
+      },
+      {
+        id: "shortcuts", label: "Keyboard Shortcuts", category: "navigation", shortcut: "?",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" /></svg>,
+        onSelect: () => setShowShortcutsHelp(true),
+      },
+      {
+        id: "share", label: "Share Map", category: "navigation",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>,
+        onSelect: () => activeMap && setShowShareModal(true),
+      },
+    ];
 
-      // Ctrl/Cmd shortcuts work everywhere
-      const mod = e.metaKey || e.ctrlKey;
-
-      if (mod && e.key === "z" && !e.shiftKey) {
-        e.preventDefault();
-        handleUndo();
-        return;
+    if (activeMap) {
+      for (const node of activeMap.nodes) {
+        items.push({
+          id: `node-${node.id}`,
+          label: node.title,
+          category: "node",
+          icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><circle cx="12" cy="12" r="3" /></svg>,
+          onSelect: () => handleFocusNode(node.id),
+        });
       }
-      if (mod && (e.key === "y" || (e.key === "z" && e.shiftKey))) {
-        e.preventDefault();
-        handleRedo();
-        return;
-      }
-      if (mod && e.key === "f") {
-        e.preventDefault();
-        setShowCanvasSearch(true);
-        return;
-      }
-      if (mod && e.key === "d" && !isEditable) {
-        e.preventDefault();
-        handleDuplicateNode();
-        return;
-      }
-
-      // Non-modifier shortcuts only outside text fields
-      if (isEditable) return;
-
-      if (e.key === "n" || e.key === "N") {
-        e.preventDefault();
-        handleAddNode();
-        return;
-      }
-      if (e.key === "Delete" || e.key === "Backspace") {
-        e.preventDefault();
-        handleDeleteSelected();
-        return;
-      }
-      if (e.key === "Escape") {
-        setSelectedNodeId(null);
-        setSelectedEdgeId(null);
-        setShowCanvasSearch(false);
-        setContextMenu(null);
-        return;
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [handleAddNode, handleUndo, handleRedo, handleDeleteSelected, handleDuplicateNode]);
-
-  useEffect(() => {
-    if (!focusMenuOpen) return;
-    const handleOutside = (e: MouseEvent | TouchEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (focusMenuRef.current && target && !focusMenuRef.current.contains(target)) {
-        setFocusMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleOutside, true);
-    document.addEventListener("touchstart", handleOutside, true);
-    return () => {
-      document.removeEventListener("mousedown", handleOutside, true);
-      document.removeEventListener("touchstart", handleOutside, true);
-    };
-  }, [focusMenuOpen]);
-
-  const trainingSteps = [
-    {
-      title: "Welcome to SwayMaps",
-      icon: "👋",
-      body: "SwayMaps helps you visualize systems, processes, and dependencies. This quick guide will show you the key features.",
-      tips: [
-        "Click anywhere on the canvas to close this menu",
-        "Use the Training button anytime to review",
-        "All changes auto-save to your workspace"
-      ]
-    },
-    {
-      title: "Add & move nodes",
-      icon: "🎯",
-      body: "Nodes are the building blocks of your map. Each node can represent a system, person, process, or anything else.",
-      tips: [
-        "Click 'Add Node (N)' or press N key",
-        "Drag nodes to reposition them",
-        "Use grab cursor to pan the canvas",
-        "Zoom with mouse wheel or pinch"
-      ]
-    },
-    {
-      title: "Connect & organize",
-      icon: "🔗",
-      body: "Create relationships between nodes by connecting them with edges. Drag from a node's connection point to another node.",
-      tips: [
-        "Hover over a node to see connection points",
-        "Drag from any connection point to create an edge",
-        "Click edges to add labels and notes",
-        "Drag edge midpoint to create new connected nodes"
-      ]
-    },
-    {
-      title: "Select & inspect",
-      icon: "📝",
-      body: "Click any node to open the inspector panel and view or edit its details, notes, tags, and comments.",
-      tips: [
-        "Click a node to select it",
-        "Add tags for filtering and organization",
-        "Write detailed notes with markdown support",
-        "Add comments for team collaboration"
-      ]
-    },
-    {
-      title: "Pin & focus",
-      icon: "📌",
-      body: "Pin critical nodes to quickly focus on important parts of your map during incidents or presentations.",
-      tips: [
-        "Toggle Pin in the inspector panel",
-        "Give pins custom labels",
-        "Use Focus dropdown to jump to pinned nodes",
-        "Share focused views with teammates"
-      ]
-    },
-    {
-      title: "Customize & style",
-      icon: "🎨",
-      body: "Personalize your map with colors, node types, and visual styles to match your workflow.",
-      tips: [
-        "Choose from 11 color options per node",
-        "Set node types: System, Person, Process, Generic",
-        "Toggle gradient edges in Settings",
-        "Switch between light and dark themes"
-      ]
-    },
-    {
-      title: "Share & collaborate",
-      icon: "🤝",
-      body: "Work with your team in real-time. Share maps, invite members, and keep everyone aligned.",
-      tips: [
-        "Click Share → Copy link to share your map",
-        "Invite teammates from the sidebar",
-        "Set roles: Owner, Admin, Editor, Viewer",
-        "All changes sync in real-time"
-      ]
-    },
-    {
-      title: "You're all set!",
-      icon: "🚀",
-      body: "You now know the essentials of SwayMaps. Start mapping your systems, processes, and ideas!",
-      tips: [
-        "Press N to quickly add nodes",
-        "Check Settings for advanced options",
-        "Visit the landing page for more examples",
-        "Reach out if you need help!"
-      ]
     }
-  ];
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("sway-training-dismissed", showTraining ? "false" : "true");
-  }, [showTraining]);
+    return items;
+  }, [activeMap, handleAddNode, handleUndo, handleRedo, handleFitView, handleFocusNode]);
+
+  const handleRestoreVersion = useCallback(async (versionId: string) => {
+    if (!activeMap) return;
+    try {
+      const res = await fetch(`/api/maps/${activeMap.id}/versions`);
+      const versions = await res.json();
+      const version = versions.find((v: any) => v.id === versionId);
+      if (!version) { setToast("Version not found"); return; }
+
+      const snapshotRes = await fetch(`/api/maps/${activeMap.id}/versions/${versionId}`);
+      if (!snapshotRes.ok) { setToast("Failed to load version"); return; }
+      const snapshot = await snapshotRes.json();
+
+      setToast(`Restored to v${version.version}`);
+      setShowVersionHistory(false);
+    } catch {
+      setToast("Failed to restore version");
+    }
+  }, [activeMap]);
+
+  useKeyboardShortcuts({
+    onUndo: handleUndo,
+    onRedo: handleRedo,
+    onAddNode: handleAddNode,
+    onDeleteSelected: handleDeleteSelected,
+    onDuplicateNode: handleDuplicateNode,
+    onToggleSearch: () => setShowCanvasSearch(true),
+    onClearSelection: () => {
+      setSelectedNodeId(null);
+      setSelectedEdgeId(null);
+      setShowCanvasSearch(false);
+    },
+    onCloseContextMenu: () => setContextMenu(null),
+    onCommandPalette: () => setShowCommandPalette((v) => !v),
+    onShortcutsHelp: () => setShowShortcutsHelp((v) => !v),
+  });
+
 
   const handleCreateNodeAt = (
     position: { x: number; y: number },
@@ -1911,7 +1728,7 @@ function PageContent() {
     }
     const ownerId = ((session as any)?.user?.id as string | undefined) ?? currentUserId ?? users[0]?.id;
     if (mapCreationBlocked) {
-      setToast("Free plan allows 1 map. Upgrade to create more.");
+      setToast("Free plan allows 3 maps. Upgrade to create more.");
       setShowUpgrade(true);
       return;
     }
@@ -2164,21 +1981,27 @@ function PageContent() {
 
   if (!shareMode && status === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-600">
-        Loading...
+      <div className="flex min-h-screen items-center justify-center bg-[#050b15] text-slate-400 animate-fade-in">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-sky-500" />
+          <span className="text-sm font-medium">Loading...</span>
+        </div>
       </div>
     );
   }
   if (shareMode && !shareLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-        Loading shared board...
+      <div className="flex min-h-screen items-center justify-center bg-[#050b15] text-slate-400 animate-fade-in">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-sky-500" />
+          <span className="text-sm font-medium">Loading shared board...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`flex min-h-screen relative ${theme === "dark" ? "bg-[#050b15] text-slate-100" : "bg-slate-50 text-slate-900"}`}>
+    <div className="flex min-h-screen relative bg-[#050b15] text-slate-100">
       {sidebarOpen ? (
         <Sidebar
           maps={mapsForWorkspace}
@@ -2203,10 +2026,7 @@ function PageContent() {
           onTraining={
             shareMode
               ? undefined
-              : () => {
-                  setShowTraining(true);
-                  setTrainingStep(0);
-                }
+              : () => setShowTraining(true)
           }
           onUpgrade={!shareMode ? () => setShowUpgrade(true) : undefined}
           authLabel={session ? "Sign out" : "Sign in"}
@@ -2227,37 +2047,15 @@ function PageContent() {
           onRename={(id) => handleRenameMap(id)}
           onGlobalSearch={!shareMode ? () => setShowSearch(true) : undefined}
           onExport={!shareMode && activeMap ? () => setShowExport(true) : undefined}
-          onImport={!shareMode ? () => {
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = ".json";
-            input.onchange = async (e) => {
-              const file = (e.target as HTMLInputElement).files?.[0];
-              if (!file) return;
-              try {
-                const text = await file.text();
-                const data = JSON.parse(text);
-                const res = await fetch("/api/maps/import", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ ...data, workspaceId }),
-                });
-                const result = await res.json();
-                if (!res.ok) throw new Error(result.error);
-                setToast(`Imported "${result.name}"`);
-                setActiveMapId(result.id);
-              } catch (err: any) {
-                setToast(err?.message ?? "Import failed");
-              }
-            };
-            input.click();
-          } : undefined}
+          onImport={!shareMode ? () => setShowImportModal(true) : undefined}
           search={mapSearch}
           onSearchChange={(val) => setMapSearch(val)}
           theme={theme}
           workspaces={userWorkspaces}
           currentWorkspaceId={workspaceId}
           onSelectWorkspace={(id) => setWorkspaceId(id)}
+          userName={currentUser?.name ?? undefined}
+          userEmail={currentUser?.email ?? undefined}
         />
       ) : (
         <div
@@ -2268,147 +2066,57 @@ function PageContent() {
       )}
 
       <div className="flex flex-1 flex-col relative z-50">
-        <header
-          className={`relative z-50 flex items-center justify-between border-b px-4 py-2.5 shadow-sm backdrop-blur ${
-            theme === "dark" ? "border-slate-800 bg-[#050b15]" : "border-slate-200 bg-white/90"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            {!sidebarOpen && (
-              <button
-                className={`rounded-md p-1.5 transition ${
-                  theme === "dark" ? "text-slate-400 hover:bg-slate-800 hover:text-slate-200" : "text-slate-500 hover:bg-slate-100"
-                }`}
-                onClick={() => setSidebarOpen(true)}
-                title="Open sidebar"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            )}
-            <input
-              className={`w-48 border-0 bg-transparent text-lg font-semibold outline-none focus:ring-0 lg:w-64 ${
-                theme === "dark" ? "text-slate-100" : "text-slate-900"
-              }`}
-              value={activeMap?.name ?? ""}
-              disabled={shareMode}
-              onChange={(e) =>
-                setActiveMap((prev) => (prev ? { ...prev, name: e.target.value } : prev))
-              }
-              onBlur={async (e) => {
-                if (!activeMap || shareMode) return;
-                const newName = e.target.value.trim();
-                if (!newName) return;
-                await fetch(`/api/maps/${activeMap.id}`, {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ name: newName })
-                });
-                setActiveMap((prev) => (prev ? { ...prev, name: newName } : prev));
-                setMapSummaries((prev) =>
-                  prev.map((m) => (m.id === activeMap.id ? { ...m, name: newName } : m))
-                );
-              }}
-              placeholder="Board name"
-            />
-          </div>
-          <div className="flex items-center gap-2 overflow-visible">
-            <CanvasToolbar
-              theme={theme}
-              nodeCount={nodes.length}
-              edgeCount={edges.length}
-              saveStatus={saveStatus}
-              canUndo={canUndo()}
-              canRedo={canRedo()}
-              onUndo={handleUndo}
-              onRedo={handleRedo}
-              onAddNode={handleAddNode}
-              onFitView={handleFitView}
-              onAutoLayout={handleAutoLayout}
-              onToggleSearch={() => setShowCanvasSearch((v) => !v)}
-              onDuplicate={selectedNodeId ? handleDuplicateNode : undefined}
-              onDelete={(selectedNodeId || selectedEdgeId) ? handleDeleteSelected : undefined}
-              hasSelection={!!(selectedNodeId || selectedEdgeId)}
-              shareMode={shareMode}
-            />
-            <div className={`w-px h-6 ${theme === "dark" ? "bg-slate-800" : "bg-slate-200"}`} />
-            {pinOptions.length > 0 && (
-              <div className="relative z-50" ref={focusMenuRef}>
-                <button
-                  className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold shadow-sm ${
-                    theme === "dark"
-                      ? "border-slate-700 bg-[#0b1422] text-slate-300 hover:border-slate-600"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
-                  }`}
-                  onClick={() => setFocusMenuOpen((prev) => !prev)}
-                >
-                  Focus
-                  <span className={`text-[10px] text-slate-400 transition ${focusMenuOpen ? "rotate-180" : ""}`}>&#9662;</span>
-                </button>
-                {focusMenuOpen && (
-                  <div
-                    className={`absolute right-0 z-50 mt-2 w-48 rounded-md border shadow-lg ${
-                      theme === "dark" ? "border-slate-800 bg-slate-900 text-slate-100" : "border-slate-200 bg-white text-slate-800"
-                    }`}
-                  >
-                    {pinOptions.map((p) => (
-                      <button
-                        key={p.id}
-                        className={`block w-full px-3 py-2 text-left text-sm transition ${
-                          theme === "dark" ? "hover:bg-slate-800" : "hover:bg-slate-100"
-                        }`}
-                        onClick={() => { handleFocusNode(p.id); setFocusMenuOpen(false); }}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            <button
-              className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold shadow-sm transition ${
-                theme === "dark"
-                  ? `text-white ${aiEnabled ? "bg-sky-700 hover:bg-sky-600" : "bg-slate-700/70"}`
-                  : aiEnabled
-                    ? "bg-gradient-to-r from-sky-500 to-indigo-500 text-white hover:from-sky-400 hover:to-indigo-400"
-                    : "bg-slate-200 text-slate-500"
-              } ${aiEnabled ? "" : "cursor-not-allowed opacity-60"}`}
-              onClick={() => {
-                setAiError(null);
-                if (!aiEnabled) { setToast("AI is disabled. Enable it in Settings."); return; }
-                setShowAiAssistant(true);
-              }}
-              disabled={!aiEnabled}
-            >
-              AI Assist
-            </button>
-            <button
-              className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold shadow-sm transition ${
-                !activeMap
-                  ? theme === "dark"
-                    ? "cursor-not-allowed border-slate-800 text-slate-500 opacity-60"
-                    : "cursor-not-allowed border-slate-200 text-slate-400 opacity-60"
-                  : theme === "dark"
-                    ? "border-slate-700 text-slate-300 hover:border-slate-600"
-                    : "border-slate-200 text-slate-700 hover:border-slate-300"
-              }`}
-              onClick={() => activeMap && setShowShareModal(true)}
-              disabled={!activeMap}
-            >
-              Share
-            </button>
-          </div>
-        </header>
+        <DashboardHeader
+          mapName={activeMap?.name ?? ""}
+          onMapNameChange={(name) => setActiveMap((prev) => (prev ? { ...prev, name } : prev))}
+          onMapNameBlur={async (newName) => {
+            if (!activeMap || shareMode) return;
+            await fetch(`/api/maps/${activeMap.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: newName })
+            });
+            setActiveMap((prev) => (prev ? { ...prev, name: newName } : prev));
+            setMapSummaries((prev) =>
+              prev.map((m) => (m.id === activeMap.id ? { ...m, name: newName } : m))
+            );
+          }}
+          sidebarOpen={sidebarOpen}
+          onOpenSidebar={() => setSidebarOpen(true)}
+          shareMode={shareMode}
+          nodeCount={nodes.length}
+          edgeCount={edges.length}
+          saveStatus={saveStatus}
+          canUndo={canUndo()}
+          canRedo={canRedo()}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onAddNode={handleAddNode}
+          onFitView={handleFitView}
+          onAutoLayout={handleAutoLayout}
+          onToggleSearch={() => setShowCanvasSearch((v) => !v)}
+          onDuplicate={selectedNodeId ? handleDuplicateNode : undefined}
+          onDelete={(selectedNodeId || selectedEdgeId) ? handleDeleteSelected : undefined}
+          hasSelection={!!(selectedNodeId || selectedEdgeId)}
+          pinOptions={pinOptions}
+          onFocusNode={handleFocusNode}
+          aiEnabled={aiEnabled}
+          onAiAssist={() => {
+            setAiError(null);
+            if (!aiEnabled) { setToast("AI is disabled. Enable it in Settings."); return; }
+            setShowAiAssistant(true);
+          }}
+          onShare={() => activeMap && setShowShareModal(true)}
+          activeMapExists={!!activeMap}
+          presenceUsers={presenceUsers}
+          currentUserId={currentUserId ?? undefined}
+        />
 
         <main className="flex flex-1 overflow-hidden">
-          <section className={`relative flex-1 ${theme === "dark" ? "bg-[#050b15]" : "bg-slate-50"}`}>
+          <section className="relative flex-1 bg-[#050b15]">
             <div className="h-full w-full p-4">
               <div
-                className={`relative h-full overflow-hidden rounded-xl border shadow ${
-                  theme === "dark" ? "border-slate-800 bg-[#0b1422]" : "border-slate-200 bg-white"
-                }`}
+                className="relative h-full overflow-hidden rounded-xl border border-slate-800/60 bg-[#0b1422] shadow"
                 onContextMenu={(e) => {
                   if (shareMode) return;
                   e.preventDefault();
@@ -2509,15 +2217,14 @@ function PageContent() {
         </section>
           {(selectedMeta || selectedEdgeMeta) && (
             <aside
-              className={`w-[380px] border-l ${
-                theme === "dark" ? "border-[#0f172a] bg-[#040915]" : "border-slate-200 bg-white"
-              } overflow-y-auto max-h-[calc(100vh-80px)]`}
+              className="w-[380px] border-l border-slate-800/60 bg-[#050b15]/90 backdrop-blur-xl overflow-y-auto max-h-[calc(100vh-80px)]"
             >
               <NoteInspector
                 selectedNote={selectedNote}
                 selectedMeta={selectedMeta}
                 selectedEdge={selectedEdgeMeta}
                 selectedEdgeNote={selectedEdgeNote}
+                allNodes={activeMap?.nodes}
                 onChange={handleNoteChange}
                 onUpdateTags={handleUpdateTags}
                 onUpdateMeta={handleUpdateMeta}
@@ -2573,6 +2280,7 @@ function PageContent() {
           }
           access={shareAccess}
           shareMode={shareMode}
+          shareId={activeMap.publicShareId}
           onClose={() => setShowShareModal(false)}
           onCopyLink={() => {
             handleCopyShareLink();
@@ -2622,6 +2330,64 @@ function PageContent() {
           fn?.();
         }}
       />
+      {/* Node Type Picker */}
+      {showNodeTypePicker && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => { setShowNodeTypePicker(false); setPendingNodeCallback(null); }}>
+          <div className="w-[480px] rounded-2xl border border-slate-700/40 bg-[#0a1020]/95 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-white">Add Node</h3>
+              <p className="text-sm text-slate-400">Choose a node type for your dependency map</p>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {([
+                { kind: "person" as NodeKind, label: "Person", icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z", color: "#38bdf8" },
+                { kind: "system" as NodeKind, label: "System", icon: "M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01", color: "#22c55e" },
+                { kind: "process" as NodeKind, label: "Process", icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15", color: "#fbbf24" },
+                { kind: "database" as NodeKind, label: "Database", icon: "M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4", color: "#6366f1" },
+                { kind: "api" as NodeKind, label: "API", icon: "M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z", color: "#0ea5e9" },
+                { kind: "queue" as NodeKind, label: "Queue", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10", color: "#f59e0b" },
+                { kind: "cache" as NodeKind, label: "Cache", icon: "M13 10V3L4 14h7v7l9-11h-7z", color: "#ef4444" },
+                { kind: "cloud" as NodeKind, label: "Cloud", icon: "M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z", color: "#8b5cf6" },
+                { kind: "team" as NodeKind, label: "Team", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z", color: "#14b8a6" },
+                { kind: "vendor" as NodeKind, label: "Vendor", icon: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z", color: "#f97316" },
+                { kind: "generic" as NodeKind, label: "Generic", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4", color: "#6366f1" },
+              ]).map(({ kind, label, icon, color }) => (
+                <button
+                  key={kind}
+                  className="group flex flex-col items-center gap-2 rounded-xl border border-slate-700/30 bg-slate-800/20 px-3 py-3 text-sm transition-all hover:border-opacity-60 hover:bg-opacity-40 hover:shadow-lg"
+                  style={{ ["--accent" as string]: color }}
+                  onClick={() => {
+                    setShowNodeTypePicker(false);
+                    const cb = pendingNodeCallback;
+                    setPendingNodeCallback(null);
+                    cb?.(kind);
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = `${color}50`;
+                    e.currentTarget.style.backgroundColor = `${color}10`;
+                    e.currentTarget.style.boxShadow = `0 0 20px ${color}15`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "";
+                    e.currentTarget.style.backgroundColor = "";
+                    e.currentTarget.style.boxShadow = "";
+                  }}
+                >
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg transition" style={{ backgroundColor: `${color}15`, border: `1px solid ${color}30` }}>
+                    <svg className="h-4.5 w-4.5" style={{ color }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d={icon} /></svg>
+                  </div>
+                  <span className="text-xs font-medium text-slate-300 group-hover:text-white transition">{label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button className="rounded-lg px-3 py-1.5 text-sm text-slate-400 transition hover:text-slate-200" onClick={() => { setShowNodeTypePicker(false); setPendingNodeCallback(null); }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {showSettings && (
         <SettingsModal
           workspace={currentWorkspace}
@@ -2657,7 +2423,7 @@ function PageContent() {
             });
           }}
           theme={theme}
-          onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+          onToggleTheme={toggleTheme}
           useGradientEdges={useGradientEdges}
           onToggleGradientEdges={() => setUseGradientEdges((v) => !v)}
           aiEnabled={aiEnabled}
@@ -2665,6 +2431,25 @@ function PageContent() {
           onToggleAiEnabled={(enabled) => setAiEnabled(enabled)}
           onChangeAiKey={(key) => setAiKey(key)}
           onClose={() => setShowSettings(false)}
+          onOpenApiKeys={() => setShowApiKeys(true)}
+          onOpenIntegrations={() => setShowIntegrations(true)}
+          onExportAuditLog={async () => {
+            if (!workspaceId) return;
+            try {
+              const res = await fetch(`/api/audit/export?workspaceId=${workspaceId}&format=csv`);
+              if (!res.ok) throw new Error("Export failed");
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `audit-log-${new Date().toISOString().split("T")[0]}.csv`;
+              a.click();
+              URL.revokeObjectURL(url);
+              setToast("Audit log exported");
+            } catch {
+              setToast("Audit log export failed");
+            }
+          }}
         />
       )}
       {showUpgrade && (
@@ -2731,130 +2516,87 @@ function PageContent() {
         />
       )}
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-xl glass-panel-solid px-4 py-2.5 text-sm font-semibold text-slate-100 shadow-lg animate-scale-in">
           {toast}
-          <button className="ml-2 text-xs text-slate-200" onClick={() => setToast(null)}>
-            ✕
+          <button className="ml-1 rounded-md p-0.5 text-slate-400 transition hover:text-slate-200" onClick={() => setToast(null)}>
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
       )}
-      {showTraining && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-[#0b1422] shadow-2xl">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 p-5">
-              <div className="flex items-center gap-3">
-                <div className="text-3xl">{trainingSteps[trainingStep].icon}</div>
-                <div>
-                  <div className="text-lg font-bold text-slate-100">
-                    {trainingSteps[trainingStep].title}
-                  </div>
-                  <div className="text-xs text-slate-400">
-                    Step {trainingStep + 1} of {trainingSteps.length}
-                  </div>
-                </div>
-              </div>
-              <button
-                className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-slate-200"
-                onClick={() => setShowTraining(false)}
-                aria-label="Close training"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-6">
-              <p className="text-sm leading-relaxed text-slate-300">
-                {trainingSteps[trainingStep].body}
-              </p>
-
-              {trainingSteps[trainingStep].tips && (
-                <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                  <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-sky-300">
-                    Quick Tips
-                  </div>
-                  <ul className="space-y-2">
-                    {trainingSteps[trainingStep].tips.map((tip, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
-                        <span className="mt-0.5 text-sky-400">•</span>
-                        <span>{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-slate-800 p-5">
-              <div className="mb-4 flex justify-center gap-1.5">
-                {trainingSteps.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setTrainingStep(idx)}
-                    className={`h-2 rounded-full transition-all ${
-                      idx === trainingStep
-                        ? "w-8 bg-sky-400"
-                        : "w-2 bg-slate-600 hover:bg-slate-500"
-                    }`}
-                    aria-label={`Go to step ${idx + 1}`}
-                  />
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  className="flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 hover:text-slate-100 disabled:opacity-40 disabled:cursor-not-allowed"
-                  onClick={() => setTrainingStep((prev) => Math.max(0, prev - 1))}
-                  disabled={trainingStep === 0}
-                >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Previous
-                </button>
-
-                {trainingStep < trainingSteps.length - 1 ? (
-                  <button
-                    className="flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-400"
-                    onClick={() => setTrainingStep((prev) => prev + 1)}
-                  >
-                    Next
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                ) : (
-                  <button
-                    className="flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-400"
-                    onClick={() => {
-                      setShowTraining(false);
-                      setTrainingStep(0);
-                    }}
-                  >
-                    Get Started
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-
-              <button
-                className="mt-3 w-full text-center text-xs text-slate-500 hover:text-slate-400"
-                onClick={() => {
-                  setShowTraining(false);
-                  setTrainingStep(0);
-                }}
-              >
-                Skip tutorial
-              </button>
-            </div>
-          </div>
-        </div>
+      <CommandPalette
+        open={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        items={commandPaletteItems}
+      />
+      <KeyboardShortcutsHelp
+        open={showShortcutsHelp}
+        onClose={() => setShowShortcutsHelp(false)}
+      />
+      <VersionHistoryPanel
+        open={showVersionHistory}
+        onClose={() => setShowVersionHistory(false)}
+        mapId={activeMapId}
+        onRestore={handleRestoreVersion}
+      />
+      <ActivityFeed
+        open={showActivity}
+        onClose={() => setShowActivity(false)}
+        workspaceId={workspaceId}
+      />
+      <TrainingModal open={showTraining} onClose={() => setShowTraining(false)} />
+      {showImportModal && (
+        <ImportModal
+          open={showImportModal}
+          onClose={() => setShowImportModal(false)}
+          onImport={async (result: ImportResult) => {
+            setShowImportModal(false);
+            try {
+              const mapData = {
+                name: `Imported Map (${new Date().toLocaleDateString()})`,
+                workspaceId,
+                nodes: result.nodes.map(n => ({
+                  kind: n.kind,
+                  kindLabel: n.kindLabel,
+                  title: n.title,
+                  tags: n.tags.join(","),
+                  color: n.color,
+                  posX: n.posX,
+                  posY: n.posY,
+                })),
+                edges: result.edges.map(e => ({
+                  tempSourceId: e.sourceId,
+                  tempTargetId: e.targetId,
+                  label: e.label || "",
+                })),
+              };
+              const res = await fetch("/api/maps/import", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(mapData),
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error);
+              setToast(`Imported ${result.nodes.length} nodes, ${result.edges.length} edges`);
+              setActiveMapId(data.id);
+            } catch (err: any) {
+              setToast(err?.message ?? "Import failed");
+            }
+          }}
+        />
+      )}
+      {showApiKeys && (
+        <ApiKeysModal
+          open={showApiKeys}
+          onClose={() => setShowApiKeys(false)}
+          workspaceId={workspaceId}
+        />
+      )}
+      {showIntegrations && (
+        <IntegrationsModal
+          open={showIntegrations}
+          onClose={() => setShowIntegrations(false)}
+          workspaceId={workspaceId}
+        />
       )}
     </div>
   );
@@ -2862,8 +2604,10 @@ function PageContent() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="p-6 text-slate-600">Loading...</div>}>
-      <PageContent />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#050b15] text-slate-400"><div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-sky-500" /></div>}>
+        <PageContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }

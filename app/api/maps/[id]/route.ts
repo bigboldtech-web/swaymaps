@@ -3,6 +3,7 @@ import { prisma } from "../../../../lib/prisma";
 import { prismaMapToDomain } from "../../../../lib/mapTransform";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
+import { logActivity } from "../../../../lib/activityLog";
 
 interface Params {
   params: { id: string };
@@ -61,12 +62,26 @@ export async function DELETE(_req: Request, { params }: Params) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
+    const mapName = map.name;
+    const wsId = map.workspaceId;
+
     await prisma.$transaction([
       prisma.mapEdge.deleteMany({ where: { mapId: params.id } }),
       prisma.mapNode.deleteMany({ where: { mapId: params.id } }),
       prisma.note.deleteMany({ where: { mapId: params.id } }),
       prisma.decodeMap.delete({ where: { id: params.id } })
     ]);
+
+    if (wsId) {
+      logActivity({
+        workspaceId: wsId,
+        userId: userId as string,
+        action: "map.deleted",
+        entityType: "map",
+        entityId: params.id,
+        metadata: { name: mapName },
+      });
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

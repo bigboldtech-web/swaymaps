@@ -8,11 +8,31 @@ const p = new PrismaClient();
     { id: 'user-2', name: 'Maya Patel', email: 'maya@demo.com', plan: 'pro' }
   ];
   for (const u of users) {
-    await p.user.upsert({
+    const user = await p.user.upsert({
       where: { email: u.email },
       update: {},
       create: { ...u, passwordHash: await bcrypt.hash('demo', 10) }
     });
+
+    // Ensure workspace + owner membership exists
+    const existing = await p.workspace.findFirst({
+      where: { ownerId: user.id }
+    });
+    if (!existing) {
+      await p.workspace.create({
+        data: {
+          name: `${u.name}'s Workspace`,
+          ownerId: user.id,
+          members: {
+            create: {
+              userId: user.id,
+              role: 'owner'
+            }
+          }
+        }
+      });
+      console.log(`Created workspace for ${u.email}`);
+    }
   }
   console.log('Seeded demo users');
   await p.$disconnect();

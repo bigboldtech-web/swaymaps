@@ -40,46 +40,33 @@ export function InputDialog({
 
   if (!open) return null;
 
-  const isDark =
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark");
-  const shell = isDark
-    ? "border-[#0f172a] bg-[#050b15] text-slate-100"
-    : "border-slate-200 bg-white text-slate-900";
-  const input = isDark
-    ? "border-[#0f172a] bg-[#0b1422] text-slate-100 placeholder:text-slate-500"
-    : "border-slate-200 bg-white text-slate-900";
-  const subtext = isDark ? "text-slate-400" : "text-slate-600";
-
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4">
-      <div className={`w-full max-w-md rounded-2xl border p-6 shadow-2xl ${shell}`}>
-        <div className="mb-3">
-          <div className="text-lg font-semibold">{title}</div>
-          {message && <p className={`text-sm ${subtext}`}>{message}</p>}
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
+      <div className="w-full max-w-md max-sm:max-w-full rounded-2xl glass-panel-solid p-4 sm:p-6 shadow-2xl animate-scale-in">
+        <div className="mb-4">
+          <div className="text-lg font-semibold text-slate-100">{title}</div>
+          {message && <p className="mt-1 text-sm text-slate-400">{message}</p>}
         </div>
         <input
-          className={`w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
+          className="w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
           placeholder={placeholder}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           autoFocus
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && value.trim()) onConfirm(value.trim());
+            if (e.key === "Escape") onCancel();
+          }}
         />
         <div className="mt-4 flex justify-end gap-2">
           <button
-            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
-              isDark
-                ? "border-[#0f172a] text-slate-200 hover:bg-slate-800"
-                : "border-slate-200 text-slate-700 hover:bg-slate-50"
-            }`}
+            className="rounded-lg border border-slate-700/50 px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800/60"
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
-            className={`rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition ${
-              isDark ? "bg-slate-700 hover:bg-slate-600" : "bg-slate-900 hover:bg-slate-800"
-            } disabled:opacity-60`}
+            className="rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:opacity-50"
             disabled={!value.trim()}
             onClick={() => onConfirm(value.trim())}
           >
@@ -101,40 +88,26 @@ export function ConfirmDialog({
   onConfirm
 }: ConfirmDialogProps) {
   if (!open) return null;
-  const isDark =
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark");
-  const shell = isDark
-    ? "border-[#0f172a] bg-[#050b15] text-slate-100"
-    : "border-slate-200 bg-white text-slate-900";
-  const subtext = isDark ? "text-slate-400" : "text-slate-600";
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 px-4">
-      <div className={`w-full max-w-md rounded-2xl border p-6 shadow-2xl ${shell}`}>
-        <div className="mb-3">
-          <div className="text-lg font-semibold">{title}</div>
-          {message && <p className={`text-sm ${subtext}`}>{message}</p>}
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
+      <div className="w-full max-w-md max-sm:max-w-full rounded-2xl glass-panel-solid p-4 sm:p-6 shadow-2xl animate-scale-in">
+        <div className="mb-4">
+          <div className="text-lg font-semibold text-slate-100">{title}</div>
+          {message && <p className="mt-1 text-sm text-slate-400">{message}</p>}
         </div>
         <div className="flex justify-end gap-2">
           <button
-            className={`rounded-md border px-3 py-2 text-sm font-semibold transition ${
-              isDark
-                ? "border-[#0f172a] text-slate-200 hover:bg-slate-800"
-                : "border-slate-200 text-slate-700 hover:bg-slate-50"
-            }`}
+            className="rounded-lg border border-slate-700/50 px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800/60"
             onClick={onCancel}
           >
             Cancel
           </button>
           <button
-            className={`rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition ${
+            className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm transition ${
               destructive
-                ? isDark
-                  ? "bg-rose-600 hover:bg-rose-700"
-                  : "bg-rose-600 hover:bg-rose-700"
-                : isDark
-                ? "bg-slate-700 hover:bg-slate-600"
-                : "bg-slate-900 hover:bg-slate-800"
+                ? "bg-rose-600 hover:bg-rose-700 shadow-rose-500/20"
+                : "bg-gradient-to-r from-sky-500 to-indigo-500 shadow-sky-500/20 hover:shadow-sky-500/40"
             }`}
             onClick={onConfirm}
           >

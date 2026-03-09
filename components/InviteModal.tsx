@@ -28,53 +28,38 @@ export function InviteModal({ onInvite, onClose }: InviteModalProps) {
     }
   };
 
-  const isDark =
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark");
-  const shell = isDark
-    ? "border-[#0f172a] bg-[#050b15] text-slate-100"
-    : "border-slate-200 bg-white text-slate-900";
-  const input = isDark
-    ? "border-[#0f172a] bg-[#0b1422] text-slate-100 placeholder:text-slate-500"
-    : "border-slate-200 bg-white text-slate-900";
-  const muted = isDark ? "text-slate-400" : "text-slate-600";
-
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4">
-      <div className={`w-full max-w-md rounded-2xl border p-6 shadow-2xl ${shell}`}>
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 animate-fade-in">
+      <div className="w-full max-w-md max-sm:max-w-full rounded-2xl glass-panel-solid p-4 sm:p-6 shadow-2xl animate-scale-in">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <div className={`text-xs uppercase tracking-wide ${muted}`}>Invite</div>
-            <div className="text-lg font-semibold">Add a teammate</div>
+            <div className="text-xs uppercase tracking-wide text-slate-500">Invite</div>
+            <div className="text-lg font-semibold text-slate-100">Add a teammate</div>
           </div>
           <button
-            className={`rounded-full border px-3 py-1 text-sm font-semibold transition ${
-              isDark
-                ? "border-[#0f172a] text-slate-200 hover:bg-slate-800"
-                : "border-slate-200 text-slate-700 hover:border-slate-300"
-            }`}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-700/50 text-slate-400 transition hover:bg-slate-800/60 hover:text-slate-200"
             onClick={onClose}
             aria-label="Close invite modal"
           >
-            ✕
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className={`text-xs uppercase tracking-wide ${muted}`}>Email</label>
+            <label className="text-xs uppercase tracking-wide text-slate-500">Email</label>
             <input
               type="email"
-              className={`mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-sky-500 ${input}`}
+              className="mt-1 w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div>
-            <label className={`text-xs uppercase tracking-wide ${muted}`}>Role</label>
+            <label className="text-xs uppercase tracking-wide text-slate-500">Role</label>
             <select
-              className={`mt-1 w-full rounded-md border px-3 py-2 text-sm font-semibold shadow-sm ${input}`}
+              className="mt-1 w-full rounded-lg border border-slate-700/50 bg-slate-800/30 px-3 py-2 text-sm font-semibold text-slate-100 outline-none transition focus:border-sky-500/50 focus:ring-1 focus:ring-sky-500/50"
               value={role}
               onChange={(e) => setRole(e.target.value as WorkspaceRole)}
             >
@@ -87,14 +72,12 @@ export function InviteModal({ onInvite, onClose }: InviteModalProps) {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition ${
-              isDark ? "bg-slate-700 hover:bg-slate-600" : "bg-slate-900 hover:bg-slate-800"
-            } disabled:opacity-60`}
+            className="w-full rounded-lg bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 transition hover:shadow-sky-500/40 disabled:opacity-50"
           >
             {loading ? "Sending..." : "Send invite"}
           </button>
         </form>
-        <p className={`mt-3 text-xs ${muted}`}>
+        <p className="mt-3 text-xs text-slate-600">
           (Demo: invite is stored server-side; new users will need to set a password via signup.)
         </p>
       </div>

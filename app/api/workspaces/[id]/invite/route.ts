@@ -4,6 +4,8 @@ import { authOptions } from "../../../../lib/auth";
 import { prisma } from "../../../../../lib/prisma";
 import { WorkspaceRole } from "../../../../../types/map";
 import crypto from "crypto";
+import { logActivity } from "../../../../../lib/activityLog";
+import { notify } from "../../../../../lib/notify";
 
 interface Params {
   params: { id: string };
@@ -68,6 +70,27 @@ export async function POST(req: Request, { params }: Params) {
       expiresAt
     }
   });
+
+  await logActivity({
+    workspaceId: params.id,
+    userId: userId as string,
+    action: "invite.sent",
+    entityType: "invite",
+    entityId: token,
+    metadata: { email: email.toLowerCase(), role: effectiveRole },
+  });
+
+  // Notify the invitee if they already have an account
+  const invitee = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+  if (invitee) {
+    await notify({
+      userId: invitee.id,
+      type: "invite",
+      title: "Workspace Invitation",
+      body: `You've been invited to join "${workspace.name}" as ${effectiveRole}.`,
+      link: `/invite/${token}`,
+    });
+  }
 
   const url = `${process.env.NEXTAUTH_URL ?? ""}/invite/${token}`;
   return NextResponse.json({ ok: true, token, url, expiresAt });

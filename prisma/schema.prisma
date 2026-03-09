@@ -3,42 +3,50 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id             String      @id @default(cuid())
+  id             String         @id @default(cuid())
   name           String
-  email          String      @unique
+  email          String         @unique
   passwordHash   String
-  plan           String      @default("free")
+  plan           String         @default("free")
   color          String?
   accounts       Account[]
   sessions       Session[]
-  workspaces     Workspace[] @relation("WorkspaceOwner")
+  workspaces     Workspace[]    @relation("WorkspaceOwner")
   memberships    WorkspaceMember[]
-  maps           DecodeMap[] @relation("MapOwner")
-  isAdmin        Boolean     @default(false)
+  maps           DecodeMap[]    @relation("MapOwner")
+  isAdmin        Boolean        @default(false)
   onboardedAt    DateTime?
   avatarUrl      String?
   subscriptions  Subscription[]
   templates      Template[]
   auditLogs      AuditLog[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  comments       Comment[]
+  notifications  Notification[]
+  activities     Activity[]
+  presences      MapPresence[]
+  apiKeys        ApiKey[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 model Workspace {
-  id        String             @id @default(cuid())
-  name      String
-  owner     User               @relation("WorkspaceOwner", fields: [ownerId], references: [id])
-  ownerId   String
-  members   WorkspaceMember[]
-  invites   WorkspaceInvite[]
-  maps      DecodeMap[]
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  id         String             @id @default(cuid())
+  name       String
+  owner      User               @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  ownerId    String
+  members    WorkspaceMember[]
+  invites    WorkspaceInvite[]
+  maps       DecodeMap[]
+  activities   Activity[]
+  apiKeys      ApiKey[]
+  integrations Integration[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 }
 
 model WorkspaceMember {
@@ -68,37 +76,38 @@ model WorkspaceInvite {
 }
 
 model Subscription {
-  id               String   @id @default(cuid())
-  user             User     @relation(fields: [userId], references: [id])
-  userId           String
-  plan             String
-  status           String
-  stripeCustomerId String?
-  stripeSubId      String?
+  id                String    @id @default(cuid())
+  user              User      @relation(fields: [userId], references: [id])
+  userId            String
+  plan              String
+  status            String
+  stripeCustomerId  String?
+  stripeSubId       String?
   stripePriceId     String?
-  cancelAtPeriodEnd Boolean  @default(false)
+  cancelAtPeriodEnd Boolean   @default(false)
   trialEnd          DateTime?
-  currentPeriodEnd DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  currentPeriodEnd  DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 model DecodeMap {
-  id           String      @id @default(cuid())
-  name         String
-  description  String?
-  isTemplate   Boolean     @default(false)
-  publicShareId String?    @unique
-  owner        User?       @relation("MapOwner", fields: [ownerId], references: [id])
-  ownerId      String?
-  workspace    Workspace?  @relation(fields: [workspaceId], references: [id])
-  workspaceId  String?
-  nodes        MapNode[]
-  edges        MapEdge[]
-  notes        Note[]
-  versions     MapVersion[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id            String       @id @default(cuid())
+  name          String
+  description   String?
+  isTemplate    Boolean      @default(false)
+  publicShareId String?      @unique
+  owner         User?        @relation("MapOwner", fields: [ownerId], references: [id])
+  ownerId       String?
+  workspace     Workspace?   @relation(fields: [workspaceId], references: [id])
+  workspaceId   String?
+  nodes         MapNode[]
+  edges         MapEdge[]
+  notes         Note[]
+  versions      MapVersion[]
+  presences     MapPresence[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model MapNode {
@@ -117,6 +126,8 @@ model MapNode {
 
   sourceEdges MapEdge[] @relation("SourceNode")
   targetEdges MapEdge[] @relation("TargetNode")
+
+  @@index([mapId])
 }
 
 model MapEdge {
@@ -132,6 +143,8 @@ model MapEdge {
   label         String?
   note          Note?     @relation("EdgeNote", fields: [noteId], references: [id])
   noteId        String?   @unique
+
+  @@index([mapId])
 }
 
 model Note {
@@ -140,12 +153,57 @@ model Note {
   mapId     String
   title     String
   tags      String
-  content   String
+  content   String    @db.Text
+  comments  Comment[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   node MapNode? @relation("NodeNote")
   edge MapEdge? @relation("EdgeNote")
+
+  @@index([mapId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  noteId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([noteId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String
+  title     String
+  body      String   @db.Text
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+model Activity {
+  id          String    @id @default(cuid())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  action      String
+  entityType  String
+  entityId    String
+  metadata    String?   @db.Text
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId, createdAt])
 }
 
 model Template {
@@ -154,7 +212,7 @@ model Template {
   description String   @default("")
   category    String
   thumbnail   String?
-  mapData     String
+  mapData     String   @db.Text
   isPublic    Boolean  @default(true)
   authorId    String?
   author      User?    @relation(fields: [authorId], references: [id])
@@ -168,9 +226,11 @@ model MapVersion {
   mapId     String
   map       DecodeMap @relation(fields: [mapId], references: [id], onDelete: Cascade)
   version   Int
-  snapshot  String
+  snapshot  String    @db.Text
   createdBy String?
   createdAt DateTime  @default(now())
+
+  @@index([mapId])
 }
 
 model AuditLog {
@@ -180,8 +240,58 @@ model AuditLog {
   action     String
   entityType String
   entityId   String
-  metadata   String?
+  metadata   String?  @db.Text
   createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model MapPresence {
+  id        String    @id @default(cuid())
+  map       DecodeMap @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  mapId     String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  cursorX   Float?
+  cursorY   Float?
+  lastSeen  DateTime  @default(now())
+
+  @@unique([mapId, userId])
+  @@index([mapId])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String
+  name        String
+  keyHash     String    @unique
+  keyPrefix   String
+  permissions String    @default("read")
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([keyHash])
+}
+
+model Integration {
+  id          String    @id @default(cuid())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String
+  type        String
+  name        String
+  webhookUrl  String
+  events      String    @default("all")
+  enabled     Boolean   @default(true)
+  metadata    String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([workspaceId])
 }
 
 // NextAuth models
@@ -191,12 +301,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

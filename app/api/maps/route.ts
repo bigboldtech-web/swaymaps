@@ -1,109 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
-import { initialMaps, initialUsers, initialWorkspaces } from "../../../data/initialData";
 import { prismaMapToDomain, prismaUserToDomain } from "../../../lib/mapTransform";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
-import bcrypt from "bcryptjs";
-
-const memoryMaps = initialMaps.map((m) => JSON.parse(JSON.stringify(m)));
-const memoryUsers = [...initialUsers];
-const memoryWorkspaces = [...initialWorkspaces];
-
-async function ensureSeed() {
-  try {
-    const mapCount = await prisma.decodeMap.count();
-    if (mapCount === 0) {
-      // Seed users with password "demo"
-      const existingUsers = await prisma.user.count();
-      if (existingUsers === 0 && initialUsers.length) {
-        for (const u of initialUsers) {
-          await prisma.user.create({
-            data: {
-              id: u.id,
-              name: u.name,
-              email: (u.email ?? `${u.id}@demo.com`).toLowerCase(),
-              passwordHash: await bcrypt.hash("demo", 10),
-              color: u.color ?? null,
-              plan: u.plan ?? "free"
-            }
-          });
-        }
-      }
-
-      // Seed workspaces and memberships
-      for (const ws of initialWorkspaces) {
-        await prisma.workspace.create({
-          data: {
-            id: ws.id,
-            name: ws.name,
-            ownerId: ws.ownerUserId,
-            members: {
-              create: ws.members.map((m) => ({
-                userId: m.userId,
-                role: m.role
-              }))
-            }
-          }
-        });
-      }
-
-      for (const map of initialMaps) {
-        const createdMap = await prisma.decodeMap.create({
-          data: {
-            id: map.id,
-            name: map.name,
-            description: map.description ?? "",
-            ownerId: map.ownerUserId ?? null,
-            workspaceId: map.workspaceId ?? null
-          }
-        });
-
-        await prisma.note.createMany({
-          data: map.notes.map((note) => ({
-            id: note.id,
-            mapId: createdMap.id,
-            title: note.title,
-            tags: note.tags.join(", "),
-            content: note.content
-          }))
-        });
-
-        await prisma.mapNode.createMany({
-          data: map.nodes.map((node) => ({
-            id: node.id,
-            mapId: createdMap.id,
-            kind: node.kind,
-            kindLabel: node.kindLabel,
-            title: node.title,
-            tags: node.tags.join(", "),
-            color: node.color ?? "",
-            posX: node.position?.x ?? 0,
-            posY: node.position?.y ?? 0,
-            noteId: node.noteId
-          }))
-        });
-
-        await prisma.mapEdge.createMany({
-          data: map.edges.map((edge) => ({
-            id: edge.id,
-            mapId: createdMap.id,
-            sourceNodeId: edge.sourceId,
-            targetNodeId: edge.targetId,
-            sourceHandle: edge.sourceHandle ?? null,
-            targetHandle: edge.targetHandle ?? null,
-            label: edge.label ?? null,
-            noteId: edge.noteId ?? null
-          }))
-        });
-      }
-    }
-    return true;
-  } catch (err) {
-    console.error("Prisma seed failed, using in-memory fallback", err);
-    return false;
-  }
-}
+import { logActivity } from "../../../lib/activityLog";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -112,13 +12,13 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await ensureSeed();
   try {
     const maps = await prisma.decodeMap.findMany({
       where: {
-        workspace: {
-          members: { some: { userId: userId as string } }
-        }
+        OR: [
+          { ownerId: userId as string },
+          { workspace: { members: { some: { userId: userId as string } } } }
+        ]
       },
       include: {
         _count: {
@@ -157,7 +57,7 @@ export async function GET() {
       })
     });
   } catch (err) {
-    console.error("Prisma fetch failed, using fallback", err);
+    console.error("Prisma fetch failed", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
@@ -170,29 +70,41 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { name, description = "", ownerUserId, workspaceId } = body ?? {};
+  const { name, description = "", workspaceId } = body ?? {};
   if (!name || typeof name !== "string") {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
 
   try {
-    const creatorId = userId as string; // force creator to be current user
+    const creatorId = userId as string;
     const owner = await prisma.user.findUnique({ where: { id: creatorId } });
+
+    // Free plan: max 3 maps
     if (owner?.plan === "free") {
       const count = await prisma.decodeMap.count({
-        where: { OR: [{ ownerId: creatorId }, { ownerId: null }] }
+        where: { ownerId: creatorId }
       });
-      if (count >= 1) {
-        return NextResponse.json({ error: "Free plan allows 1 map. Upgrade to add more." }, { status: 403 });
+      if (count >= 3) {
+        return NextResponse.json({ error: "Free plan allows 3 maps. Upgrade to add more." }, { status: 403 });
       }
     }
-    if (workspaceId) {
+
+    // If workspaceId provided, verify membership
+    let targetWorkspaceId = workspaceId ?? null;
+    if (targetWorkspaceId) {
       const membership = await prisma.workspaceMember.findFirst({
-        where: { workspaceId, userId: userId as string }
+        where: { workspaceId: targetWorkspaceId, userId: creatorId }
       });
-      if (!membership || (membership.role !== "owner" && membership.role !== "admin")) {
-        return NextResponse.json({ error: "Insufficient role to create maps." }, { status: 403 });
+      if (!membership) {
+        return NextResponse.json({ error: "You are not a member of this workspace." }, { status: 403 });
       }
+    } else {
+      // Find the user's first workspace
+      const membership = await prisma.workspaceMember.findFirst({
+        where: { userId: creatorId },
+        include: { workspace: true }
+      });
+      targetWorkspaceId = membership?.workspaceId ?? null;
     }
 
     const created = await prisma.decodeMap.create({
@@ -200,38 +112,27 @@ export async function POST(req: Request) {
         name,
         description,
         ownerId: creatorId,
-        workspaceId: workspaceId ?? null
+        workspaceId: targetWorkspaceId
       }
     });
 
-    return NextResponse.json({ ...prismaMapToDomain(created), workspaceId });
-  } catch (err) {
-    console.error("Prisma create map failed", err);
-    const creatorId = userId as string | undefined;
-    if (creatorId) {
-      const owner = memoryUsers.find((u) => u.id === creatorId);
-      if (owner?.plan === "free") {
-        const count = memoryMaps.filter((m) => m.ownerUserId === creatorId || m.ownerUserId == null).length;
-        if (count >= 1) {
-          return NextResponse.json({ error: "Free plan allows 1 map. Upgrade to add more." }, { status: 403 });
-        }
-      }
+    if (targetWorkspaceId) {
+      logActivity({
+        workspaceId: targetWorkspaceId,
+        userId: creatorId,
+        action: "map.created",
+        entityType: "map",
+        entityId: created.id,
+        metadata: { name },
+      });
     }
-    const id = `map-${Date.now()}`;
-    const newMap = {
-      id,
-      name,
-      description,
-      ownerUserId: creatorId ?? null,
-      sharedUserIds: [],
-      workspaceId: workspaceId ?? memoryWorkspaces[0]?.id ?? null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      nodes: [],
-      edges: [],
-      notes: []
-    };
-    memoryMaps.unshift(newMap as any);
-    return NextResponse.json(newMap);
+
+    return NextResponse.json({
+      ...prismaMapToDomain(created),
+      workspaceId: targetWorkspaceId
+    });
+  } catch (err) {
+    console.error("Create map failed", err);
+    return NextResponse.json({ error: "Failed to create map" }, { status: 500 });
   }
 }
