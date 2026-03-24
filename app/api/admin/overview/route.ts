@@ -126,7 +126,7 @@ export async function GET() {
       prisma.workspace.count(),
       prisma.decodeMap.count(),
       prisma.workspaceInvite.count(),
-      prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 24 }),
+      prisma.user.findMany({ orderBy: { createdAt: "desc" }, take: 50 }),
       prisma.workspace.findMany({
         include: {
           owner: true,
@@ -139,20 +139,18 @@ export async function GET() {
         include: {
           owner: true,
           workspace: true,
-          _count: { select: { nodes: true } }
+          _count: { select: { nodes: true, edges: true } }
         },
-        orderBy: { updatedAt: "desc" },
-        take: 16
+        orderBy: { updatedAt: "desc" }
       }),
       prisma.workspaceInvite.findMany({
         include: { workspace: true },
         orderBy: { createdAt: "desc" },
-        take: 12
+        take: 50
       }),
       prisma.subscription.findMany({
         include: { user: true },
-        orderBy: { createdAt: "desc" },
-        take: 32
+        orderBy: { createdAt: "desc" }
       })
     ]);
 
@@ -240,7 +238,10 @@ export async function GET() {
         workspaceId: map.workspaceId ?? null,
         workspaceName: map.workspace?.name ?? "Workspace",
         ownerName: map.owner?.name ?? "Owner",
+        ownerEmail: map.owner?.email ?? "",
         nodeCount: (map as any)._count?.nodes ?? 0,
+        edgeCount: (map as any)._count?.edges ?? 0,
+        createdAt: map.createdAt.toISOString(),
         updatedAt: map.updatedAt.toISOString()
       })),
       subscriptions: subscriptions.map((sub) => ({
