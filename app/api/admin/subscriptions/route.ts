@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
 import { prisma } from "../../../../lib/prisma";
+import { isAdmin as isAdminCheck } from "../../../../lib/adminCheck";
 
 type Plan = "free" | "pro" | "team";
 type SubStatus = "active" | "past_due" | "canceled" | "trialing" | "incomplete";
@@ -15,9 +16,9 @@ export async function PATCH(req: Request) {
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const sessionPlan = (session.user as any)?.plan ?? "free";
-  if (sessionPlan === "free") {
-    return NextResponse.json({ error: "Admin access requires a paid plan." }, { status: 403 });
+  const adminUser = await isAdminCheck();
+  if (!adminUser) {
+    return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
   }
 
   const body = await req.json().catch(() => ({}));

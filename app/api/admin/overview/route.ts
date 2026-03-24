@@ -118,10 +118,7 @@ export async function GET() {
   if (!adminUser) {
     return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
   }
-  const sessionPlan = (session.user as any)?.plan ?? "free";
-  if (sessionPlan === "free") {
-    return NextResponse.json({ error: "Admin access requires a paid plan." }, { status: 403 });
-  }
+  // Admin access is based on isAdmin flag only — no plan requirement
 
   try {
     const [userCount, workspaceCount, mapCount, inviteCount, users, workspaces, maps, invites, subscriptions] = await Promise.all([
@@ -224,6 +221,7 @@ export async function GET() {
         name: u.name,
         email: u.email,
         plan: (u as any).plan ?? "free",
+        isAdmin: (u as any).isAdmin ?? false,
         color: u.color ?? undefined,
         createdAt: u.createdAt.toISOString()
       })),

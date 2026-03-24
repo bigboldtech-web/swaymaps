@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
 import { prisma } from "../../../../lib/prisma";
+import { isAdmin as isAdminCheck } from "../../../../lib/adminCheck";
 import { initialWorkspaces } from "../../../../data/initialData";
 
 type SeatAction = "enforce" | "comp";
@@ -9,9 +10,9 @@ type SeatAction = "enforce" | "comp";
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const sessionPlan = (session.user as any)?.plan ?? "free";
-  if (sessionPlan === "free") {
-    return NextResponse.json({ error: "Admin access requires a paid plan." }, { status: 403 });
+  const adminUser = await isAdminCheck();
+  if (!adminUser) {
+    return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
   }
 
   const body = await req.json().catch(() => ({}));
