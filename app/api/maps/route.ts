@@ -48,13 +48,35 @@ export async function GET() {
       updatedAt: map.updatedAt
     }));
 
+    // Fetch workspaces where user is a member
+    let workspaces = await prisma.workspace.findMany({
+      where: { members: { some: { userId: userId as string } } },
+      include: { members: true }
+    });
+
+    // Auto-create a default workspace if user has none
+    if (workspaces.length === 0) {
+      const user = await prisma.user.findUnique({ where: { id: userId as string } });
+      const ws = await prisma.workspace.create({
+        data: {
+          name: `${user?.name ?? "My"}'s Workspace`,
+          ownerId: userId as string,
+          members: {
+            create: {
+              userId: userId as string,
+              role: "owner"
+            }
+          }
+        },
+        include: { members: true }
+      });
+      workspaces = [ws];
+    }
+
     return NextResponse.json({
       maps: response,
       users: (await prisma.user.findMany()).map(prismaUserToDomain),
-      workspaces: await prisma.workspace.findMany({
-        where: { members: { some: { userId: userId as string } } },
-        include: { members: true }
-      })
+      workspaces
     });
   } catch (err) {
     console.error("Prisma fetch failed", err);
