@@ -1690,82 +1690,83 @@ function PageContent() {
   ) => {
     if (shareMode) return;
     if (!activeMap) return;
-    // Create node then edge; ensure edge targets a valid handle on the new node.
-    const id = crypto.randomUUID ? crypto.randomUUID() : `node-${Date.now()}`;
-    const noteId = crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}`;
-    const kind = nextKind(nodes.length);
-    const meta: MapNodeMeta = {
-      id,
-      kind,
-      kindLabel: kind.charAt(0).toUpperCase() + kind.slice(1),
-      title: "New Node",
-      tags: [],
-      noteId,
-      color: defaultColorForKind(kind),
-      position
-    };
-    const note: Note = {
-      id: noteId,
-      title: "New Note",
-      tags: [],
-      content: "Add details here...",
-      comments: [],
-      createdAt: now(),
-      updatedAt: now()
-    };
-    const edgeId = crypto.randomUUID ? crypto.randomUUID() : `edge-${Date.now()}`;
-    // Pick opposite target handle based on source handle direction
-    const sourceHandle = sanitizeHandle(from.handleId, "source");
-    const oppositeMap: { [key: string]: string } = {
-      "right-source": "left-target",
-      "left-source": "right-target",
-      "bottom-source": "top-target",
-      "top-source": "bottom-target",
-    };
-    const targetHandle = oppositeMap[sourceHandle as string] || "top-target";
-    const edgeMeta: MapEdgeMeta = {
-      id: edgeId,
-      sourceId: from.nodeId,
-      targetId: id,
-      sourceHandle,
-      targetHandle,
-      label: "",
-      noteId: null,
-      edgeType: "smoothstep"
-    };
-    setActiveMap((prev) =>
-      prev
-        ? {
-            ...prev,
-            nodes: [...prev.nodes, meta],
-            edges: [...prev.edges, edgeMeta],
-            notes: [...prev.notes, note],
-            updatedAt: now()
-          }
-        : prev
-    );
-    setNodes((prev) => [
-      ...prev,
-      { id, type: "decodeNode", position: meta.position!, data: { meta, onUpdateMeta: handleUpdateMeta } }
-    ]);
-    setEdges((eds) => [
-      ...eds,
-      {
+    // Show the node type picker and create node+edge once user picks a type
+    setShowNodeTypePicker(true);
+    setPendingNodeCallback(() => (kind: NodeKind) => {
+      const id = crypto.randomUUID ? crypto.randomUUID() : `node-${Date.now()}`;
+      const noteId = crypto.randomUUID ? crypto.randomUUID() : `note-${Date.now()}`;
+      const meta: MapNodeMeta = {
+        id,
+        kind,
+        kindLabel: kind.charAt(0).toUpperCase() + kind.slice(1),
+        title: "New Node",
+        tags: [],
+        noteId,
+        color: defaultColorForKind(kind),
+        position
+      };
+      const note: Note = {
+        id: noteId,
+        title: "New Note",
+        tags: [],
+        content: "Add details here...",
+        comments: [],
+        createdAt: now(),
+        updatedAt: now()
+      };
+      const edgeId = crypto.randomUUID ? crypto.randomUUID() : `edge-${Date.now()}`;
+      const sourceHandle = sanitizeHandle(from.handleId, "source");
+      const oppositeMap: { [key: string]: string } = {
+        "right-source": "left-target",
+        "left-source": "right-target",
+        "bottom-source": "top-target",
+        "top-source": "bottom-target",
+      };
+      const targetHandle = oppositeMap[sourceHandle as string] || "top-target";
+      const edgeMeta: MapEdgeMeta = {
         id: edgeId,
-        source: edgeMeta.sourceId,
-        target: edgeMeta.targetId,
-        sourceHandle: edgeMeta.sourceHandle ?? undefined,
-        targetHandle: edgeMeta.targetHandle ?? undefined,
-        type: edgeMeta.edgeType ?? "smoothstep",
-        animated: true,
-        markerEnd: { type: MarkerType.ArrowClosed, color: theme === "dark" ? "#fff" : "#000" },
-        className: "edge-glow",
-        data: { meta: edgeMeta }
-      }
-    ]);
-    setSelectedNodeId(id);
-    setSelectedEdgeId(null);
-    syncMapSummaryCounts(activeMap.id, (activeMap.nodes.length ?? 0) + 1);
+        sourceId: from.nodeId,
+        targetId: id,
+        sourceHandle,
+        targetHandle,
+        label: "",
+        noteId: null,
+        edgeType: "smoothstep"
+      };
+      setActiveMap((prev) =>
+        prev
+          ? {
+              ...prev,
+              nodes: [...prev.nodes, meta],
+              edges: [...prev.edges, edgeMeta],
+              notes: [...prev.notes, note],
+              updatedAt: now()
+            }
+          : prev
+      );
+      setNodes((prev) => [
+        ...prev,
+        { id, type: "decodeNode", position: meta.position!, data: { meta, onUpdateMeta: handleUpdateMeta } }
+      ]);
+      setEdges((eds) => [
+        ...eds,
+        {
+          id: edgeId,
+          source: edgeMeta.sourceId,
+          target: edgeMeta.targetId,
+          sourceHandle: edgeMeta.sourceHandle ?? undefined,
+          targetHandle: edgeMeta.targetHandle ?? undefined,
+          type: edgeMeta.edgeType ?? "smoothstep",
+          animated: true,
+          markerEnd: { type: MarkerType.ArrowClosed, color: theme === "dark" ? "#fff" : "#000" },
+          className: "edge-glow",
+          data: { meta: edgeMeta }
+        }
+      ]);
+      setSelectedNodeId(id);
+      setSelectedEdgeId(null);
+      syncMapSummaryCounts(activeMap.id, (activeMap.nodes.length ?? 0) + 1);
+    });
   };
 
   const handleCreateMap = () => {
