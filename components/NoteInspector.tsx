@@ -1306,35 +1306,30 @@ export default function NoteInspector({
               )}
             </div>
 
-            {/* ── Divider ── */}
-            <div className={`border-t pt-2.5 mt-1 ${isLight ? "border-slate-200" : "border-slate-700/30"}`}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Custom Fields</span>
-                <button
-                  onClick={() => {
-                    const fields = metaDraft.customFields ?? [];
-                    const newField: CustomField = {
-                      id: `cf_${Date.now()}`,
-                      label: "",
-                      type: "text",
-                      value: "",
-                    };
-                    updateMeta({ customFields: [...fields, newField] });
-                  }}
-                  className={`flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-medium transition ${isLight ? "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100" : "border-slate-700/30 bg-slate-800/30 text-slate-400 hover:bg-slate-700/40"}`}
-                >
-                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-                  Add Field
-                </button>
+            {/* ── Divider: Custom Properties ── */}
+            <div className={`border-t pt-3 mt-1.5 ${isLight ? "border-slate-200" : "border-slate-700/30"}`}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Custom Properties</span>
+                <span className={`text-[9px] px-1.5 py-0.5 rounded ${isLight ? "bg-slate-100 text-slate-400" : "bg-slate-800/40 text-slate-500"}`}>{(metaDraft.customFields ?? []).length} fields</span>
               </div>
 
               {/* ── Custom field list ── */}
               {(metaDraft.customFields ?? []).length === 0 && (
-                <p className="text-[10px] text-slate-500 italic">No custom fields yet. Click "Add Field" to create one.</p>
+                <div className={`rounded-lg border-2 border-dashed p-4 text-center ${isLight ? "border-slate-200" : "border-slate-700/30"}`}>
+                  <svg className="h-6 w-6 mx-auto mb-1.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <p className="text-[11px] text-slate-500 mb-0.5">No custom properties yet</p>
+                  <p className="text-[9px] text-slate-400">Add fields to track costs, compliance, contacts, and more</p>
+                </div>
               )}
 
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {(metaDraft.customFields ?? []).map((field, idx) => {
+                  const cfTypeIcon: Record<string, string> = {
+                    text: "\u2261", textarea: "\u2630", url: "\uD83C\uDF10", number: "#",
+                    date: "\uD83D\uDCC5", email: "@", select: "\u2261\u0332", multiselect: "\u2611",
+                    checkbox: "\u2611", toggle: "\uD83D\uDD18", person: "\uD83D\uDC64", phone: "\uD83D\uDCDE",
+                    rating: "\u2B50", progress: "\u25B6", currency: "$", color: "\uD83C\uDFA8",
+                  };
                   const updateField = (changes: Partial<CustomField>) => {
                     const fields = [...(metaDraft.customFields ?? [])];
                     fields[idx] = { ...fields[idx], ...changes };
@@ -1353,137 +1348,302 @@ export default function NoteInspector({
                   };
 
                   return (
-                    <div key={field.id} className={`rounded-lg border p-2 ${isLight ? "border-slate-200 bg-slate-50/50" : "border-slate-700/30 bg-slate-800/20"}`}>
-                      {/* Field header: label + type + actions */}
-                      <div className="flex items-center gap-1.5 mb-1.5">
+                    <div key={field.id} className={`group rounded-lg border transition-all ${isLight ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm" : "border-slate-700/30 bg-slate-800/20 hover:border-slate-600/40"}`}>
+                      {/* Field header row */}
+                      <div className={`flex items-center gap-1 px-2 py-1.5 ${isLight ? "border-b border-slate-100" : "border-b border-slate-700/20"}`}>
+                        {/* Drag handle */}
+                        <div className="flex flex-col gap-0 cursor-grab opacity-30 group-hover:opacity-60 transition">
+                          <svg className="h-3.5 w-3.5 text-slate-400" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="7" r="1.5"/><circle cx="15" cy="7" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="17" r="1.5"/><circle cx="15" cy="17" r="1.5"/></svg>
+                        </div>
+                        {/* Type icon */}
+                        <span className="text-[11px] w-5 text-center flex-shrink-0">{cfTypeIcon[field.type] || "\u2261"}</span>
+                        {/* Property name */}
                         <input
-                          className={`flex-1 border-0 bg-transparent px-1 py-0.5 text-[11px] font-semibold placeholder:text-slate-400 focus:outline-none ${isLight ? "text-slate-700" : "text-slate-200"}`}
+                          className={`flex-1 min-w-0 bg-transparent px-1 py-0.5 text-[11px] font-medium placeholder:text-slate-400 focus:outline-none ${isLight ? "text-slate-700" : "text-slate-200"}`}
                           value={field.label}
                           onChange={(e) => updateField({ label: e.target.value })}
-                          placeholder="Field name..."
+                          placeholder="Property name"
                         />
+                        {/* Type selector */}
                         <select
-                          className={`border rounded px-1 py-0.5 text-[10px] ${isLight ? "border-slate-200 bg-white text-slate-600" : "border-slate-700/30 bg-slate-800 text-slate-300"}`}
+                          className={`border rounded-md px-1.5 py-0.5 text-[10px] font-medium appearance-none cursor-pointer ${isLight ? "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100" : "border-slate-700/30 bg-slate-800/40 text-slate-400 hover:bg-slate-700/50"}`}
                           value={field.type}
-                          onChange={(e) => updateField({ type: e.target.value as CustomFieldType, value: e.target.value === "checkbox" ? "false" : "" })}
+                          onChange={(e) => {
+                            const t = e.target.value as CustomFieldType;
+                            const resetVal = (t === "checkbox" || t === "toggle") ? "false" : t === "rating" ? "0" : t === "progress" ? "0" : "";
+                            updateField({ type: t, value: resetVal });
+                          }}
                         >
-                          <option value="text">Text</option>
-                          <option value="textarea">Textarea</option>
-                          <option value="url">URL</option>
-                          <option value="number">Number</option>
-                          <option value="date">Date</option>
-                          <option value="email">Email</option>
-                          <option value="select">Select</option>
-                          <option value="checkbox">Checkbox</option>
+                          <optgroup label="Basic">
+                            <option value="text">Text</option>
+                            <option value="textarea">Long Text</option>
+                            <option value="number">Number</option>
+                            <option value="date">Date</option>
+                          </optgroup>
+                          <optgroup label="Selection">
+                            <option value="select">Select</option>
+                            <option value="multiselect">Multi-Select</option>
+                            <option value="checkbox">Checkbox</option>
+                            <option value="toggle">Toggle</option>
+                          </optgroup>
+                          <optgroup label="Contact">
+                            <option value="email">Email</option>
+                            <option value="phone">Phone</option>
+                            <option value="url">URL</option>
+                            <option value="person">Person</option>
+                          </optgroup>
+                          <optgroup label="Advanced">
+                            <option value="rating">Rating</option>
+                            <option value="progress">Progress</option>
+                            <option value="currency">Currency</option>
+                            <option value="color">Color</option>
+                          </optgroup>
                         </select>
-                        {/* Move up/down */}
-                        <button onClick={() => moveField(-1)} className={`p-0.5 rounded transition ${idx === 0 ? "opacity-20 cursor-not-allowed" : "hover:bg-slate-200 dark:hover:bg-slate-700"}`} disabled={idx === 0} title="Move up">
-                          <svg className="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
-                        </button>
-                        <button onClick={() => moveField(1)} className={`p-0.5 rounded transition ${idx === (metaDraft.customFields ?? []).length - 1 ? "opacity-20 cursor-not-allowed" : "hover:bg-slate-200 dark:hover:bg-slate-700"}`} disabled={idx === (metaDraft.customFields ?? []).length - 1} title="Move down">
-                          <svg className="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                        </button>
+                        {/* Reorder */}
+                        <div className="flex flex-col opacity-0 group-hover:opacity-100 transition">
+                          <button onClick={() => moveField(-1)} disabled={idx === 0} className={`leading-none ${idx === 0 ? "text-slate-300 dark:text-slate-700" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"}`}>
+                            <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
+                          </button>
+                          <button onClick={() => moveField(1)} disabled={idx === (metaDraft.customFields ?? []).length - 1} className={`leading-none ${idx === (metaDraft.customFields ?? []).length - 1 ? "text-slate-300 dark:text-slate-700" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"}`}>
+                            <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                          </button>
+                        </div>
                         {/* Delete */}
-                        <button onClick={removeField} className="p-0.5 rounded text-red-400 hover:bg-red-500/10 transition" title="Remove field">
-                          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        <button onClick={removeField} className="opacity-0 group-hover:opacity-100 p-0.5 rounded text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition" title="Delete property">
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
                       </div>
 
-                      {/* Field value input — varies by type */}
-                      {field.type === "text" && (
-                        <input
-                          className={`w-full border px-2 py-1 text-xs ${inputClass}`}
-                          value={field.value}
-                          onChange={(e) => updateField({ value: e.target.value })}
-                          placeholder="Enter value..."
-                        />
-                      )}
-                      {field.type === "textarea" && (
-                        <textarea
-                          className={`w-full border px-2 py-1 text-xs leading-relaxed ${inputClass}`}
-                          rows={2}
-                          value={field.value}
-                          onChange={(e) => updateField({ value: e.target.value })}
-                          placeholder="Enter text..."
-                        />
-                      )}
-                      {field.type === "url" && (
-                        <div className="flex gap-1.5">
-                          <input
-                            type="url"
-                            className={`flex-1 border px-2 py-1 text-xs ${inputClass}`}
-                            value={field.value}
-                            onChange={(e) => updateField({ value: e.target.value })}
-                            placeholder="https://..."
-                          />
-                          {field.value && (
-                            <a href={field.value} target="_blank" rel="noreferrer" className={`flex items-center justify-center rounded-lg border px-2 text-brand-400 hover:bg-brand-500/10 transition ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/30 bg-slate-800/20"}`} title="Open link">
-                              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            </a>
-                          )}
-                        </div>
-                      )}
-                      {field.type === "number" && (
-                        <input
-                          type="number"
-                          className={`w-full border px-2 py-1 text-xs ${inputClass}`}
-                          value={field.value}
-                          onChange={(e) => updateField({ value: e.target.value })}
-                          placeholder="0"
-                        />
-                      )}
-                      {field.type === "date" && (
-                        <input
-                          type="date"
-                          className={`w-full border px-2 py-1 text-xs ${inputClass}`}
-                          value={field.value}
-                          onChange={(e) => updateField({ value: e.target.value })}
-                        />
-                      )}
-                      {field.type === "email" && (
-                        <input
-                          type="email"
-                          className={`w-full border px-2 py-1 text-xs ${inputClass}`}
-                          value={field.value}
-                          onChange={(e) => updateField({ value: e.target.value })}
-                          placeholder="name@example.com"
-                        />
-                      )}
-                      {field.type === "checkbox" && (
-                        <label className="flex items-center gap-2 cursor-pointer py-0.5">
-                          <input
-                            type="checkbox"
-                            checked={field.value === "true"}
-                            onChange={(e) => updateField({ value: e.target.checked ? "true" : "false" })}
-                            className="h-3.5 w-3.5 rounded border-slate-300 text-brand-500 focus:ring-brand-500"
-                          />
-                          <span className={`text-xs ${isLight ? "text-slate-600" : "text-slate-300"}`}>{field.label || "Enabled"}</span>
-                        </label>
-                      )}
-                      {field.type === "select" && (
-                        <>
-                          <select
-                            className={`w-full border px-2 py-1 text-xs ${inputClass}`}
-                            value={field.value}
-                            onChange={(e) => updateField({ value: e.target.value })}
-                          >
-                            <option value="">Select...</option>
-                            {(field.options ?? []).map((opt) => (
-                              <option key={opt} value={opt}>{opt}</option>
+                      {/* Field value area */}
+                      <div className="px-2.5 py-2">
+                        {/* ── Text ── */}
+                        {field.type === "text" && (
+                          <input className={`w-full border px-2.5 py-1.5 text-xs ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })} placeholder="Enter value..." />
+                        )}
+                        {/* ── Long Text ── */}
+                        {field.type === "textarea" && (
+                          <textarea className={`w-full border px-2.5 py-1.5 text-xs leading-relaxed ${inputClass}`} rows={3} value={field.value} onChange={(e) => updateField({ value: e.target.value })} placeholder="Enter detailed text..." />
+                        )}
+                        {/* ── Number ── */}
+                        {field.type === "number" && (
+                          <input type="number" className={`w-full border px-2.5 py-1.5 text-xs ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })} placeholder="0" />
+                        )}
+                        {/* ── Currency ── */}
+                        {field.type === "currency" && (
+                          <div className="flex items-center gap-1">
+                            <span className={`text-xs font-medium px-2 py-1.5 rounded-l-lg border border-r-0 ${isLight ? "border-slate-200 bg-slate-50 text-slate-500" : "border-slate-700/30 bg-slate-800/40 text-slate-400"}`}>$</span>
+                            <input type="number" step="0.01" className={`flex-1 border px-2.5 py-1.5 text-xs rounded-l-none ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })} placeholder="0.00" />
+                          </div>
+                        )}
+                        {/* ── Date ── */}
+                        {field.type === "date" && (
+                          <input type="date" className={`w-full border px-2.5 py-1.5 text-xs ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })} />
+                        )}
+                        {/* ── Email ── */}
+                        {field.type === "email" && (
+                          <div className="flex gap-1.5">
+                            <input type="email" className={`flex-1 border px-2.5 py-1.5 text-xs ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })} placeholder="name@company.com" />
+                            {field.value && (
+                              <a href={`mailto:${field.value}`} className={`flex items-center justify-center rounded-lg border px-2 text-brand-400 hover:bg-brand-500/10 transition ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/30 bg-slate-800/20"}`} title="Send email">
+                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        {/* ── Phone ── */}
+                        {field.type === "phone" && (
+                          <div className="flex gap-1.5">
+                            <input type="tel" className={`flex-1 border px-2.5 py-1.5 text-xs ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })} placeholder="+1 (555) 000-0000" />
+                            {field.value && (
+                              <a href={`tel:${field.value}`} className={`flex items-center justify-center rounded-lg border px-2 text-brand-400 hover:bg-brand-500/10 transition ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/30 bg-slate-800/20"}`} title="Call">
+                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        {/* ── URL ── */}
+                        {field.type === "url" && (
+                          <div className="flex gap-1.5">
+                            <input type="url" className={`flex-1 border px-2.5 py-1.5 text-xs ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })} placeholder="https://..." />
+                            {field.value && (
+                              <a href={field.value} target="_blank" rel="noreferrer" className={`flex items-center justify-center rounded-lg border px-2 text-brand-400 hover:bg-brand-500/10 transition ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/30 bg-slate-800/20"}`} title="Open link">
+                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        {/* ── Person ── */}
+                        {field.type === "person" && (
+                          <div className="flex items-center gap-2">
+                            <div className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold ${isLight ? "bg-brand-100 text-brand-600" : "bg-brand-500/20 text-brand-400"}`}>
+                              {(field.value || "?").charAt(0).toUpperCase()}
+                            </div>
+                            <input className={`flex-1 border px-2.5 py-1.5 text-xs ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })} placeholder="Person name..." />
+                          </div>
+                        )}
+                        {/* ── Checkbox ── */}
+                        {field.type === "checkbox" && (
+                          <label className="flex items-center gap-2.5 cursor-pointer py-0.5">
+                            <div className={`h-4.5 w-4.5 rounded border-2 flex items-center justify-center transition ${field.value === "true" ? "bg-brand-500 border-brand-500" : isLight ? "border-slate-300 bg-white" : "border-slate-600 bg-slate-800"}`}
+                              onClick={() => updateField({ value: field.value === "true" ? "false" : "true" })}>
+                              {field.value === "true" && <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                            </div>
+                            <span className={`text-xs ${field.value === "true" ? (isLight ? "text-slate-700" : "text-slate-200") : "text-slate-400 line-through"}`}>{field.label || "Checked"}</span>
+                          </label>
+                        )}
+                        {/* ── Toggle ── */}
+                        {field.type === "toggle" && (
+                          <div className="flex items-center justify-between py-0.5">
+                            <span className={`text-xs ${isLight ? "text-slate-600" : "text-slate-300"}`}>{field.value === "true" ? "Enabled" : "Disabled"}</span>
+                            <button
+                              onClick={() => updateField({ value: field.value === "true" ? "false" : "true" })}
+                              className={`relative w-9 h-5 rounded-full transition-colors ${field.value === "true" ? "bg-brand-500" : isLight ? "bg-slate-300" : "bg-slate-600"}`}
+                            >
+                              <span className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${field.value === "true" ? "translate-x-4" : "translate-x-0"}`} />
+                            </button>
+                          </div>
+                        )}
+                        {/* ── Rating (1-5 stars) ── */}
+                        {field.type === "rating" && (
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button key={star} onClick={() => updateField({ value: String(Number(field.value) === star ? 0 : star) })}
+                                className={`text-lg transition ${Number(field.value) >= star ? "text-yellow-400" : isLight ? "text-slate-200" : "text-slate-700"} hover:scale-125`}>
+                                {Number(field.value) >= star ? "\u2605" : "\u2606"}
+                              </button>
                             ))}
-                          </select>
-                          <input
-                            className={`mt-1 w-full border px-2 py-1 text-[10px] ${inputClass}`}
-                            placeholder="Options (comma-separated): e.g. High, Medium, Low"
-                            value={(field.options ?? []).join(", ")}
-                            onChange={(e) => updateField({ options: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
-                          />
-                        </>
-                      )}
+                            <span className={`ml-2 text-[10px] ${isLight ? "text-slate-400" : "text-slate-500"}`}>{field.value || "0"}/5</span>
+                          </div>
+                        )}
+                        {/* ── Progress (0-100%) ── */}
+                        {field.type === "progress" && (
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2">
+                              <div className={`flex-1 h-2 rounded-full overflow-hidden ${isLight ? "bg-slate-100" : "bg-slate-700/40"}`}>
+                                <div className="h-full rounded-full transition-all bg-brand-500" style={{ width: `${Math.min(100, Math.max(0, Number(field.value) || 0))}%` }} />
+                              </div>
+                              <span className={`text-[11px] font-semibold tabular-nums min-w-[32px] text-right ${Number(field.value) >= 100 ? "text-green-500" : Number(field.value) >= 50 ? "text-brand-400" : isLight ? "text-slate-500" : "text-slate-400"}`}>{field.value || 0}%</span>
+                            </div>
+                            <input type="range" min="0" max="100" step="5" value={field.value || "0"} onChange={(e) => updateField({ value: e.target.value })}
+                              className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-brand-500" />
+                          </div>
+                        )}
+                        {/* ── Color ── */}
+                        {field.type === "color" && (
+                          <div className="flex items-center gap-2">
+                            <input type="color" value={field.value || "#3b82f6"} onChange={(e) => updateField({ value: e.target.value })}
+                              className="h-8 w-8 rounded-lg border-0 cursor-pointer p-0" />
+                            <input className={`flex-1 border px-2.5 py-1.5 text-xs font-mono ${inputClass}`} value={field.value || "#3b82f6"} onChange={(e) => updateField({ value: e.target.value })} placeholder="#3b82f6" />
+                          </div>
+                        )}
+                        {/* ── Select ── */}
+                        {field.type === "select" && (
+                          <div className="space-y-1.5">
+                            <select className={`w-full border px-2.5 py-1.5 text-xs ${inputClass}`} value={field.value} onChange={(e) => updateField({ value: e.target.value })}>
+                              <option value="">Select...</option>
+                              {(field.options ?? []).map((opt) => (<option key={opt} value={opt}>{opt}</option>))}
+                            </select>
+                            {/* Manage options */}
+                            <div className="space-y-1">
+                              <label className={`text-[9px] font-medium uppercase tracking-wider ${isLight ? "text-slate-400" : "text-slate-500"}`}>Options</label>
+                              {(field.options ?? []).map((opt, oi) => (
+                                <div key={oi} className="flex items-center gap-1">
+                                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isLight ? "bg-slate-300" : "bg-slate-600"}`} />
+                                  <input
+                                    className={`flex-1 border px-2 py-1 text-[10px] ${inputClass}`}
+                                    value={opt}
+                                    onChange={(e) => {
+                                      const opts = [...(field.options ?? [])];
+                                      opts[oi] = e.target.value;
+                                      updateField({ options: opts });
+                                    }}
+                                  />
+                                  <button onClick={() => {
+                                    const opts = (field.options ?? []).filter((_, i) => i !== oi);
+                                    updateField({ options: opts, value: field.value === opt ? "" : field.value });
+                                  }} className="text-slate-400 hover:text-red-400 transition">
+                                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                  </button>
+                                </div>
+                              ))}
+                              <button onClick={() => updateField({ options: [...(field.options ?? []), `Option ${(field.options ?? []).length + 1}`] })}
+                                className={`flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded transition ${isLight ? "text-brand-600 hover:bg-brand-50" : "text-brand-400 hover:bg-brand-500/10"}`}>
+                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                                Add Option
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        {/* ── Multi-Select ── */}
+                        {field.type === "multiselect" && (() => {
+                          const selected = field.value ? field.value.split(",").filter(Boolean) : [];
+                          return (
+                            <div className="space-y-1.5">
+                              {/* Selected chips */}
+                              {selected.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {selected.map((s) => (
+                                    <span key={s} className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] ${isLight ? "border-brand-200 bg-brand-50 text-brand-700" : "border-brand-500/30 bg-brand-500/10 text-brand-300"}`}>
+                                      {s}
+                                      <button onClick={() => updateField({ value: selected.filter((v) => v !== s).join(",") })} className="hover:text-red-400">
+                                        <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                      </button>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                              {/* Available options to click */}
+                              <div className="flex flex-wrap gap-1">
+                                {(field.options ?? []).filter((o) => !selected.includes(o)).map((opt) => (
+                                  <button key={opt} onClick={() => updateField({ value: [...selected, opt].join(",") })}
+                                    className={`rounded-md border px-1.5 py-0.5 text-[10px] transition ${isLight ? "border-slate-200 bg-white text-slate-500 hover:border-brand-300 hover:text-brand-600" : "border-slate-700/30 bg-slate-800/30 text-slate-400 hover:border-brand-500/40 hover:text-brand-300"}`}>
+                                    + {opt}
+                                  </button>
+                                ))}
+                              </div>
+                              {/* Manage options */}
+                              <div className="space-y-1 pt-1">
+                                <label className={`text-[9px] font-medium uppercase tracking-wider ${isLight ? "text-slate-400" : "text-slate-500"}`}>Options</label>
+                                {(field.options ?? []).map((opt, oi) => (
+                                  <div key={oi} className="flex items-center gap-1">
+                                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isLight ? "bg-slate-300" : "bg-slate-600"}`} />
+                                    <input className={`flex-1 border px-2 py-1 text-[10px] ${inputClass}`} value={opt}
+                                      onChange={(e) => { const opts = [...(field.options ?? [])]; opts[oi] = e.target.value; updateField({ options: opts }); }} />
+                                    <button onClick={() => {
+                                      const opts = (field.options ?? []).filter((_, i) => i !== oi);
+                                      updateField({ options: opts, value: selected.filter((v) => v !== opt).join(",") });
+                                    }} className="text-slate-400 hover:text-red-400 transition">
+                                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                  </div>
+                                ))}
+                                <button onClick={() => updateField({ options: [...(field.options ?? []), `Option ${(field.options ?? []).length + 1}`] })}
+                                  className={`flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded transition ${isLight ? "text-brand-600 hover:bg-brand-50" : "text-brand-400 hover:bg-brand-500/10"}`}>
+                                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                                  Add Option
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
                     </div>
                   );
                 })}
               </div>
+
+              {/* Add Property Button */}
+              <button
+                onClick={() => {
+                  const fields = metaDraft.customFields ?? [];
+                  const newField: CustomField = { id: `cf_${Date.now()}`, label: "", type: "text", value: "" };
+                  updateMeta({ customFields: [...fields, newField] });
+                }}
+                className={`mt-2.5 w-full flex items-center justify-center gap-1.5 rounded-lg border-2 border-dashed py-2 text-[11px] font-medium transition ${isLight ? "border-slate-200 text-slate-500 hover:border-brand-300 hover:text-brand-600 hover:bg-brand-50/50" : "border-slate-700/30 text-slate-400 hover:border-brand-500/40 hover:text-brand-400 hover:bg-brand-500/5"}`}
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                Add Property
+              </button>
             </div>
           </>
         )}

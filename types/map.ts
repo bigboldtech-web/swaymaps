@@ -23,14 +23,17 @@ export interface MapNodeMeta {
   customFields?: CustomField[];
 }
 
-export type CustomFieldType = "text" | "textarea" | "url" | "number" | "date" | "select" | "checkbox" | "email";
+export type CustomFieldType =
+  | "text" | "textarea" | "url" | "number" | "date" | "select"
+  | "checkbox" | "email" | "toggle" | "person" | "phone"
+  | "rating" | "progress" | "currency" | "color" | "multiselect";
 
 export interface CustomField {
   id: string;
   label: string;
   type: CustomFieldType;
   value: string;
-  options?: string[];       // for select type
+  options?: string[];       // for select/multiselect type
 }
 
 export interface Note {
