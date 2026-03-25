@@ -233,7 +233,7 @@ html.light .react-flow__node.dragging .decode-node {
 }
 @keyframes edge-flow {
   to {
-    stroke-dashoffset: -48;
+    stroke-dashoffset: -38;
   }
 }
 

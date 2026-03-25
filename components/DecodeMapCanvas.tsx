@@ -272,11 +272,11 @@ function GradientEdge({
         <path
           d={edgePath}
           fill="none"
-          stroke={glowColor}
-          strokeWidth={2}
-          strokeDasharray="8 40"
+          stroke="#ffffff"
+          strokeWidth={2.5}
+          strokeDasharray="6 32"
           strokeLinecap="round"
-          opacity={dimmed ? 0 : 0.6}
+          opacity={dimmed ? 0 : 0.7}
           className="edge-flow-dash"
           style={{ transition: "opacity 0.5s ease" }}
         />
@@ -354,11 +354,11 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
         <path
           d={edgePath}
           fill="none"
-          stroke={strokeColor}
-          strokeWidth={2}
-          strokeDasharray="8 40"
+          stroke="#ffffff"
+          strokeWidth={2.5}
+          strokeDasharray="6 32"
           strokeLinecap="round"
-          opacity={dimmed ? 0 : 0.6}
+          opacity={dimmed ? 0 : 0.7}
           className="edge-flow-dash"
           style={{ transition: "opacity 0.5s ease" }}
         />
