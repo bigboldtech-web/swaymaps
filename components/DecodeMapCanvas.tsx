@@ -244,13 +244,6 @@ function GradientEdge({
           <stop offset="0%" stopColor={fromColor} />
           <stop offset="100%" stopColor={toColor} />
         </linearGradient>
-        <filter id={`glow-${id}`} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
       </defs>
       {/* Invisible wide path for easier click targeting */}
       <path
@@ -274,11 +267,19 @@ function GradientEdge({
           transition: "stroke-width 0.3s cubic-bezier(0.16,1,0.3,1), filter 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.4s cubic-bezier(0.16,1,0.3,1)"
         }}
       />
-      {/* Flowing glow orb — always flows from source toward arrowhead */}
+      {/* Flowing dash overlay — CSS animation, no restart on re-render */}
       {showOrb && (
-        <circle r={3.5} fill={glowColor} filter={`url(#glow-${id})`} opacity={dimmed ? 0 : 0.85} style={{ transition: "opacity 0.5s ease" }}>
-          <animateMotion dur="2.8s" repeatCount="indefinite" path={edgePath} calcMode="linear" />
-        </circle>
+        <path
+          d={edgePath}
+          fill="none"
+          stroke={glowColor}
+          strokeWidth={2}
+          strokeDasharray="8 40"
+          strokeLinecap="round"
+          opacity={dimmed ? 0 : 0.6}
+          className="edge-flow-dash"
+          style={{ transition: "opacity 0.5s ease" }}
+        />
       )}
       {(labelParts || latency) && (
         <EdgeLabelRenderer>
@@ -326,15 +327,6 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
 
   return (
     <>
-      <defs>
-        <filter id={`glow-b-${props.id}`} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
       {/* Invisible wide path for easier click targeting */}
       <path
         d={edgePath}
@@ -357,11 +349,19 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
           transition: "stroke-width 0.3s cubic-bezier(0.16,1,0.3,1), filter 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.4s cubic-bezier(0.16,1,0.3,1)"
         }}
       />
-      {/* Flowing glow orb — always visible, dims when unconnected node selected */}
+      {/* Flowing dash overlay — CSS animation, no restart on re-render */}
       {showOrb && (
-        <circle r={3.5} fill={strokeColor} filter={`url(#glow-b-${props.id})`} opacity={0.85} style={{ transition: "opacity 0.5s ease" }}>
-          <animateMotion dur="2.5s" repeatCount="indefinite" path={edgePath} calcMode="linear" />
-        </circle>
+        <path
+          d={edgePath}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth={2}
+          strokeDasharray="8 40"
+          strokeLinecap="round"
+          opacity={dimmed ? 0 : 0.6}
+          className="edge-flow-dash"
+          style={{ transition: "opacity 0.5s ease" }}
+        />
       )}
       {(labelParts || latency) && (
         <EdgeLabelRenderer>
