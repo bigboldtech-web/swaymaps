@@ -55,6 +55,10 @@ const ActivityFeed = React.lazy(() => import("../../components/ActivityFeed").th
 const ImportModal = React.lazy(() => import("../../components/ImportModal").then(m => ({ default: m.ImportModal })));
 const ApiKeysModal = React.lazy(() => import("../../components/ApiKeysModal").then(m => ({ default: m.ApiKeysModal })));
 const IntegrationsModal = React.lazy(() => import("../../components/IntegrationsModal").then(m => ({ default: m.IntegrationsModal })));
+const HealthDashboard = React.lazy(() => import("../../components/HealthDashboard").then(m => ({ default: m.HealthDashboard })));
+const YamlDslEditor = React.lazy(() => import("../../components/YamlDslEditor").then(m => ({ default: m.YamlDslEditor })));
+const InlineComments = React.lazy(() => import("../../components/InlineComments").then(m => ({ default: m.InlineComments })));
+const DiffViewer = React.lazy(() => import("../../components/DiffViewer").then(m => ({ default: m.DiffViewer })));
 import { usePresence } from "../../hooks/usePresence";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { ImportResult } from "../../lib/importers";
@@ -139,6 +143,10 @@ function PageContent() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [showApiKeys, setShowApiKeys] = useState(false);
   const [showIntegrations, setShowIntegrations] = useState(false);
+  const [showHealthDashboard, setShowHealthDashboard] = useState(false);
+  const [showYamlEditor, setShowYamlEditor] = useState(false);
+  const [showInlineComments, setShowInlineComments] = useState(false);
+  const [showDiffViewer, setShowDiffViewer] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiEnabled, setAiEnabled] = useState<boolean>(() => {
@@ -1630,6 +1638,36 @@ function PageContent() {
         icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>,
         onSelect: () => activeMap && setShowShareModal(true),
       },
+      {
+        id: "health-dashboard", label: "Health Dashboard", category: "action",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
+        onSelect: () => setShowHealthDashboard(true),
+      },
+      {
+        id: "yaml-editor", label: "Diagram as Code (YAML)", category: "action",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>,
+        onSelect: () => setShowYamlEditor(true),
+      },
+      {
+        id: "diff-viewer", label: "Change Diff View", category: "action",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>,
+        onSelect: () => setShowDiffViewer(true),
+      },
+      {
+        id: "import-map", label: "Import from External Tool", category: "action",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>,
+        onSelect: () => setShowImportModal(true),
+      },
+      {
+        id: "toggle-theme", label: `Switch to ${theme === "light" ? "Dark" : "Light"} Mode`, category: "action",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" /></svg>,
+        onSelect: toggleTheme,
+      },
+      {
+        id: "integrations", label: "Integrations (Slack/Teams)", category: "navigation",
+        icon: <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 002.25-2.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v2.25A2.25 2.25 0 006 10.5zm0 9.75h2.25A2.25 2.25 0 0010.5 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18A2.25 2.25 0 006 20.25zm9.75-9.75H18a2.25 2.25 0 002.25-2.25V6A2.25 2.25 0 0018 3.75h-2.25A2.25 2.25 0 0013.5 6v2.25a2.25 2.25 0 002.25 2.25z" /></svg>,
+        onSelect: () => setShowIntegrations(true),
+      },
     ];
 
     if (activeMap) {
@@ -2648,6 +2686,44 @@ function PageContent() {
           open={showIntegrations}
           onClose={() => setShowIntegrations(false)}
           workspaceId={workspaceId}
+        />
+      )}
+      {showHealthDashboard && activeMap && (
+        <HealthDashboard
+          nodes={activeMap.nodes}
+          edges={activeMap.edges}
+          isOpen={showHealthDashboard}
+          onClose={() => setShowHealthDashboard(false)}
+          onNodeClick={(nodeId) => {
+            setShowHealthDashboard(false);
+            handleFocusNode(nodeId);
+          }}
+        />
+      )}
+      {showYamlEditor && (
+        <YamlDslEditor
+          open={showYamlEditor}
+          onClose={() => setShowYamlEditor(false)}
+          nodes={activeMap?.nodes ?? []}
+          edges={activeMap?.edges ?? []}
+          onApply={(newNodes, newEdges) => {
+            if (!activeMap) return;
+            const updatedMap = { ...activeMap, nodes: newNodes, edges: newEdges, updatedAt: now() };
+            setActiveMap(updatedMap);
+            setNodes(toFlowNodes(newNodes, handleUpdateMeta));
+            setEdges(toFlowEdges(newEdges));
+            setShowYamlEditor(false);
+            setToast("Map updated from YAML");
+          }}
+        />
+      )}
+      {showDiffViewer && activeMap && (
+        <DiffViewer
+          open={showDiffViewer}
+          onClose={() => setShowDiffViewer(false)}
+          mapId={activeMap.id}
+          currentNodes={activeMap.nodes}
+          currentEdges={activeMap.edges}
         />
       )}
     </div>
