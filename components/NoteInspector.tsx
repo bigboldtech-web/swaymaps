@@ -1322,8 +1322,7 @@ export default function NoteInspector({
                 </div>
               )}
 
-              <div className="space-y-2" data-cf-list="true" ref={(el) => {
-                // Attach a single mousedown listener to track if drag started from handle
+              <div className="space-y-2 relative" data-cf-list="true" ref={(el) => {
                 if (el && !(el as any).__cfInit) {
                   (el as any).__cfInit = true;
                   (el as any).__dragFromHandle = false;
@@ -1349,6 +1348,14 @@ export default function NoteInspector({
                     updateMeta({ customFields: fields.length ? fields : undefined });
                   };
 
+                  const clearIndicators = (el: HTMLElement) => {
+                    el.style.borderTopColor = "";
+                    el.style.borderBottomColor = "";
+                    el.style.borderTopWidth = "";
+                    el.style.borderBottomWidth = "";
+                    el.classList.remove("cf-drop-above", "cf-drop-below");
+                  };
+
                   return (
                     <div
                       key={field.id}
@@ -1359,32 +1366,55 @@ export default function NoteInspector({
                         if (!(list as any)?.__dragFromHandle) { e.preventDefault(); return; }
                         e.dataTransfer.effectAllowed = "move";
                         e.dataTransfer.setData("text/plain", String(idx));
-                        (e.currentTarget as HTMLElement).style.opacity = "0.4";
+                        requestAnimationFrame(() => { (e.currentTarget as HTMLElement).style.opacity = "0.4"; });
                       }}
-                      onDragEnd={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                      onDragEnd={(e) => {
+                        (e.currentTarget as HTMLElement).style.opacity = "1";
+                        // Clear all indicators
+                        const list = (e.currentTarget as HTMLElement).closest("[data-cf-list]");
+                        list?.querySelectorAll("[data-cf-idx]").forEach((el) => clearIndicators(el as HTMLElement));
+                      }}
                       onDragOver={(e) => {
                         e.preventDefault();
                         e.dataTransfer.dropEffect = "move";
                         const el = e.currentTarget as HTMLElement;
-                        el.classList.add("ring-2", "ring-brand-500/40");
+                        const rect = el.getBoundingClientRect();
+                        const midY = rect.top + rect.height / 2;
+                        const isAbove = e.clientY < midY;
+                        clearIndicators(el);
+                        if (isAbove) {
+                          el.style.borderTopColor = "var(--color-brand-500, #3b82f6)";
+                          el.style.borderTopWidth = "2px";
+                          el.classList.add("cf-drop-above");
+                        } else {
+                          el.style.borderBottomColor = "var(--color-brand-500, #3b82f6)";
+                          el.style.borderBottomWidth = "2px";
+                          el.classList.add("cf-drop-below");
+                        }
                       }}
-                      onDragLeave={(e) => {
-                        const el = e.currentTarget as HTMLElement;
-                        el.classList.remove("ring-2", "ring-brand-500/40");
-                      }}
+                      onDragLeave={(e) => { clearIndicators(e.currentTarget as HTMLElement); }}
                       onDrop={(e) => {
                         e.preventDefault();
                         const el = e.currentTarget as HTMLElement;
-                        el.classList.remove("ring-2", "ring-brand-500/40");
+                        const isBelow = el.classList.contains("cf-drop-below");
+                        clearIndicators(el);
+                        // Clear all indicators
+                        const list = el.closest("[data-cf-list]");
+                        list?.querySelectorAll("[data-cf-idx]").forEach((item) => clearIndicators(item as HTMLElement));
+
                         const fromIdx = Number(e.dataTransfer.getData("text/plain"));
-                        const toIdx = idx;
-                        if (fromIdx === toIdx || isNaN(fromIdx)) return;
+                        if (isNaN(fromIdx) || fromIdx === idx) return;
                         const fields = [...(metaDraft.customFields ?? [])];
                         const [moved] = fields.splice(fromIdx, 1);
-                        fields.splice(toIdx, 0, moved);
+                        // Calculate insert position: if dropping below, insert after this item
+                        let insertIdx = isBelow ? idx : idx;
+                        if (fromIdx < idx) insertIdx = isBelow ? idx : idx - 1;
+                        // Clamp
+                        insertIdx = Math.max(0, Math.min(fields.length, insertIdx));
+                        fields.splice(insertIdx, 0, moved);
                         updateMeta({ customFields: fields });
                       }}
-                      className={`group rounded-lg border transition-all ${isLight ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm" : "border-slate-700/30 bg-slate-800/20 hover:border-slate-600/40"}`}
+                      className={`group rounded-lg border transition-colors ${isLight ? "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm" : "border-slate-700/30 bg-slate-800/20 hover:border-slate-600/40"}`}
                     >
                       {/* Field header row */}
                       <div className={`flex items-center gap-1.5 px-2 py-1.5 ${isLight ? "border-b border-slate-100" : "border-b border-slate-700/20"}`}>
