@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 
 interface CanvasToolbarProps {
   theme: "light" | "dark";
@@ -41,12 +42,26 @@ export function CanvasToolbar({
 }: CanvasToolbarProps) {
   const isLight = theme === "light";
   const [layoutOpen, setLayoutOpen] = useState(false);
-  const layoutRef = useRef<HTMLDivElement>(null);
+  const [layoutPos, setLayoutPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const layoutBtnRef = useRef<HTMLButtonElement>(null);
+  const layoutDropdownRef = useRef<HTMLDivElement>(null);
+
+  const toggleLayout = useCallback(() => {
+    if (!layoutOpen && layoutBtnRef.current) {
+      const rect = layoutBtnRef.current.getBoundingClientRect();
+      setLayoutPos({ top: rect.bottom + 8, left: rect.left });
+    }
+    setLayoutOpen((v) => !v);
+  }, [layoutOpen]);
 
   useEffect(() => {
     if (!layoutOpen) return;
     const handler = (e: MouseEvent) => {
-      if (layoutRef.current && !layoutRef.current.contains(e.target as Node))
+      const target = e.target as Node;
+      if (
+        layoutBtnRef.current && !layoutBtnRef.current.contains(target) &&
+        layoutDropdownRef.current && !layoutDropdownRef.current.contains(target)
+      )
         setLayoutOpen(false);
     };
     document.addEventListener("mousedown", handler);
@@ -99,25 +114,30 @@ export function CanvasToolbar({
           <div className={divider} />
         </>
       )}
-      <div className="relative" ref={layoutRef}>
-        <button className={btnBase} onClick={() => setLayoutOpen(!layoutOpen)} title="Auto Layout">
+      <div className="relative">
+        <button ref={layoutBtnRef} className={btnBase} onClick={toggleLayout} title="Auto Layout">
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="8" y="14" width="7" height="7" rx="1" /><path d="M6.5 10v2.5a1 1 0 001 1H11m6.5-3.5v2.5a1 1 0 01-1 1H14" /></svg>
         </button>
-        {layoutOpen && (
-          <div className="absolute left-0 top-full z-50 mt-2 w-48 rounded-xl glass-panel-solid shadow-glass overflow-hidden animate-scale-in">
-            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("top-bottom"); setLayoutOpen(false); }}>
+        {layoutOpen && typeof document !== "undefined" && createPortal(
+          <div
+            ref={layoutDropdownRef}
+            className={`fixed z-[9999] w-48 rounded-xl shadow-xl overflow-hidden animate-scale-in ${isLight ? "border border-slate-200/70 bg-white/95 shadow-black/10 backdrop-blur-xl" : "border border-slate-700/40 bg-slate-900/95 shadow-black/30 backdrop-blur-xl"}`}
+            style={{ top: layoutPos.top, left: layoutPos.left }}
+          >
+            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("top-bottom"); setLayoutOpen(false); }}>
               <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m0-18l-3 3m3-3l3 3" /><path strokeLinecap="round" d="M4 9h16M4 15h16" /></svg>
               Top to Bottom
             </button>
-            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("left-right"); setLayoutOpen(false); }}>
+            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("left-right"); setLayoutOpen(false); }}>
               <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18m-18 0l3-3m-3 3l3 3" /><path strokeLinecap="round" d="M9 4v16M15 4v16" /></svg>
               Left to Right
             </button>
-            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("radial"); setLayoutOpen(false); }}>
+            <button className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition ${isLight ? "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900" : "text-slate-300 hover:bg-slate-700/30 hover:text-slate-100"}`} onClick={() => { onAutoLayout("radial"); setLayoutOpen(false); }}>
               <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><circle cx="12" cy="12" r="3" /><circle cx="12" cy="4" r="2" /><circle cx="20" cy="12" r="2" /><circle cx="12" cy="20" r="2" /><circle cx="4" cy="12" r="2" /></svg>
               Radial
             </button>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
       <button className={btnBase} onClick={onFitView} title="Fit View">
