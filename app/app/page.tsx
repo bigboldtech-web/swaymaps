@@ -615,19 +615,48 @@ function PageContent() {
     [edges]
   );
 
+  // Keep a ref to the latest save payload so beforeunload can flush it
+  const pendingSave = useRef<{ mapId: string; payload: { nodes: FlowNode[]; edges: MapEdgeMeta[]; notes: Note[] } } | null>(null);
+
   useEffect(() => {
     if (!activeMap || shareMode) return;
+    const payload = {
+      nodes,
+      edges: currentEdgesMeta(),
+      notes: activeMap.notes
+    };
+    pendingSave.current = { mapId: activeMap.id, payload };
     setSaveStatus("unsaved");
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      persistState(activeMap.id, {
-        nodes,
-        edges: currentEdgesMeta(),
-        notes: activeMap.notes
-      });
+      persistState(activeMap.id, payload);
+      pendingSave.current = null;
     }, 600);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodes, edges, activeMap?.notes, activeMap?.id, currentEdgesMeta]);
+
+  // Flush pending save on page unload to prevent data loss
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (pendingSave.current) {
+        const { mapId, payload } = pendingSave.current;
+        const serializedNodes = payload.nodes.map((node) => ({
+          id: node.id,
+          position: node.position,
+          data: { meta: node.data.meta }
+        }));
+        const serializedEdges = payload.edges.map((edge) => ({
+          ...edge,
+          sourceHandle: edge.sourceHandle ?? null,
+          targetHandle: edge.targetHandle ?? null
+        }));
+        const body = JSON.stringify({ ...payload, nodes: serializedNodes, edges: serializedEdges });
+        navigator.sendBeacon(`/api/maps/${mapId}/state`, new Blob([body], { type: "application/json" }));
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
 
   useEffect(() => {
     if (!activeMap) return;

@@ -127,3 +127,8 @@ export async function PUT(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
+// POST alias for sendBeacon (used on page unload to flush pending saves)
+export async function POST(req: Request, ctx: Params) {
+  return PUT(req, ctx);
+}
