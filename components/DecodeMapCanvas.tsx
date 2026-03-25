@@ -253,6 +253,19 @@ function GradientEdge({
         strokeWidth={20}
         style={{ pointerEvents: "stroke" }}
       />
+      {/* Glow layer behind the edge — subtle pulsing outer glow */}
+      {showOrb && (
+        <path
+          d={edgePath}
+          fill="none"
+          stroke={glowColor}
+          strokeWidth={strokeWidth + 6}
+          strokeLinecap="round"
+          opacity={dimmed ? 0 : 1}
+          className="edge-glow-pulse"
+          style={{ transition: "opacity 0.5s ease", pointerEvents: "none" }}
+        />
+      )}
       <BaseEdge
         id={id}
         path={edgePath}
@@ -267,20 +280,6 @@ function GradientEdge({
           transition: "stroke-width 0.3s cubic-bezier(0.16,1,0.3,1), filter 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.4s cubic-bezier(0.16,1,0.3,1)"
         }}
       />
-      {/* Flowing dash overlay — CSS animation, no restart on re-render */}
-      {showOrb && (
-        <path
-          d={edgePath}
-          fill="none"
-          stroke="#ffffff"
-          strokeWidth={2.5}
-          strokeDasharray="6 32"
-          strokeLinecap="round"
-          opacity={dimmed ? 0 : 0.7}
-          className="edge-flow-dash"
-          style={{ transition: "opacity 0.5s ease" }}
-        />
-      )}
       {(labelParts || latency) && (
         <EdgeLabelRenderer>
           <div
@@ -335,6 +334,19 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
         strokeWidth={20}
         style={{ pointerEvents: "stroke" }}
       />
+      {/* Glow layer behind the edge — subtle pulsing outer glow */}
+      {showOrb && (
+        <path
+          d={edgePath}
+          fill="none"
+          stroke={strokeColor}
+          strokeWidth={strokeWidth + 6}
+          strokeLinecap="round"
+          opacity={dimmed ? 0 : 1}
+          className="edge-glow-pulse"
+          style={{ transition: "opacity 0.5s ease", pointerEvents: "none" }}
+        />
+      )}
       <BaseEdge
         id={props.id}
         path={edgePath}
@@ -349,20 +361,6 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
           transition: "stroke-width 0.3s cubic-bezier(0.16,1,0.3,1), filter 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.4s cubic-bezier(0.16,1,0.3,1)"
         }}
       />
-      {/* Flowing dash overlay — CSS animation, no restart on re-render */}
-      {showOrb && (
-        <path
-          d={edgePath}
-          fill="none"
-          stroke="#ffffff"
-          strokeWidth={2.5}
-          strokeDasharray="6 32"
-          strokeLinecap="round"
-          opacity={dimmed ? 0 : 0.7}
-          className="edge-flow-dash"
-          style={{ transition: "opacity 0.5s ease" }}
-        />
-      )}
       {(labelParts || latency) && (
         <EdgeLabelRenderer>
           <div
