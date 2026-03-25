@@ -1673,12 +1673,21 @@ function PageContent() {
       updatedAt: now()
     };
     const edgeId = crypto.randomUUID ? crypto.randomUUID() : `edge-${Date.now()}`;
+    // Pick opposite target handle based on source handle direction
+    const sourceHandle = sanitizeHandle(from.handleId, "source");
+    const oppositeMap: { [key: string]: string } = {
+      "right-source": "left-target",
+      "left-source": "right-target",
+      "bottom-source": "top-target",
+      "top-source": "bottom-target",
+    };
+    const targetHandle = oppositeMap[sourceHandle as string] || "top-target";
     const edgeMeta: MapEdgeMeta = {
       id: edgeId,
       sourceId: from.nodeId,
       targetId: id,
-      sourceHandle: sanitizeHandle(from.handleId, "source"),
-      targetHandle: "top-target",
+      sourceHandle,
+      targetHandle,
       label: "",
       noteId: null,
       edgeType: "smoothstep"
