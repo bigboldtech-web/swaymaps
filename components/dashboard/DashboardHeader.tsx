@@ -155,7 +155,11 @@ export function DashboardHeader({
             <PresenceAvatars users={presenceUsers} currentUserId={currentUserId} />
           </div>
         )}
-        <div className={`w-px h-5 hidden sm:block ${isLight ? "bg-slate-300/50" : "bg-slate-700/30"}`} />
+      </div>
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+        {pinOptions.length > 0 && (
+          <div className={`w-px h-5 hidden sm:block ${isLight ? "bg-slate-300/50" : "bg-slate-700/30"}`} />
+        )}
         {pinOptions.length > 0 && (
           <div className="relative z-50 hidden sm:block" ref={focusMenuRef}>
             <button

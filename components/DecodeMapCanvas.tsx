@@ -277,7 +277,7 @@ function GradientEdge({
       {/* Flowing glow orb — always flows from source toward arrowhead */}
       {showOrb && (
         <circle r={3.5} fill={glowColor} filter={`url(#glow-${id})`} opacity={dimmed ? 0 : 0.85} style={{ transition: "opacity 0.5s ease" }}>
-          <animateMotion dur="2.8s" repeatCount="indefinite" path={edgePath} calcMode="spline" keySplines="0.4 0 0.2 1" keyTimes="0;1" />
+          <animateMotion dur="2.8s" repeatCount="indefinite" path={edgePath} calcMode="linear" />
         </circle>
       )}
       {(labelParts || latency) && (
@@ -360,14 +360,7 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
       {/* Flowing glow orb — always visible, dims when unconnected node selected */}
       {showOrb && (
         <circle r={3.5} fill={strokeColor} filter={`url(#glow-b-${props.id})`} opacity={0.85} style={{ transition: "opacity 0.5s ease" }}>
-          <animateMotion
-            dur="2.5s"
-            repeatCount="indefinite"
-            path={edgePath}
-            calcMode="spline"
-            keySplines="0.4 0 0.2 1"
-            keyTimes="0;1"
-          />
+          <animateMotion dur="2.5s" repeatCount="indefinite" path={edgePath} calcMode="linear" />
         </circle>
       )}
       {(labelParts || latency) && (
