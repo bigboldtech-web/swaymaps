@@ -131,6 +131,7 @@ model MapNode {
   description String?
   version     String?
   sla         String?
+  customFields String?   // JSON array of custom fields
 
   sourceEdges MapEdge[] @relation("SourceNode")
   targetEdges MapEdge[] @relation("TargetNode")

@@ -87,6 +87,7 @@ export async function PUT(req: Request, { params }: Params) {
           description: node.data.meta.description ?? null,
           version: node.data.meta.version ?? null,
           sla: node.data.meta.sla ?? null,
+          customFields: node.data.meta.customFields ? JSON.stringify(node.data.meta.customFields) : null,
         }))
       });
     }

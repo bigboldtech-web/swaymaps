@@ -11,6 +11,8 @@ import {
   EdgeLineStyle,
   EdgeRelationType,
   Note,
+  CustomField,
+  CustomFieldType,
 } from "../types/map";
 
 /* ───────────────── Constants ───────────────── */
@@ -1216,7 +1218,7 @@ export default function NoteInspector({
         {/* ── Details Tab ── */}
         {nodeTab === "details" && metaDraft && (
           <>
-            {/* Custom Type Label */}
+            {/* ── Built-in Fields ── */}
             <div>
               <label className="text-[10px] font-medium text-slate-500">Type Label</label>
               <input
@@ -1227,7 +1229,6 @@ export default function NoteInspector({
               />
             </div>
 
-            {/* Description */}
             <div>
               <label className="text-[10px] font-medium text-slate-500">Description</label>
               <textarea
@@ -1239,7 +1240,6 @@ export default function NoteInspector({
               />
             </div>
 
-            {/* Version + SLA row */}
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="text-[10px] font-medium text-slate-500">Version</label>
@@ -1261,7 +1261,6 @@ export default function NoteInspector({
               </div>
             </div>
 
-            {/* External URL */}
             <div>
               <label className="text-[10px] font-medium text-slate-500">External URL</label>
               <div className="mt-0.5 flex gap-1.5">
@@ -1287,7 +1286,6 @@ export default function NoteInspector({
               </div>
             </div>
 
-            {/* Tags */}
             <div>
               <label className="text-[10px] font-medium text-slate-500">Tags</label>
               <input
@@ -1306,6 +1304,186 @@ export default function NoteInspector({
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* ── Divider ── */}
+            <div className={`border-t pt-2.5 mt-1 ${isLight ? "border-slate-200" : "border-slate-700/30"}`}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Custom Fields</span>
+                <button
+                  onClick={() => {
+                    const fields = metaDraft.customFields ?? [];
+                    const newField: CustomField = {
+                      id: `cf_${Date.now()}`,
+                      label: "",
+                      type: "text",
+                      value: "",
+                    };
+                    updateMeta({ customFields: [...fields, newField] });
+                  }}
+                  className={`flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-medium transition ${isLight ? "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100" : "border-slate-700/30 bg-slate-800/30 text-slate-400 hover:bg-slate-700/40"}`}
+                >
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+                  Add Field
+                </button>
+              </div>
+
+              {/* ── Custom field list ── */}
+              {(metaDraft.customFields ?? []).length === 0 && (
+                <p className="text-[10px] text-slate-500 italic">No custom fields yet. Click "Add Field" to create one.</p>
+              )}
+
+              <div className="space-y-2.5">
+                {(metaDraft.customFields ?? []).map((field, idx) => {
+                  const updateField = (changes: Partial<CustomField>) => {
+                    const fields = [...(metaDraft.customFields ?? [])];
+                    fields[idx] = { ...fields[idx], ...changes };
+                    updateMeta({ customFields: fields });
+                  };
+                  const removeField = () => {
+                    const fields = (metaDraft.customFields ?? []).filter((_, i) => i !== idx);
+                    updateMeta({ customFields: fields.length ? fields : undefined });
+                  };
+                  const moveField = (dir: -1 | 1) => {
+                    const fields = [...(metaDraft.customFields ?? [])];
+                    const target = idx + dir;
+                    if (target < 0 || target >= fields.length) return;
+                    [fields[idx], fields[target]] = [fields[target], fields[idx]];
+                    updateMeta({ customFields: fields });
+                  };
+
+                  return (
+                    <div key={field.id} className={`rounded-lg border p-2 ${isLight ? "border-slate-200 bg-slate-50/50" : "border-slate-700/30 bg-slate-800/20"}`}>
+                      {/* Field header: label + type + actions */}
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <input
+                          className={`flex-1 border-0 bg-transparent px-1 py-0.5 text-[11px] font-semibold placeholder:text-slate-400 focus:outline-none ${isLight ? "text-slate-700" : "text-slate-200"}`}
+                          value={field.label}
+                          onChange={(e) => updateField({ label: e.target.value })}
+                          placeholder="Field name..."
+                        />
+                        <select
+                          className={`border rounded px-1 py-0.5 text-[10px] ${isLight ? "border-slate-200 bg-white text-slate-600" : "border-slate-700/30 bg-slate-800 text-slate-300"}`}
+                          value={field.type}
+                          onChange={(e) => updateField({ type: e.target.value as CustomFieldType, value: e.target.value === "checkbox" ? "false" : "" })}
+                        >
+                          <option value="text">Text</option>
+                          <option value="textarea">Textarea</option>
+                          <option value="url">URL</option>
+                          <option value="number">Number</option>
+                          <option value="date">Date</option>
+                          <option value="email">Email</option>
+                          <option value="select">Select</option>
+                          <option value="checkbox">Checkbox</option>
+                        </select>
+                        {/* Move up/down */}
+                        <button onClick={() => moveField(-1)} className={`p-0.5 rounded transition ${idx === 0 ? "opacity-20 cursor-not-allowed" : "hover:bg-slate-200 dark:hover:bg-slate-700"}`} disabled={idx === 0} title="Move up">
+                          <svg className="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
+                        </button>
+                        <button onClick={() => moveField(1)} className={`p-0.5 rounded transition ${idx === (metaDraft.customFields ?? []).length - 1 ? "opacity-20 cursor-not-allowed" : "hover:bg-slate-200 dark:hover:bg-slate-700"}`} disabled={idx === (metaDraft.customFields ?? []).length - 1} title="Move down">
+                          <svg className="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                        {/* Delete */}
+                        <button onClick={removeField} className="p-0.5 rounded text-red-400 hover:bg-red-500/10 transition" title="Remove field">
+                          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </div>
+
+                      {/* Field value input — varies by type */}
+                      {field.type === "text" && (
+                        <input
+                          className={`w-full border px-2 py-1 text-xs ${inputClass}`}
+                          value={field.value}
+                          onChange={(e) => updateField({ value: e.target.value })}
+                          placeholder="Enter value..."
+                        />
+                      )}
+                      {field.type === "textarea" && (
+                        <textarea
+                          className={`w-full border px-2 py-1 text-xs leading-relaxed ${inputClass}`}
+                          rows={2}
+                          value={field.value}
+                          onChange={(e) => updateField({ value: e.target.value })}
+                          placeholder="Enter text..."
+                        />
+                      )}
+                      {field.type === "url" && (
+                        <div className="flex gap-1.5">
+                          <input
+                            type="url"
+                            className={`flex-1 border px-2 py-1 text-xs ${inputClass}`}
+                            value={field.value}
+                            onChange={(e) => updateField({ value: e.target.value })}
+                            placeholder="https://..."
+                          />
+                          {field.value && (
+                            <a href={field.value} target="_blank" rel="noreferrer" className={`flex items-center justify-center rounded-lg border px-2 text-brand-400 hover:bg-brand-500/10 transition ${isLight ? "border-slate-200 bg-slate-50" : "border-slate-700/30 bg-slate-800/20"}`} title="Open link">
+                              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      {field.type === "number" && (
+                        <input
+                          type="number"
+                          className={`w-full border px-2 py-1 text-xs ${inputClass}`}
+                          value={field.value}
+                          onChange={(e) => updateField({ value: e.target.value })}
+                          placeholder="0"
+                        />
+                      )}
+                      {field.type === "date" && (
+                        <input
+                          type="date"
+                          className={`w-full border px-2 py-1 text-xs ${inputClass}`}
+                          value={field.value}
+                          onChange={(e) => updateField({ value: e.target.value })}
+                        />
+                      )}
+                      {field.type === "email" && (
+                        <input
+                          type="email"
+                          className={`w-full border px-2 py-1 text-xs ${inputClass}`}
+                          value={field.value}
+                          onChange={(e) => updateField({ value: e.target.value })}
+                          placeholder="name@example.com"
+                        />
+                      )}
+                      {field.type === "checkbox" && (
+                        <label className="flex items-center gap-2 cursor-pointer py-0.5">
+                          <input
+                            type="checkbox"
+                            checked={field.value === "true"}
+                            onChange={(e) => updateField({ value: e.target.checked ? "true" : "false" })}
+                            className="h-3.5 w-3.5 rounded border-slate-300 text-brand-500 focus:ring-brand-500"
+                          />
+                          <span className={`text-xs ${isLight ? "text-slate-600" : "text-slate-300"}`}>{field.label || "Enabled"}</span>
+                        </label>
+                      )}
+                      {field.type === "select" && (
+                        <>
+                          <select
+                            className={`w-full border px-2 py-1 text-xs ${inputClass}`}
+                            value={field.value}
+                            onChange={(e) => updateField({ value: e.target.value })}
+                          >
+                            <option value="">Select...</option>
+                            {(field.options ?? []).map((opt) => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                          <input
+                            className={`mt-1 w-full border px-2 py-1 text-[10px] ${inputClass}`}
+                            placeholder="Options (comma-separated): e.g. High, Medium, Low"
+                            value={(field.options ?? []).join(", ")}
+                            onChange={(e) => updateField({ options: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+                          />
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </>
         )}

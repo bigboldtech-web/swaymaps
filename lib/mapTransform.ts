@@ -50,6 +50,7 @@ export function prismaNodeToDomain(node: MapNode): MapNodeMeta {
     description: node.description ?? undefined,
     version: node.version ?? undefined,
     sla: node.sla ?? undefined,
+    customFields: node.customFields ? JSON.parse(node.customFields) : undefined,
   };
 }
 
@@ -72,6 +73,7 @@ export function domainNodeToPrisma(meta: MapNodeMeta, mapId: string): Omit<MapNo
     description: meta.description ?? null,
     version: meta.version ?? null,
     sla: meta.sla ?? null,
+    customFields: meta.customFields ? JSON.stringify(meta.customFields) : null,
   };
 }
 

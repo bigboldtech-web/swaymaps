@@ -20,6 +20,17 @@ export interface MapNodeMeta {
   description?: string;     // short description (shown on hover)
   version?: string;         // version number (for systems/APIs)
   sla?: string;             // SLA tier (e.g. "99.99%", "P1 - 4h")
+  customFields?: CustomField[];
+}
+
+export type CustomFieldType = "text" | "textarea" | "url" | "number" | "date" | "select" | "checkbox" | "email";
+
+export interface CustomField {
+  id: string;
+  label: string;
+  type: CustomFieldType;
+  value: string;
+  options?: string[];       // for select type
 }
 
 export interface Note {
