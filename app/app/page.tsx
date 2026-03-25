@@ -945,7 +945,7 @@ function PageContent() {
       .map((n) => {
         const tag = n.tags.find((t) => t.startsWith("__pin:"));
         if (!tag) return null;
-        return { id: n.id, label: tag.replace("__pin:", "") || n.title };
+        return { id: n.id, label: n.title || tag.replace("__pin:", "") };
       })
       .filter(Boolean) as { id: string; label: string }[];
   }, [activeMap]);
