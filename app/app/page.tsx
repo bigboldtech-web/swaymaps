@@ -1390,6 +1390,18 @@ function PageContent() {
     const sourceNode = nodes.find((n) => n.id === selectedNodeId);
     if (!sourceNode) return;
     const newId = `node-${Date.now()}`;
+    const newNoteId = `note-${Date.now()}`;
+    // Clone the source note or create a fresh one
+    const sourceNote = activeMap?.notes.find((n) => n.id === sourceNode.data.meta.noteId);
+    const newNote: Note = {
+      id: newNoteId,
+      title: sourceNote?.title ? `${sourceNote.title} (copy)` : "New Note",
+      tags: sourceNote?.tags ? [...sourceNote.tags] : [],
+      content: sourceNote?.content ?? "Add details here...",
+      comments: [],
+      createdAt: now(),
+      updatedAt: now(),
+    };
     const newNode: FlowNode = {
       ...sourceNode,
       id: newId,
@@ -1403,7 +1415,7 @@ function PageContent() {
           ...sourceNode.data.meta,
           id: newId,
           title: `${sourceNode.data.meta.title} (copy)`,
-          noteId: "",
+          noteId: newNoteId,
         },
       },
     };
@@ -1411,7 +1423,7 @@ function PageContent() {
     if (activeMap) {
       setActiveMap((prev) =>
         prev
-          ? { ...prev, nodes: [...prev.nodes, newNode.data.meta] }
+          ? { ...prev, nodes: [...prev.nodes, newNode.data.meta], notes: [...prev.notes, newNote] }
           : prev
       );
     }
