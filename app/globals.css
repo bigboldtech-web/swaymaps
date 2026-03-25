@@ -226,13 +226,14 @@ html.light .react-flow__node.dragging .decode-node {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(26, 128, 213, 0.3) !important;
 }
 
-/* ─── Edge glow pulse ─── */
-.edge-glow-pulse {
-  animation: edge-glow 2.5s ease-in-out infinite;
+/* ─── Moving glow on edges ─── */
+.edge-glow-move {
+  animation: edge-glow-move 3s linear infinite;
 }
-@keyframes edge-glow {
-  0%, 100% { opacity: 0.08; }
-  50% { opacity: 0.25; }
+@keyframes edge-glow-move {
+  to {
+    stroke-dashoffset: -230;
+  }
 }
 
 /* ─── Edge Animations ─── */

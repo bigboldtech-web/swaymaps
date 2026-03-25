@@ -253,16 +253,17 @@ function GradientEdge({
         strokeWidth={20}
         style={{ pointerEvents: "stroke" }}
       />
-      {/* Glow layer behind the edge — subtle pulsing outer glow */}
+      {/* Moving glow light traveling along the edge */}
       {showOrb && (
         <path
           d={edgePath}
           fill="none"
           stroke={glowColor}
-          strokeWidth={strokeWidth + 6}
+          strokeWidth={strokeWidth + 5}
           strokeLinecap="round"
-          opacity={dimmed ? 0 : 1}
-          className="edge-glow-pulse"
+          strokeDasharray="30 200"
+          opacity={dimmed ? 0 : 0.3}
+          className="edge-glow-move"
           style={{ transition: "opacity 0.5s ease", pointerEvents: "none" }}
         />
       )}
@@ -334,16 +335,17 @@ const BasicEdge = (props: EdgeProps<FlowEdgeData>) => {
         strokeWidth={20}
         style={{ pointerEvents: "stroke" }}
       />
-      {/* Glow layer behind the edge — subtle pulsing outer glow */}
+      {/* Moving glow light traveling along the edge */}
       {showOrb && (
         <path
           d={edgePath}
           fill="none"
           stroke={strokeColor}
-          strokeWidth={strokeWidth + 6}
+          strokeWidth={strokeWidth + 5}
           strokeLinecap="round"
-          opacity={dimmed ? 0 : 1}
-          className="edge-glow-pulse"
+          strokeDasharray="30 200"
+          opacity={dimmed ? 0 : 0.3}
+          className="edge-glow-move"
           style={{ transition: "opacity 0.5s ease", pointerEvents: "none" }}
         />
       )}
