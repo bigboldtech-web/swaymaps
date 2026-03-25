@@ -228,11 +228,11 @@ html.light .react-flow__node.dragging .decode-node {
 
 /* ─── Moving glow on edges ─── */
 .edge-glow-move {
-  animation: edge-glow-move 3s linear infinite;
+  animation: edge-glow-move 4s linear infinite;
 }
 @keyframes edge-glow-move {
   to {
-    stroke-dashoffset: -230;
+    stroke-dashoffset: -608;
   }
 }
 
