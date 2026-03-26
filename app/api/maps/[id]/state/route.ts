@@ -123,6 +123,45 @@ export async function PUT(req: Request, { params }: Params) {
       data: { updatedAt: new Date() }
     });
 
+    // Auto-create version snapshot (throttled: only if last version is > 5 min old)
+    try {
+      const lastVersion = await prisma.mapVersion.findFirst({
+        where: { mapId: params.id },
+        orderBy: { createdAt: "desc" },
+      });
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
+      if (!lastVersion || lastVersion.createdAt < fiveMinAgo) {
+        const nextVer = (lastVersion?.version ?? 0) + 1;
+        const snapshot = JSON.stringify({
+          nodes: nodes.map((n: IncomingNode) => ({
+            id: n.id, kind: n.data.meta.kind, kindLabel: n.data.meta.kindLabel,
+            title: n.data.meta.title, tags: n.data.meta.tags?.join(", ") ?? "",
+            color: n.data.meta.color ?? "", posX: n.position?.x ?? 0, posY: n.position?.y ?? 0,
+            status: n.data.meta.status ?? null, owner: n.data.meta.owner ?? null,
+          })),
+          edges: edges.map((e: MapEdgeMeta) => ({
+            id: e.id, sourceNodeId: e.sourceId, targetNodeId: e.targetId,
+            sourceHandle: e.sourceHandle ?? null, targetHandle: e.targetHandle ?? null,
+            label: e.label ?? null,
+          })),
+        });
+        await prisma.mapVersion.create({
+          data: { mapId: params.id, version: nextVer, snapshot, createdBy: userId },
+        });
+        // Keep max 20 versions
+        const allVers = await prisma.mapVersion.findMany({
+          where: { mapId: params.id }, orderBy: { version: "desc" }, select: { id: true },
+        });
+        if (allVers.length > 20) {
+          const toDelete = allVers.slice(20).map((v) => v.id);
+          await prisma.mapVersion.deleteMany({ where: { id: { in: toDelete } } });
+        }
+      }
+    } catch (vErr) {
+      // Version creation is non-critical, don't fail the save
+      console.error("Auto-version creation failed:", vErr);
+    }
+
     // Fire webhook notifications asynchronously (don't block the response)
     if (map.workspaceId) {
       const userName = session?.user?.name ?? "Unknown";

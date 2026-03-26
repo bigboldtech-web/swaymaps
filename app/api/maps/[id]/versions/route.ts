@@ -35,10 +35,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const userPlan = (session as any)?.user?.plan ?? "free";
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Version history is a Team feature
-  if (userPlan !== "team") {
-    return NextResponse.json({ error: "Version history requires a Team plan" }, { status: 403 });
-  }
+  // Free plan: keep last 5 versions; Pro: 20; Team: 50
+  const versionLimit = userPlan === "team" ? 50 : userPlan === "pro" ? 20 : 5;
 
   try {
     // Get current map state
@@ -92,6 +90,17 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       },
     });
 
+    // Clean up old versions beyond the plan limit
+    const allVersions = await prisma.mapVersion.findMany({
+      where: { mapId: params.id },
+      orderBy: { version: "desc" },
+      select: { id: true },
+    });
+    if (allVersions.length > versionLimit) {
+      const toDelete = allVersions.slice(versionLimit).map((v) => v.id);
+      await prisma.mapVersion.deleteMany({ where: { id: { in: toDelete } } });
+    }
+
     return NextResponse.json({ id: version.id, version: version.version });
   } catch (err: any) {
     return NextResponse.json({ error: err?.message ?? "Failed to create version" }, { status: 500 });
@@ -102,11 +111,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   const userId = (session as any)?.user?.id;
-  const userPlan = (session as any)?.user?.plan ?? "free";
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (userPlan !== "team") {
-    return NextResponse.json({ error: "Version history requires a Team plan" }, { status: 403 });
-  }
 
   const body = await req.json().catch(() => ({}));
   const { versionId } = body as { versionId?: string };
