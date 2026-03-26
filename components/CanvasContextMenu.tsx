@@ -33,10 +33,13 @@ export function CanvasContextMenu({ x, y, items, onClose }: CanvasContextMenuPro
     const keyHandler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    document.addEventListener("mousedown", handler);
+    // Use capture phase to catch clicks before ReactFlow swallows them
+    document.addEventListener("mousedown", handler, true);
+    document.addEventListener("click", handler, true);
     document.addEventListener("keydown", keyHandler);
     return () => {
-      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("mousedown", handler, true);
+      document.removeEventListener("click", handler, true);
       document.removeEventListener("keydown", keyHandler);
     };
   }, [onClose]);
