@@ -4,6 +4,7 @@ import { prismaMapToDomain, prismaUserToDomain } from "../../../lib/mapTransform
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 import { logActivity } from "../../../lib/activityLog";
+import { sendWebhookNotifications } from "../../../lib/integrations/webhook";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -147,6 +148,13 @@ export async function POST(req: Request) {
         entityId: created.id,
         metadata: { name },
       });
+      sendWebhookNotifications(targetWorkspaceId, {
+        event: "map.created",
+        mapName: name,
+        userName: owner?.name ?? "Someone",
+        details: `New map "${name}" created`,
+        link: `${process.env.NEXTAUTH_URL ?? ""}/app?map=${created.id}`,
+      }).catch(() => {});
     }
 
     return NextResponse.json({

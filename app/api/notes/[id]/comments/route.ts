@@ -4,6 +4,7 @@ import { authOptions } from "../../../../lib/auth";
 import { prisma } from "../../../../../lib/prisma";
 import { logActivity } from "../../../../../lib/activityLog";
 import { notifyWorkspaceMembers } from "../../../../../lib/notify";
+import { sendWebhookNotifications } from "../../../../../lib/integrations/webhook";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -66,6 +67,14 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       body: `${commenterName} commented on "${note.title ?? "a note"}" in "${map.name}".`,
       link: `/app?map=${map.id}`,
     });
+    // Also send to Slack/Teams webhooks
+    sendWebhookNotifications(map.workspaceId, {
+      event: "comment.added",
+      mapName: map.name,
+      userName: commenterName,
+      details: `${commenterName} commented on "${note.title ?? "a note"}"`,
+      link: `${process.env.NEXTAUTH_URL ?? ""}/app?map=${map.id}`,
+    }).catch(() => {});
   }
 
   return NextResponse.json(comment);

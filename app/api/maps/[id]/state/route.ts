@@ -4,6 +4,7 @@ import { MapEdgeMeta, MapNodeMeta, Note } from "../../../../../types/map";
 import { initialMaps, initialWorkspaces } from "../../../../../data/initialData";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../lib/auth";
+import { sendWebhookNotifications } from "../../../../../lib/integrations/webhook";
 
 const memoryMaps = initialMaps.map((m) => JSON.parse(JSON.stringify(m)));
 
@@ -121,6 +122,18 @@ export async function PUT(req: Request, { params }: Params) {
       where: { id: params.id },
       data: { updatedAt: new Date() }
     });
+
+    // Fire webhook notifications asynchronously (don't block the response)
+    if (map.workspaceId) {
+      const userName = session?.user?.name ?? "Unknown";
+      sendWebhookNotifications(map.workspaceId, {
+        event: "map.updated",
+        mapName: map.name,
+        userName,
+        details: `Map "${map.name}" updated (${nodes.length} nodes, ${edges.length} edges)`,
+        link: `${process.env.NEXTAUTH_URL ?? ""}/app?map=${params.id}`,
+      }).catch(() => {}); // fire-and-forget
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
