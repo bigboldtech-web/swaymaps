@@ -112,7 +112,7 @@ export function FloatingActionBar({
   ];
 
   return (
-    <div ref={barRef} className="absolute bottom-6 left-6 z-[100]">
+    <div ref={barRef} className="absolute bottom-6 right-6 z-[100]">
       {expanded && (
         <div
           className={`mb-2 rounded-xl border shadow-xl backdrop-blur-xl animate-scale-in overflow-hidden ${
