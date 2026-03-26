@@ -22,7 +22,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // Protected routes (e.g., /app, /admin) require authentication
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || "decode-map-demo-secret" });
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET! });
 
   if (!token) {
     const signInUrl = req.nextUrl.clone();

@@ -9,7 +9,9 @@ export async function GET(
 ) {
   const session = await getServerSession(authOptions);
   const userId = (session as any)?.user?.id;
+  const userPlan = (session as any)?.user?.plan ?? "free";
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (userPlan !== "team") return NextResponse.json({ error: "Version history is a Team plan feature" }, { status: 403 });
 
   try {
     const version = await prisma.mapVersion.findUnique({

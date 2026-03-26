@@ -42,7 +42,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
 }
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET || "decode-map-demo-secret",
+  secret: process.env.NEXTAUTH_SECRET!,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers,

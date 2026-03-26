@@ -4,13 +4,44 @@ import { authOptions } from "../../../../lib/auth";
 import { prisma } from "../../../../../lib/prisma";
 import { logActivity } from "../../../../../lib/activityLog";
 
-// GET /api/maps/[id]/versions - List versions for a map
+// GET /api/maps/[id]/versions - List versions for a map (Team plan only)
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   const userId = (session as any)?.user?.id;
+  const userPlan = (session as any)?.user?.plan ?? "free";
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (userPlan !== "team") return NextResponse.json({ error: "Version history is a Team plan feature", plan: userPlan }, { status: 403 });
 
   try {
+    // If no versions exist yet, auto-create an initial snapshot so Diff Viewer has something to show
+    const count = await prisma.mapVersion.count({ where: { mapId: params.id } });
+    if (count === 0) {
+      const map = await prisma.decodeMap.findUnique({
+        where: { id: params.id },
+        include: { nodes: true, edges: true, notes: true },
+      });
+      if (map && (map.nodes.length > 0 || map.edges.length > 0)) {
+        const snapshot = JSON.stringify({
+          nodes: map.nodes.map((n) => ({
+            id: n.id, kind: n.kind, kindLabel: n.kindLabel, title: n.title,
+            tags: n.tags, color: n.color, posX: n.posX, posY: n.posY,
+            status: n.status ?? null, owner: n.owner ?? null,
+          })),
+          edges: map.edges.map((e) => ({
+            id: e.id, sourceNodeId: e.sourceNodeId, targetNodeId: e.targetNodeId,
+            sourceHandle: e.sourceHandle ?? null, targetHandle: e.targetHandle ?? null,
+            label: e.label ?? null,
+          })),
+          notes: map.notes.map((n) => ({
+            id: n.id, title: n.title, tags: n.tags, content: n.content,
+          })),
+        });
+        await prisma.mapVersion.create({
+          data: { mapId: params.id, version: 1, snapshot, createdBy: userId },
+        });
+      }
+    }
+
     const versions = await prisma.mapVersion.findMany({
       where: { mapId: params.id },
       orderBy: { version: "desc" },
@@ -28,15 +59,15 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-// POST /api/maps/[id]/versions - Create a new version (auto-save snapshot)
+// POST /api/maps/[id]/versions - Create a new version (Team plan only)
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   const userId = (session as any)?.user?.id;
   const userPlan = (session as any)?.user?.plan ?? "free";
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (userPlan !== "team") return NextResponse.json({ error: "Version history is a Team plan feature" }, { status: 403 });
 
-  // Free plan: keep last 5 versions; Pro: 20; Team: 50
-  const versionLimit = userPlan === "team" ? 50 : userPlan === "pro" ? 20 : 5;
+  const versionLimit = 50; // Team plan: 50 versions max
 
   try {
     // Get current map state
@@ -107,11 +138,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 }
 
-// PUT /api/maps/[id]/versions - Restore a map to a specific version
+// PUT /api/maps/[id]/versions - Restore a map to a specific version (Team plan only)
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   const userId = (session as any)?.user?.id;
+  const userPlan = (session as any)?.user?.plan ?? "free";
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (userPlan !== "team") return NextResponse.json({ error: "Version history is a Team plan feature" }, { status: 403 });
 
   const body = await req.json().catch(() => ({}));
   const { versionId } = body as { versionId?: string };

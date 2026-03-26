@@ -200,6 +200,11 @@ export function DiffViewer({
     setError("");
     try {
       const res = await fetch(`/api/maps/${mapId}/versions`);
+      if (res.status === 403) {
+        const data = await res.json().catch(() => ({}));
+        setError("Version history is available on the Team plan. Upgrade to access change detection and version comparison.");
+        return;
+      }
       if (!res.ok) throw new Error("Failed to load versions");
       const data: VersionEntry[] = await res.json();
       setVersions(data);

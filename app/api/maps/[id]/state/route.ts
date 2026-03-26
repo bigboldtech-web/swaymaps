@@ -123,8 +123,9 @@ export async function PUT(req: Request, { params }: Params) {
       data: { updatedAt: new Date() }
     });
 
-    // Auto-create version snapshot (throttled: only if last version is > 5 min old)
-    try {
+    // Auto-create version snapshot (Team plan only, throttled: only if last version is > 5 min old)
+    const savingUserPlan = (session as any)?.user?.plan ?? "free";
+    if (savingUserPlan === "team") try {
       const lastVersion = await prisma.mapVersion.findFirst({
         where: { mapId: params.id },
         orderBy: { createdAt: "desc" },
@@ -148,12 +149,12 @@ export async function PUT(req: Request, { params }: Params) {
         await prisma.mapVersion.create({
           data: { mapId: params.id, version: nextVer, snapshot, createdBy: userId },
         });
-        // Keep max 20 versions
+        // Keep max 50 versions (Team plan)
         const allVers = await prisma.mapVersion.findMany({
           where: { mapId: params.id }, orderBy: { version: "desc" }, select: { id: true },
         });
-        if (allVers.length > 20) {
-          const toDelete = allVers.slice(20).map((v) => v.id);
+        if (allVers.length > 50) {
+          const toDelete = allVers.slice(50).map((v) => v.id);
           await prisma.mapVersion.deleteMany({ where: { id: { in: toDelete } } });
         }
       }
