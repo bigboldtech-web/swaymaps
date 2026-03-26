@@ -59,6 +59,8 @@ const HealthDashboard = React.lazy(() => import("../../components/HealthDashboar
 const YamlDslEditor = React.lazy(() => import("../../components/YamlDslEditor").then(m => ({ default: m.YamlDslEditor })));
 const InlineComments = React.lazy(() => import("../../components/InlineComments").then(m => ({ default: m.InlineComments })));
 const DiffViewer = React.lazy(() => import("../../components/DiffViewer").then(m => ({ default: m.DiffViewer })));
+const FloatingActionBar = React.lazy(() => import("../../components/FloatingActionBar").then(m => ({ default: m.FloatingActionBar })));
+const TemplateBrowser = React.lazy(() => import("../../components/TemplateBrowser").then(m => ({ default: m.TemplateBrowser })));
 import { usePresence } from "../../hooks/usePresence";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { ImportResult } from "../../lib/importers";
@@ -147,6 +149,7 @@ function PageContent() {
   const [showYamlEditor, setShowYamlEditor] = useState(false);
   const [showInlineComments, setShowInlineComments] = useState(false);
   const [showDiffViewer, setShowDiffViewer] = useState(false);
+  const [showTemplateBrowser, setShowTemplateBrowser] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiEnabled, setAiEnabled] = useState<boolean>(() => {
@@ -2229,6 +2232,16 @@ function PageContent() {
                     theme={theme}
                   />
                 )}
+                <FloatingActionBar
+                  onHealthDashboard={() => setShowHealthDashboard(true)}
+                  onYamlEditor={() => setShowYamlEditor(true)}
+                  onDiffViewer={() => setShowDiffViewer(true)}
+                  onComments={() => setShowInlineComments(true)}
+                  onImport={() => setShowImportModal(true)}
+                  onTemplates={() => setShowTemplateBrowser(true)}
+                  onCommandPalette={() => setShowCommandPalette(true)}
+                  shareMode={shareMode}
+                />
                 <DecodeMapCanvas
                   nodes={nodes}
                   edges={edges}
@@ -2292,6 +2305,23 @@ function PageContent() {
                   shortcut: "Ctrl+Y",
                   onClick: handleRedo,
                   disabled: !canRedo(),
+                },
+                { label: "", onClick: () => {}, divider: true },
+                {
+                  label: "Health Dashboard",
+                  onClick: () => setShowHealthDashboard(true),
+                },
+                {
+                  label: "YAML / Code Editor",
+                  onClick: () => setShowYamlEditor(true),
+                },
+                {
+                  label: "Templates",
+                  onClick: () => setShowTemplateBrowser(true),
+                },
+                {
+                  label: "Import Map",
+                  onClick: () => setShowImportModal(true),
                 },
                 { label: "", onClick: () => {}, divider: true },
                 {
@@ -2724,6 +2754,102 @@ function PageContent() {
           mapId={activeMap.id}
           currentNodes={activeMap.nodes}
           currentEdges={activeMap.edges}
+        />
+      )}
+      {showInlineComments && activeMap && (
+        <InlineComments
+          open={showInlineComments}
+          onClose={() => setShowInlineComments(false)}
+          nodes={activeMap.nodes}
+          notes={activeMap.notes}
+          onAddComment={(noteId, text) => {
+            const note = activeMap.notes.find((n) => n.id === noteId);
+            if (!note) return;
+            const newComment = {
+              id: crypto.randomUUID ? crypto.randomUUID() : `cmt-${Date.now()}`,
+              author: currentUser?.name ?? "You",
+              text,
+              createdAt: new Date().toISOString(),
+            };
+            const updatedNote = { ...note, comments: [...(note.comments || []), newComment] };
+            handleNoteChange(updatedNote);
+            // Also persist to API
+            fetch(`/api/notes/${noteId}/comments`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text, author: currentUser?.name ?? "You" }),
+            }).catch(() => {});
+          }}
+          onNodeClick={(nodeId) => {
+            setShowInlineComments(false);
+            handleFocusNode(nodeId);
+          }}
+        />
+      )}
+      {showTemplateBrowser && (
+        <TemplateBrowser
+          open={showTemplateBrowser}
+          onClose={() => setShowTemplateBrowser(false)}
+          onUseTemplate={async (template) => {
+            setShowTemplateBrowser(false);
+            try {
+              const mapData = typeof template.mapData === "string" ? JSON.parse(template.mapData) : template.mapData;
+              if (!mapData?.nodes) { setToast("Invalid template data"); return; }
+              // Create a new map from the template
+              const res = await fetch("/api/maps", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  name: template.name,
+                  description: template.description,
+                  workspaceId,
+                }),
+              });
+              if (!res.ok) throw new Error("Failed to create map");
+              const newMap = await res.json();
+              // Build nodes with proper IDs
+              const nodeIdMap = new Map<string, string>();
+              const newNodes = (mapData.nodes || []).map((n: any) => {
+                const newId = crypto.randomUUID ? crypto.randomUUID() : `node-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+                nodeIdMap.set(n.id, newId);
+                return {
+                  id: newId,
+                  kind: n.kind || "system",
+                  kindLabel: n.kindLabel || n.kind || "System",
+                  title: n.title || "Untitled",
+                  tags: Array.isArray(n.tags) ? n.tags : [],
+                  noteId: "",
+                  color: n.color || "#6366f1",
+                  position: n.position || { x: 0, y: 0 },
+                };
+              });
+              const newEdges = (mapData.edges || []).map((e: any) => ({
+                id: crypto.randomUUID ? crypto.randomUUID() : `edge-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                sourceId: nodeIdMap.get(e.sourceId) || e.sourceId,
+                targetId: nodeIdMap.get(e.targetId) || e.targetId,
+                sourceHandle: null,
+                targetHandle: null,
+                label: e.label || "",
+              }));
+              const updatedMap = {
+                ...newMap,
+                nodes: newNodes,
+                edges: newEdges,
+                notes: [],
+              };
+              setActiveMap(updatedMap);
+              setActiveMapId(newMap.id);
+              setNodes(toFlowNodes(newNodes, handleUpdateMeta));
+              setEdges(toFlowEdges(newEdges));
+              setMapSummaries((prev) => [
+                ...prev,
+                { id: newMap.id, name: template.name, nodeCount: newNodes.length, ownerUserId: currentUserId ?? undefined, workspaceId: workspaceId ?? undefined },
+              ]);
+              setToast(`Template "${template.name}" loaded with ${newNodes.length} nodes`);
+            } catch (err: any) {
+              setToast(err?.message ?? "Failed to load template");
+            }
+          }}
         />
       )}
     </div>
