@@ -16,7 +16,11 @@ export async function GET() {
         usageCount: true,
       },
     });
-    return NextResponse.json(templates);
+    // If DB has templates, merge with built-in; otherwise just return built-in
+    if (templates.length > 0) {
+      return NextResponse.json([...BUILTIN_TEMPLATES, ...templates]);
+    }
+    return NextResponse.json(BUILTIN_TEMPLATES);
   } catch {
     // Return built-in templates as fallback
     return NextResponse.json(BUILTIN_TEMPLATES);
