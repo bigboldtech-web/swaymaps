@@ -18,6 +18,12 @@ build
 prisma/dev.db
 prisma/dev.db-journal
 
+# Environment variables
+.env
+.env.local
+.env.production
+.env*.local
+
 # Misc
 .DS_Store
 *.log
