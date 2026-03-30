@@ -272,9 +272,12 @@ export default function LandingPage() {
             <span className="logo-text">SwayMaps</span>
           </Link>
           <div className="nav-links">
-            <a href="#features" onClick={(e) => scrollTo(e, "features")}>Features</a>
-            <a href="#usecases" onClick={(e) => scrollTo(e, "usecases")}>Use Cases</a>
-            <a href="#pricing" onClick={(e) => scrollTo(e, "pricing")}>Pricing</a>
+            <Link href="/features">Features</Link>
+            <Link href="/use-cases">Use Cases</Link>
+            <Link href="/pricing">Pricing</Link>
+            <Link href="/templates-gallery">Templates</Link>
+            <Link href="/docs">Docs</Link>
+            <Link href="/blog">Blog</Link>
           </div>
           <div className="nav-actions">
             <Link href="/auth/signin" className="btn btn-ghost">Sign In</Link>
@@ -889,34 +892,34 @@ export default function LandingPage() {
 
             <div className="footer-col">
               <h4>Product</h4>
-              <a href="#features" onClick={(e) => scrollTo(e, "features")}>Features</a>
-              <a href="#pricing" onClick={(e) => scrollTo(e, "pricing")}>Pricing</a>
-              <a href="#usecases" onClick={(e) => scrollTo(e, "usecases")}>Use Cases</a>
-              <a href="#compare" onClick={(e) => scrollTo(e, "compare")}>Comparison</a>
+              <Link href="/features">Features</Link>
+              <Link href="/pricing">Pricing</Link>
+              <Link href="/use-cases">Use Cases</Link>
+              <Link href="/templates-gallery">Templates</Link>
             </div>
 
             <div className="footer-col">
               <h4>Resources</h4>
-              <a href="#yaml" onClick={(e) => scrollTo(e, "yaml")}>Diagram as Code</a>
-              <a href="#">Documentation</a>
-              <a href="#">Changelog</a>
-              <a href="#">API Reference</a>
+              <Link href="/docs">Documentation</Link>
+              <Link href="/changelog">Changelog</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/docs">API Reference</Link>
             </div>
 
             <div className="footer-col">
               <h4>Company</h4>
-              <a href="#">About</a>
-              <a href="#">Blog</a>
-              <a href="#">Careers</a>
-              <a href="mailto:support@swaymaps.com">Contact</a>
+              <Link href="/about">About</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/contact">Contact</Link>
+              <a href="mailto:support@swaymaps.com">Support</a>
             </div>
 
             <div className="footer-col">
               <h4>Legal</h4>
               <Link href="/legal/terms">Terms of Service</Link>
               <Link href="/legal/privacy">Privacy Policy</Link>
-              <a href="#">Security</a>
-              <a href="#">Status</a>
+              <Link href="/legal/privacy">Cookie Policy</Link>
+              <Link href="/legal/privacy">GDPR</Link>
             </div>
           </div>
 

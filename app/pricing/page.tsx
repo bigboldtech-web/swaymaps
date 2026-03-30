@@ -217,7 +217,7 @@ export default function PricingPage() {
       {/* ═══ NAV ═══ */}
       <nav className={`landing-nav${scrolled ? " scrolled" : ""}`}>
         <div className="nav-inner">
-          <Link href="/" className="logo">
+          <Link href="/landing" className="logo">
             <div className="logo-mark">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -235,10 +235,12 @@ export default function PricingPage() {
           </Link>
 
           <div className="nav-links">
-            <Link href="/landing#features">Features</Link>
-            <Link href="/landing#use-cases">Use Cases</Link>
+            <Link href="/features">Features</Link>
+            <Link href="/use-cases">Use Cases</Link>
             <Link href="/pricing">Pricing</Link>
-            <a href="#faq">FAQ</a>
+            <Link href="/templates-gallery">Templates</Link>
+            <Link href="/docs">Docs</Link>
+            <Link href="/blog">Blog</Link>
           </div>
 
           <div className="nav-actions">
@@ -246,7 +248,7 @@ export default function PricingPage() {
               Sign In
             </Link>
             <Link href="/auth/signup" className="btn btn-primary">
-              Start Free
+              Start Free &rarr;
             </Link>
           </div>
         </div>
@@ -621,7 +623,7 @@ export default function PricingPage() {
         <div className="container-w">
           <div className="footer-grid">
             <div className="footer-brand">
-              <Link href="/" className="logo" style={{ marginBottom: 14 }}>
+              <Link href="/landing" className="logo" style={{ marginBottom: 14 }}>
                 <div className="logo-mark">
                   <svg
                     viewBox="0 0 24 24"
@@ -649,31 +651,34 @@ export default function PricingPage() {
 
             <div className="footer-col">
               <h4>Product</h4>
-              <Link href="/landing#features">Features</Link>
+              <Link href="/features">Features</Link>
               <Link href="/pricing">Pricing</Link>
-              <Link href="/landing">Templates</Link>
-              <a href="#">Changelog</a>
+              <Link href="/use-cases">Use Cases</Link>
+              <Link href="/templates-gallery">Templates</Link>
+            </div>
+
+            <div className="footer-col">
+              <h4>Resources</h4>
+              <Link href="/docs">Documentation</Link>
+              <Link href="/changelog">Changelog</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/docs">API Reference</Link>
             </div>
 
             <div className="footer-col">
               <h4>Company</h4>
-              <a href="#">About</a>
-              <a href="#">Blog</a>
-              <a href="#">Careers</a>
+              <Link href="/about">About</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/contact">Contact</Link>
+              <a href="mailto:support@swaymaps.com">Support</a>
             </div>
 
             <div className="footer-col">
               <h4>Legal</h4>
-              <Link href="/legal/privacy">Privacy</Link>
-              <Link href="/legal/terms">Terms</Link>
-              <a href="mailto:security@swaymaps.com">Security</a>
-            </div>
-
-            <div className="footer-col">
-              <h4>Support</h4>
-              <a href="#">Docs</a>
-              <a href="mailto:hello@swaymaps.com">Contact</a>
-              <a href="#">Status</a>
+              <Link href="/legal/terms">Terms of Service</Link>
+              <Link href="/legal/privacy">Privacy Policy</Link>
+              <Link href="/legal/privacy">Cookie Policy</Link>
+              <Link href="/legal/privacy">GDPR</Link>
             </div>
           </div>
 

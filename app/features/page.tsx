@@ -133,20 +133,22 @@ export default function FeaturesPage() {
       {/* ─── NAV ─── */}
       <nav className="landing-nav">
         <div className="nav-inner">
-          <Link href="/" className="logo">
+          <Link href="/landing" className="logo">
             <SwayMapsIcon size={34} />
           </Link>
 
           <div className="nav-links">
             <Link href="/features">Features</Link>
-            <Link href="/landing#use-cases">Use Cases</Link>
-            <Link href="/landing#pricing">Pricing</Link>
-            <Link href="/landing#faq">FAQ</Link>
+            <Link href="/use-cases">Use Cases</Link>
+            <Link href="/pricing">Pricing</Link>
+            <Link href="/templates-gallery">Templates</Link>
+            <Link href="/docs">Docs</Link>
+            <Link href="/blog">Blog</Link>
           </div>
 
           <div className="nav-actions">
             <Link href="/auth/signin" className="btn btn-ghost">Sign In</Link>
-            <Link href="/auth/signup" className="btn btn-primary">Start Free</Link>
+            <Link href="/auth/signup" className="btn btn-primary">Start Free &rarr;</Link>
           </div>
         </div>
       </nav>
@@ -351,7 +353,7 @@ export default function FeaturesPage() {
             <Link href="/auth/signup" className="btn btn-primary btn-lg">
               Start Free
             </Link>
-            <Link href="/landing#pricing" className="btn btn-outline btn-lg">
+            <Link href="/pricing" className="btn btn-outline btn-lg">
               See Pricing
             </Link>
           </div>
@@ -363,8 +365,10 @@ export default function FeaturesPage() {
         <div className="container-w">
           <div className="footer-grid">
             <div className="footer-brand">
-              <SwayMapsIcon size={28} />
-              <p style={{ marginTop: 12 }}>
+              <Link href="/landing" style={{ display: "inline-flex", marginBottom: 12 }}>
+                <SwayMapsIcon size={28} />
+              </Link>
+              <p>
                 Visual dependency mapping for engineering teams.
               </p>
             </div>
@@ -373,33 +377,36 @@ export default function FeaturesPage() {
                 title: "Product",
                 links: [
                   { label: "Features", href: "/features" },
-                  { label: "Pricing", href: "/landing#pricing" },
-                  { label: "Templates", href: "#" },
-                  { label: "Changelog", href: "#" },
+                  { label: "Pricing", href: "/pricing" },
+                  { label: "Use Cases", href: "/use-cases" },
+                  { label: "Templates", href: "/templates-gallery" },
+                ],
+              },
+              {
+                title: "Resources",
+                links: [
+                  { label: "Documentation", href: "/docs" },
+                  { label: "Changelog", href: "/changelog" },
+                  { label: "Blog", href: "/blog" },
+                  { label: "API Reference", href: "/docs" },
                 ],
               },
               {
                 title: "Company",
                 links: [
-                  { label: "About", href: "#" },
-                  { label: "Blog", href: "#" },
-                  { label: "Careers", href: "#" },
+                  { label: "About", href: "/about" },
+                  { label: "Blog", href: "/blog" },
+                  { label: "Contact", href: "/contact" },
+                  { label: "Support", href: "mailto:support@swaymaps.com" },
                 ],
               },
               {
                 title: "Legal",
                 links: [
-                  { label: "Privacy", href: "/legal/privacy" },
-                  { label: "Terms", href: "/legal/terms" },
-                  { label: "Security", href: "mailto:security@swaymaps.com" },
-                ],
-              },
-              {
-                title: "Support",
-                links: [
-                  { label: "Docs", href: "#" },
-                  { label: "Contact", href: "mailto:hello@swaymaps.com" },
-                  { label: "Status", href: "#" },
+                  { label: "Terms of Service", href: "/legal/terms" },
+                  { label: "Privacy Policy", href: "/legal/privacy" },
+                  { label: "Cookie Policy", href: "/legal/privacy" },
+                  { label: "GDPR", href: "/legal/privacy" },
                 ],
               },
             ].map((col) => (

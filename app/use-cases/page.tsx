@@ -408,17 +408,19 @@ export default function UseCasesPage() {
             <span className="logo-text">SwayMaps</span>
           </Link>
           <div className="nav-links">
-            <Link href="/landing#features">Features</Link>
+            <Link href="/features">Features</Link>
             <Link href="/use-cases">Use Cases</Link>
-            <Link href="/landing#pricing">Pricing</Link>
-            <Link href="/landing#faq">FAQ</Link>
+            <Link href="/pricing">Pricing</Link>
+            <Link href="/templates-gallery">Templates</Link>
+            <Link href="/docs">Docs</Link>
+            <Link href="/blog">Blog</Link>
           </div>
           <div className="nav-actions">
             <Link href="/auth/signin" className="btn btn-ghost">
               Sign In
             </Link>
             <Link href="/auth/signup" className="btn btn-primary">
-              Start Free
+              Start Free &rarr;
             </Link>
           </div>
         </div>
@@ -501,30 +503,31 @@ export default function UseCasesPage() {
             </div>
             <div className="footer-col">
               <h4>Product</h4>
-              <Link href="/landing#features">Features</Link>
+              <Link href="/features">Features</Link>
+              <Link href="/pricing">Pricing</Link>
               <Link href="/use-cases">Use Cases</Link>
-              <Link href="/landing#pricing">Pricing</Link>
-              <a href="#">Templates</a>
-              <a href="#">Changelog</a>
+              <Link href="/templates-gallery">Templates</Link>
             </div>
             <div className="footer-col">
               <h4>Resources</h4>
-              <a href="#">Documentation</a>
-              <a href="#">API Reference</a>
-              <a href="#">Blog</a>
-              <a href="#">Guides</a>
+              <Link href="/docs">Documentation</Link>
+              <Link href="/changelog">Changelog</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/docs">API Reference</Link>
             </div>
             <div className="footer-col">
               <h4>Company</h4>
-              <a href="#">About</a>
-              <a href="#">Careers</a>
-              <a href="mailto:hello@swaymaps.com">Contact</a>
+              <Link href="/about">About</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/contact">Contact</Link>
+              <a href="mailto:support@swaymaps.com">Support</a>
             </div>
             <div className="footer-col">
               <h4>Legal</h4>
-              <Link href="/legal/privacy">Privacy Policy</Link>
               <Link href="/legal/terms">Terms of Service</Link>
-              <a href="mailto:security@swaymaps.com">Security</a>
+              <Link href="/legal/privacy">Privacy Policy</Link>
+              <Link href="/legal/privacy">Cookie Policy</Link>
+              <Link href="/legal/privacy">GDPR</Link>
             </div>
           </div>
           <div className="footer-bottom">

@@ -329,15 +329,17 @@ export default function TemplatesGalleryPage() {
           </Link>
 
           <div className="nav-links">
-            <Link href="/landing#features">Features</Link>
-            <Link href="/landing#use-cases">Use Cases</Link>
+            <Link href="/features">Features</Link>
+            <Link href="/use-cases">Use Cases</Link>
+            <Link href="/pricing">Pricing</Link>
             <Link href="/templates-gallery">Templates</Link>
-            <Link href="/landing#pricing">Pricing</Link>
+            <Link href="/docs">Docs</Link>
+            <Link href="/blog">Blog</Link>
           </div>
 
           <div className="nav-actions">
             <Link href="/auth/signin" className="btn btn-ghost">Sign In</Link>
-            <Link href="/auth/signup" className="btn btn-primary">Start Free</Link>
+            <Link href="/auth/signup" className="btn btn-primary">Start Free &rarr;</Link>
           </div>
         </div>
       </nav>
@@ -456,31 +458,34 @@ export default function TemplatesGalleryPage() {
 
             <div className="footer-col">
               <h4>Product</h4>
-              <Link href="/landing#features">Features</Link>
-              <Link href="/landing#pricing">Pricing</Link>
+              <Link href="/features">Features</Link>
+              <Link href="/pricing">Pricing</Link>
+              <Link href="/use-cases">Use Cases</Link>
               <Link href="/templates-gallery">Templates</Link>
-              <a href="#">Changelog</a>
+            </div>
+
+            <div className="footer-col">
+              <h4>Resources</h4>
+              <Link href="/docs">Documentation</Link>
+              <Link href="/changelog">Changelog</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/docs">API Reference</Link>
             </div>
 
             <div className="footer-col">
               <h4>Company</h4>
-              <a href="#">About</a>
-              <a href="#">Blog</a>
-              <a href="#">Careers</a>
+              <Link href="/about">About</Link>
+              <Link href="/blog">Blog</Link>
+              <Link href="/contact">Contact</Link>
+              <a href="mailto:support@swaymaps.com">Support</a>
             </div>
 
             <div className="footer-col">
               <h4>Legal</h4>
-              <Link href="/legal/privacy">Privacy</Link>
-              <Link href="/legal/terms">Terms</Link>
-              <a href="mailto:security@swaymaps.com">Security</a>
-            </div>
-
-            <div className="footer-col">
-              <h4>Support</h4>
-              <a href="#">Docs</a>
-              <a href="mailto:hello@swaymaps.com">Contact</a>
-              <a href="#">Status</a>
+              <Link href="/legal/terms">Terms of Service</Link>
+              <Link href="/legal/privacy">Privacy Policy</Link>
+              <Link href="/legal/privacy">Cookie Policy</Link>
+              <Link href="/legal/privacy">GDPR</Link>
             </div>
           </div>
 
