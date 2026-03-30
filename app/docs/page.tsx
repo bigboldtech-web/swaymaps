@@ -81,22 +81,22 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
 
 /* ---- DATA ---- */
 const guides = [
-  { icon: "01", title: "Getting Started", desc: "Create your first map in 60 seconds", color: "rgba(0,194,255,0.12)", textColor: "var(--accent)" },
-  { icon: "NT", title: "Node Types & Metadata", desc: "All 11 node types and their properties", color: "rgba(139,92,246,0.12)", textColor: "#8b5cf6" },
-  { icon: "AI", title: "AI Generation Guide", desc: "Generate maps from natural language", color: "rgba(236,72,153,0.12)", textColor: "#ec4899" },
-  { icon: "{}", title: "YAML DSL Reference", desc: "Define maps as code", color: "rgba(34,197,94,0.12)", textColor: "#22c55e" },
-  { icon: "WS", title: "Collaboration & Workspaces", desc: "Team setup, roles, and permissions", color: "rgba(249,115,22,0.12)", textColor: "#f97316" },
-  { icon: "IO", title: "Import & Export", desc: "Supported formats and embedding", color: "rgba(6,182,212,0.12)", textColor: "#06b6d4" },
-  { icon: "IN", title: "Integrations Setup", desc: "Slack, Teams, and webhook configuration", color: "rgba(99,102,241,0.12)", textColor: "#6366f1" },
-  { icon: "AP", title: "API Reference", desc: "REST API documentation", color: "rgba(245,158,11,0.12)", textColor: "#f59e0b" },
+  { slug: "getting-started", icon: "01", title: "Getting Started", desc: "Create your first map in 60 seconds", color: "rgba(0,194,255,0.12)", textColor: "var(--accent)" },
+  { slug: "node-types", icon: "NT", title: "Node Types & Metadata", desc: "All 11 node types and their properties", color: "rgba(139,92,246,0.12)", textColor: "#8b5cf6" },
+  { slug: "ai-generation", icon: "AI", title: "AI Generation Guide", desc: "Generate maps from natural language", color: "rgba(236,72,153,0.12)", textColor: "#ec4899" },
+  { slug: "yaml-dsl", icon: "{}", title: "YAML DSL Reference", desc: "Define maps as code", color: "rgba(34,197,94,0.12)", textColor: "#22c55e" },
+  { slug: "collaboration", icon: "WS", title: "Collaboration & Workspaces", desc: "Team setup, roles, and permissions", color: "rgba(249,115,22,0.12)", textColor: "#f97316" },
+  { slug: "import-export", icon: "IO", title: "Import & Export", desc: "Supported formats and embedding", color: "rgba(6,182,212,0.12)", textColor: "#06b6d4" },
+  { slug: "integrations", icon: "IN", title: "Integrations Setup", desc: "Slack, Teams, and webhook configuration", color: "rgba(99,102,241,0.12)", textColor: "#6366f1" },
+  { slug: "api-reference", icon: "AP", title: "API Reference", desc: "REST API documentation", color: "rgba(245,158,11,0.12)", textColor: "#f59e0b" },
 ];
 
 const popularArticles = [
-  { title: "How to set up your first workspace and invite your team", category: "Getting Started", categoryColor: "var(--accent)" },
-  { title: "Using AI brainstorm to scaffold microservice architectures", category: "AI Generation", categoryColor: "#ec4899" },
-  { title: "Exporting maps to Confluence and Notion", category: "Import & Export", categoryColor: "#06b6d4" },
-  { title: "Understanding edge types: sync, async, and data flow", category: "Node Types", categoryColor: "#8b5cf6" },
-  { title: "Writing your first YAML DSL map definition", category: "YAML DSL", categoryColor: "#22c55e" },
+  { title: "How to set up your first workspace and invite your team", category: "Getting Started", categoryColor: "var(--accent)", slug: "getting-started" },
+  { title: "Using AI brainstorm to scaffold microservice architectures", category: "AI Generation", categoryColor: "#ec4899", slug: "ai-generation" },
+  { title: "Exporting maps to Confluence and Notion", category: "Import & Export", categoryColor: "#06b6d4", slug: "import-export" },
+  { title: "Understanding edge types: sync, async, and data flow", category: "Node Types", categoryColor: "#8b5cf6", slug: "node-types" },
+  { title: "Writing your first YAML DSL map definition", category: "YAML DSL", categoryColor: "#22c55e", slug: "yaml-dsl" },
 ];
 
 /* ---- COMPONENT ---- */
@@ -237,9 +237,9 @@ export default function DocsPage() {
               gap: 16,
             }}>
               {guides.map((g, i) => (
-                <a
+                <Link
                   key={i}
-                  href="/docs"
+                  href={`/docs/${g.slug}`}
                   style={{
                     display: "block",
                     background: "var(--bg3)",
@@ -298,7 +298,7 @@ export default function DocsPage() {
                   }}>
                     Read guide &rarr;
                   </span>
-                </a>
+                </Link>
               ))}
             </div>
           </Reveal>
@@ -325,9 +325,9 @@ export default function DocsPage() {
               overflow: "hidden",
             }}>
               {popularArticles.map((a, i) => (
-                <a
+                <Link
                   key={i}
-                  href="/docs"
+                  href={`/docs/${a.slug}`}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -370,7 +370,7 @@ export default function DocsPage() {
                   <svg width="16" height="16" fill="none" stroke="var(--t3)" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
                     <path strokeLinecap="round" d="M9 5l7 7-7 7" />
                   </svg>
-                </a>
+                </Link>
               ))}
             </div>
           </Reveal>

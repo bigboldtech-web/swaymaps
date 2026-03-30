@@ -90,55 +90,54 @@ const categoryColors: Record<string, string> = {
 };
 
 const featuredPost = {
-  title: "Why Dependency Mapping is the Missing Layer in Your DevOps Stack",
+  slug: "youtube-architecture-dependency-map",
+  title: "How YouTube's Architecture Works: A Visual Dependency Map",
   category: "Engineering",
-  date: "March 15, 2026",
-  readTime: "8 min read",
-  excerpt: "Most DevOps teams have CI/CD, monitoring, and incident response. But they're missing the one thing that connects it all: a visual dependency map.",
+  date: "March 25, 2026",
+  readTime: "12 min read",
+  excerpt: "YouTube serves over 2 billion logged-in users every month and processes 500 hours of video uploads per minute. Here is how its massive architecture actually works, mapped as a visual dependency graph.",
 };
 
 const posts = [
   {
-    title: "From 6-Month Onboarding to 2 Weeks",
+    slug: "spotify-system-architecture-mapped",
+    title: "Spotify's Microservices Architecture: 800+ Services Mapped",
+    category: "Engineering",
+    date: "March 18, 2026",
+    readTime: "10 min read",
+    excerpt: "Spotify runs over 800 microservices built by 2,000+ engineers across hundreds of teams. Here is how their architecture works and what it teaches us about managing dependencies at scale.",
+  },
+  {
+    slug: "netflix-dependency-hell-visual-solution",
+    title: "Netflix's Dependency Hell: How Visual Mapping Prevents Cascading Failures",
     category: "Engineering",
     date: "March 10, 2026",
-    readTime: "6 min read",
-    excerpt: "How one fintech company cut new engineer ramp-up time by 75% using visual dependency maps as living documentation.",
+    readTime: "9 min read",
+    excerpt: "Netflix runs 700+ microservices in production. When one fails, the blast radius can be catastrophic. Here is how dependency mapping helps prevent cascading failures before they start.",
   },
   {
-    title: "SOC2 Compliance Made Visual",
+    slug: "soc2-compliance-visual-mapping-guide",
+    title: "SOC2 Compliance Made Visual: Map Your Data Flows in Under an Hour",
     category: "Compliance",
     date: "March 5, 2026",
-    readTime: "7 min read",
-    excerpt: "Auditors love diagrams. Learn how to generate audit-ready data flow maps that satisfy SOC2 requirements.",
+    readTime: "8 min read",
+    excerpt: "SOC2 auditors need to see how data flows through your system. Here is a practical guide to creating audit-ready data flow diagrams that satisfy SOC2 requirements using visual dependency maps.",
   },
   {
-    title: "Diagram as Code: Architecture Maps in Git",
+    slug: "onboarding-engineers-faster-visual-maps",
+    title: "From 6-Month Onboarding to 2 Weeks: The Power of Visual Dependency Maps",
     category: "Best Practices",
-    date: "February 28, 2026",
-    readTime: "5 min read",
-    excerpt: "Version-control your architecture diagrams using YAML DSL. Review map changes in pull requests alongside code.",
+    date: "February 25, 2026",
+    readTime: "7 min read",
+    excerpt: "New engineers spend months building a mental model of your system architecture. Visual dependency maps can compress that timeline from months to weeks by making tribal knowledge explicit and explorable.",
   },
   {
-    title: "The True Cost of Blind Deployments",
-    category: "Engineering",
-    date: "February 20, 2026",
-    readTime: "4 min read",
-    excerpt: "When you can't see what depends on what, every deployment is a gamble. Here's how to quantify that risk.",
-  },
-  {
-    title: "Microservices Dependency Hell: A Visual Solution",
-    category: "Engineering",
-    date: "February 15, 2026",
-    readTime: "6 min read",
-    excerpt: "Fifty services, hundreds of connections, zero visibility. A practical guide to mapping your way out of dependency chaos.",
-  },
-  {
-    title: "SwayMaps v2.0: AI Generation and YAML DSL",
+    slug: "diagram-as-code-yaml-dsl-guide",
+    title: "Diagram as Code: Why Your Architecture Maps Belong in Git",
     category: "Product Updates",
-    date: "February 10, 2026",
-    readTime: "3 min read",
-    excerpt: "Announcing two of our most requested features: AI-powered map generation and a full YAML DSL for diagram-as-code workflows.",
+    date: "February 18, 2026",
+    readTime: "6 min read",
+    excerpt: "Architecture diagrams created in GUI tools rot because they live outside your development workflow. SwayMaps' YAML DSL lets you define, version, and review architecture maps alongside your code.",
   },
 ];
 
@@ -273,8 +272,8 @@ export default function BlogPage() {
       <section style={{ paddingTop: 0, paddingBottom: 56, position: "relative", zIndex: 1 }}>
         <div className="lp-container">
           <Reveal>
-            <a
-              href="/blog"
+            <Link
+              href={`/blog/${featuredPost.slug}`}
               style={{
                 display: "block",
                 background: "var(--bg3)",
@@ -356,7 +355,7 @@ export default function BlogPage() {
                   Read article &rarr;
                 </span>
               </div>
-            </a>
+            </Link>
           </Reveal>
         </div>
       </section>
@@ -371,9 +370,9 @@ export default function BlogPage() {
               gap: 20,
             }}>
               {filteredPosts.map((post, i) => (
-                <a
+                <Link
                   key={i}
-                  href="/blog"
+                  href={`/blog/${post.slug}`}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -449,7 +448,7 @@ export default function BlogPage() {
                       {post.readTime}
                     </span>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           </Reveal>

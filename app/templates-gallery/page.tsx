@@ -82,6 +82,7 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
 type Category = "all" | "architecture" | "devops" | "compliance" | "organization" | "data-flow" | "vendor";
 
 interface Template {
+  slug: string;
   name: string;
   description: string;
   category: Exclude<Category, "all">;
@@ -114,6 +115,7 @@ const categoryLabels: Record<Category, string> = {
 /* ---- TEMPLATE DATA ---- */
 const templates: Template[] = [
   {
+    slug: "microservices-architecture",
     name: "Microservices Architecture",
     description: "Map service dependencies across your distributed system",
     category: "architecture", nodes: 12, edges: 16,
@@ -121,6 +123,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [2, 3], [1, 4]],
   },
   {
+    slug: "monolith-to-microservices",
     name: "Monolith to Microservices",
     description: "Plan your migration from monolith to distributed services",
     category: "architecture", nodes: 15, edges: 20,
@@ -128,6 +131,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [0, 3], [2, 4]],
   },
   {
+    slug: "cicd-pipeline",
     name: "CI/CD Pipeline",
     description: "Visualize your build, test, and deployment workflow",
     category: "devops", nodes: 8, edges: 10,
@@ -135,6 +139,7 @@ const templates: Template[] = [
     lines: [[0, 1], [1, 2], [2, 3], [3, 4]],
   },
   {
+    slug: "data-flow-diagram",
     name: "Data Flow Diagram",
     description: "Trace how data moves through your systems",
     category: "data-flow", nodes: 10, edges: 12,
@@ -142,6 +147,7 @@ const templates: Template[] = [
     lines: [[0, 1], [1, 2], [0, 3], [3, 4], [1, 4]],
   },
   {
+    slug: "soc2-compliance-map",
     name: "SOC2 Compliance Map",
     description: "Map controls and evidence for SOC2 audit readiness",
     category: "compliance", nodes: 14, edges: 18,
@@ -149,6 +155,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [1, 3], [2, 4]],
   },
   {
+    slug: "gdpr-data-flow",
     name: "GDPR Data Flow",
     description: "Track personal data processing across your organization",
     category: "compliance", nodes: 11, edges: 14,
@@ -156,6 +163,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [0, 3], [1, 4], [3, 4]],
   },
   {
+    slug: "hipaa-system-map",
     name: "HIPAA System Map",
     description: "Visualize PHI data flows and access controls",
     category: "compliance", nodes: 13, edges: 16,
@@ -163,6 +171,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [1, 3], [2, 4]],
   },
   {
+    slug: "organization-chart",
     name: "Organization Chart",
     description: "Map team structure, reporting lines, and responsibilities",
     category: "organization", nodes: 9, edges: 8,
@@ -170,6 +179,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [1, 3], [2, 4]],
   },
   {
+    slug: "team-knowledge-map",
     name: "Team Knowledge Map",
     description: "Identify expertise distribution and knowledge gaps",
     category: "organization", nodes: 12, edges: 15,
@@ -177,6 +187,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [1, 3], [2, 4], [1, 2]],
   },
   {
+    slug: "vendor-dependency-map",
     name: "Vendor Dependency Map",
     description: "Track third-party vendors and their service dependencies",
     category: "vendor", nodes: 10, edges: 12,
@@ -184,6 +195,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [0, 3], [2, 4]],
   },
   {
+    slug: "supply-chain-risk-map",
     name: "Supply Chain Risk Map",
     description: "Assess risk across your supply chain dependencies",
     category: "vendor", nodes: 11, edges: 14,
@@ -191,6 +203,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [1, 3], [2, 4], [3, 4]],
   },
   {
+    slug: "api-gateway-architecture",
     name: "API Gateway Architecture",
     description: "Map API routes, gateways, and backend services",
     category: "architecture", nodes: 10, edges: 14,
@@ -198,6 +211,7 @@ const templates: Template[] = [
     lines: [[0, 1], [1, 2], [1, 3], [2, 4], [3, 4]],
   },
   {
+    slug: "event-driven-architecture",
     name: "Event-Driven Architecture",
     description: "Visualize event producers, consumers, and message flows",
     category: "architecture", nodes: 12, edges: 16,
@@ -205,6 +219,7 @@ const templates: Template[] = [
     lines: [[0, 2], [1, 2], [2, 3], [2, 4]],
   },
   {
+    slug: "database-schema-dependencies",
     name: "Database Schema Dependencies",
     description: "Map table relationships, foreign keys, and data models",
     category: "data-flow", nodes: 8, edges: 12,
@@ -212,6 +227,7 @@ const templates: Template[] = [
     lines: [[0, 4], [1, 4], [2, 4], [3, 4], [0, 1]],
   },
   {
+    slug: "cloud-infrastructure-map",
     name: "Cloud Infrastructure Map",
     description: "Map VPCs, subnets, load balancers, and cloud resources",
     category: "devops", nodes: 14, edges: 18,
@@ -219,6 +235,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [1, 3], [2, 4], [1, 2]],
   },
   {
+    slug: "incident-response-runbook",
     name: "Incident Response Runbook",
     description: "Map escalation paths and response procedures",
     category: "devops", nodes: 9, edges: 11,
@@ -226,6 +243,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [1, 3], [2, 4]],
   },
   {
+    slug: "onboarding-knowledge-graph",
     name: "Onboarding Knowledge Graph",
     description: "Guide new hires through systems, tools, and processes",
     category: "organization", nodes: 11, edges: 13,
@@ -233,6 +251,7 @@ const templates: Template[] = [
     lines: [[0, 1], [0, 2], [0, 3], [1, 4], [2, 4], [3, 4]],
   },
   {
+    slug: "third-party-integration-map",
     name: "Third-Party Integration Map",
     description: "Track external APIs, webhooks, and integration points",
     category: "vendor", nodes: 10, edges: 14,
@@ -336,6 +355,7 @@ export default function TemplatesGalleryPage() {
           }}>
             {filtered.map((t, i) => (
               <Reveal key={t.name}>
+                <Link href={`/templates-gallery/${t.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
                 <div
                   style={{
                     background: "var(--bg3)",
@@ -457,6 +477,7 @@ export default function TemplatesGalleryPage() {
                     </div>
                   </div>
                 </div>
+                </Link>
               </Reveal>
             ))}
           </div>
