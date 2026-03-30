@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./landing.css";
 
 /* ---- SVG ICONS ---- */
@@ -160,6 +160,22 @@ function IconPM() {
   );
 }
 
+function IconNodeTypes() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <circle cx="5" cy="5" r="2" />
+      <circle cx="19" cy="5" r="2" />
+      <circle cx="5" cy="19" r="2" />
+      <circle cx="19" cy="19" r="2" />
+      <line x1="9.5" y1="9.5" x2="6.5" y2="6.5" />
+      <line x1="14.5" y1="9.5" x2="17.5" y2="6.5" />
+      <line x1="9.5" y1="14.5" x2="6.5" y2="17.5" />
+      <line x1="14.5" y1="14.5" x2="17.5" y2="17.5" />
+    </svg>
+  );
+}
+
 function IconTwitter() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -180,6 +196,15 @@ function IconLinkedIn() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
+
+function IconEdge() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="15 8 19 12 15 16" />
     </svg>
   );
 }
@@ -231,7 +256,6 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
    ============================================================ */
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
-  const [annual, setAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
@@ -254,7 +278,7 @@ export default function LandingPage() {
                 "name": "SwayMaps",
                 "applicationCategory": "BusinessApplication",
                 "operatingSystem": "Web",
-                "description": "The visual planning and dependency mapping platform for every team. Map systems, trace impact, align stakeholders with AI-powered visual intelligence.",
+                "description": "The visual planning and dependency mapping platform for every team. Map systems, trace impact, align stakeholders with AI-powered visual intelligence. Every node stores rich structured data.",
                 "url": "https://swaymaps.com",
                 "offers": [
                   {
@@ -283,11 +307,11 @@ export default function LandingPage() {
                 ],
                 "featureList": [
                   "AI-powered map generation from natural language",
-                  "11 node types with metadata and status indicators",
+                  "11 node types with metadata, status, owner, and tags",
+                  "Rich information stored in every node and edge",
                   "Real-time collaboration with workspaces and roles",
                   "Version history with visual diff viewer",
                   "Diagram as code with YAML DSL",
-                  "25+ ready-to-use templates",
                   "Export to PNG, SVG, PDF, JSON",
                   "Public sharing via unique links",
                   "Slack and Microsoft Teams integration",
@@ -321,7 +345,7 @@ export default function LandingPage() {
                     "name": "What is SwayMaps?",
                     "acceptedAnswer": {
                       "@type": "Answer",
-                      "text": "SwayMaps is a visual planning and dependency mapping platform that lets any team map systems, trace impact, and align stakeholders. It works for engineering, product, operations, compliance, leadership, and project management teams."
+                      "text": "SwayMaps is a visual planning and dependency mapping platform where every node stores rich structured data -- title, type, status, owner, tags, notes, and custom metadata. It works for engineering, product, operations, compliance, leadership, and project management teams."
                     }
                   },
                   {
@@ -370,16 +394,18 @@ export default function LandingPage() {
         <div className="lp-orb lp-orb--3" />
       </div>
 
-      {/* NAVBAR */}
+      {/* ================================================================
+          NAVBAR
+          ================================================================ */}
       <nav className={`lp-nav ${scrolled ? "is-scrolled" : ""}`}>
         <div className="lp-nav-inner">
           <Link href="/" className="lp-nav-logo">
             <span className="lp-nav-logo-icon">
               <Logo size={20} />
             </span>
-            <span style={{display:"flex",flexDirection:"column",lineHeight:1.1}}>
+            <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
               <span>SwayMaps</span>
-              <span style={{fontSize:".55rem",fontWeight:500,color:"var(--t3)",letterSpacing:".04em"}}>Shows The Way</span>
+              <span style={{ fontSize: ".55rem", fontWeight: 500, color: "var(--t3)", letterSpacing: ".04em", marginTop: "2px" }}>Shows The Way</span>
             </span>
           </Link>
 
@@ -387,7 +413,6 @@ export default function LandingPage() {
             <li><Link href="/features">Features</Link></li>
             <li><Link href="/use-cases">Use Cases</Link></li>
             <li><Link href="/pricing">Pricing</Link></li>
-            <li><Link href="/templates-gallery">Templates</Link></li>
             <li><Link href="/blog">Blog</Link></li>
             <li><Link href="/docs">Docs</Link></li>
           </ul>
@@ -401,7 +426,9 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* HERO */}
+      {/* ================================================================
+          HERO
+          ================================================================ */}
       <section className="lp-hero">
         <div className="lp-container">
           <div className="lp-hero-badge">
@@ -459,33 +486,19 @@ export default function LandingPage() {
 
                 {/* EDGES SVG */}
                 <svg className="lp-canvas-edges" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  {/* Product Launch -> Design System */}
                   <path d="M50,18 C50,28 25,28 25,38" vectorEffect="non-scaling-stroke" />
-                  {/* Product Launch -> API Integration */}
                   <path d="M50,18 C50,28 50,28 50,38" vectorEffect="non-scaling-stroke" />
-                  {/* Product Launch -> Marketing Plan */}
                   <path d="M50,18 C50,28 75,28 75,38" vectorEffect="non-scaling-stroke" />
-                  {/* Design System -> User Research */}
                   <path d="M25,38 C25,48 15,48 15,58" vectorEffect="non-scaling-stroke" />
-                  {/* Design System -> Backend Dev */}
                   <path d="M25,38 C25,48 38,48 38,58" vectorEffect="non-scaling-stroke" />
-                  {/* API Integration -> Backend Dev */}
                   <path d="M50,38 C50,48 38,48 38,58" vectorEffect="non-scaling-stroke" />
-                  {/* API Integration -> Content Strategy */}
                   <path d="M50,38 C50,48 62,48 62,58" vectorEffect="non-scaling-stroke" />
-                  {/* Marketing Plan -> Content Strategy */}
                   <path d="M75,38 C75,48 62,48 62,58" vectorEffect="non-scaling-stroke" />
-                  {/* Marketing Plan -> Legal Review */}
                   <path d="M75,38 C75,48 85,48 85,58" vectorEffect="non-scaling-stroke" />
-                  {/* User Research -> Brand Assets */}
                   <path d="M15,58 C15,68 25,68 25,78" vectorEffect="non-scaling-stroke" />
-                  {/* Backend Dev -> Database Migration */}
                   <path d="M38,58 C38,68 50,68 50,78" vectorEffect="non-scaling-stroke" />
-                  {/* Content Strategy -> Launch Event */}
                   <path d="M62,58 C62,68 75,68 75,78" vectorEffect="non-scaling-stroke" />
-                  {/* Legal Review -> Launch Event */}
                   <path d="M85,58 C85,68 75,68 75,78" vectorEffect="non-scaling-stroke" />
-                  {/* Brand Assets -> Launch Event */}
                   <path d="M25,78 C25,86 75,86 75,78" vectorEffect="non-scaling-stroke" />
                 </svg>
 
@@ -547,25 +560,432 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* USE CASES */}
+      {/* ================================================================
+          WHAT MAKES SWAYMAPS DIFFERENT — NODE EXPERIENCE
+          ================================================================ */}
+      <section className="lp-section" style={{ paddingTop: "100px", paddingBottom: "100px" }}>
+        <div className="lp-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: "64px" }}>
+              <p className="lp-eyebrow">THE DIFFERENCE</p>
+              <h2 className="lp-section-title" style={{ maxWidth: "700px", margin: "0 auto 16px" }}>
+                Not just a diagram.<br />A living knowledge base.
+              </h2>
+              <p className="lp-section-subtitle" style={{ maxWidth: "640px", margin: "0 auto" }}>
+                Every node stores rich information. Every edge describes a real relationship. Your map becomes a queryable source of truth.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* LARGE NODE CARD MOCKUP */}
+          <Reveal>
+            <div style={{
+              maxWidth: "520px",
+              margin: "0 auto 64px",
+              background: "var(--bg2)",
+              border: "1px solid var(--border)",
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0 40px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03)"
+            }}>
+              {/* Node Header */}
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "16px 24px",
+                background: "var(--bg3)",
+                borderBottom: "1px solid var(--border)"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: "1px",
+                    color: "#fff",
+                    background: "var(--node-system)",
+                    padding: "3px 10px",
+                    borderRadius: "4px"
+                  }}>SYSTEM</span>
+                  <span style={{ fontSize: "17px", fontWeight: 700, color: "var(--t1)" }}>Payment Service</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--status-healthy)" }} />
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 600, color: "var(--status-healthy)" }}>Healthy</span>
+                </div>
+              </div>
+
+              {/* Node Body */}
+              <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                {/* Owner */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 600, color: "var(--t3)", textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>Owner</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--t1)" }}>Platform Team</span>
+                </div>
+
+                {/* Tags */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 600, color: "var(--t3)", textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>Tags</span>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    {["pci", "critical", "payments"].map((tag) => (
+                      <span key={tag} style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "11px",
+                        fontWeight: 500,
+                        padding: "3px 10px",
+                        borderRadius: "6px",
+                        background: "var(--bg4)",
+                        border: "1px solid var(--border)",
+                        color: "var(--t2)"
+                      }}>{tag}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 600, color: "var(--t3)", textTransform: "uppercase" as const, letterSpacing: "0.5px", display: "block", marginBottom: "8px" }}>Description</span>
+                  <div style={{
+                    fontSize: "13px",
+                    lineHeight: 1.6,
+                    color: "var(--t2)",
+                    background: "var(--bg3)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                    padding: "12px 14px"
+                  }}>
+                    Handles all payment processing via Stripe API. Processes ~50K transactions/day. Auto-scales on ECS.
+                  </div>
+                </div>
+
+                {/* Metadata */}
+                <div>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 600, color: "var(--t3)", textTransform: "uppercase" as const, letterSpacing: "0.5px", display: "block", marginBottom: "8px" }}>Metadata</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    {[
+                      { key: "Last Deploy", value: "2 days ago" },
+                      { key: "SLA", value: "99.99%" },
+                      { key: "On-call", value: "@sarah" },
+                    ].map((m) => (
+                      <div key={m.key} style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "8px 14px",
+                        background: "var(--bg3)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "8px"
+                      }}>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t3)" }}>{m.key}</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", fontWeight: 600, color: "var(--t1)" }}>{m.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 600, color: "var(--t3)", textTransform: "uppercase" as const, letterSpacing: "0.5px", display: "block", marginBottom: "8px" }}>Notes</span>
+                  <div style={{
+                    fontSize: "13px",
+                    lineHeight: 1.6,
+                    color: "var(--t2)",
+                    background: "var(--bg3)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                    padding: "12px 14px",
+                    borderLeft: "3px solid var(--accent)"
+                  }}>
+                    Migrating to new Stripe webhook format in Q2. See RFC-142.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* THREE SMALL NODE CARDS */}
+          <Reveal>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "20px",
+              maxWidth: "960px",
+              margin: "0 auto"
+            }}>
+              {/* Person Node */}
+              <div style={{
+                background: "var(--bg2)",
+                border: "1px solid var(--border)",
+                borderRadius: "14px",
+                overflow: "hidden",
+                transition: "border-color 0.3s, transform 0.3s"
+              }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "12px 16px",
+                  background: "var(--bg3)",
+                  borderBottom: "1px solid var(--border)"
+                }}>
+                  <span style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "9px",
+                    fontWeight: 700,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: "1px",
+                    color: "#fff",
+                    background: "var(--node-person)",
+                    padding: "2px 8px",
+                    borderRadius: "3px"
+                  }}>PERSON</span>
+                  <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--t1)" }}>Sarah Chen</span>
+                </div>
+                <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ fontSize: "12px", color: "var(--t2)" }}>Engineering Lead</div>
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    {["backend", "on-call"].map((t) => (
+                      <span key={t} className="lp-chip">{t}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--status-healthy)" }} />
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--status-healthy)" }}>Active</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Database Node */}
+              <div style={{
+                background: "var(--bg2)",
+                border: "1px solid var(--border)",
+                borderRadius: "14px",
+                overflow: "hidden",
+                transition: "border-color 0.3s, transform 0.3s"
+              }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "12px 16px",
+                  background: "var(--bg3)",
+                  borderBottom: "1px solid var(--border)"
+                }}>
+                  <span style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "9px",
+                    fontWeight: 700,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: "1px",
+                    color: "#fff",
+                    background: "var(--node-db)",
+                    padding: "2px 8px",
+                    borderRadius: "3px"
+                  }}>DATABASE</span>
+                  <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--t1)" }}>Orders DB</span>
+                </div>
+                <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ fontSize: "12px", color: "var(--t2)" }}>PostgreSQL 15</div>
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    {["pci", "encrypted"].map((t) => (
+                      <span key={t} className="lp-chip">{t}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--status-warning)" }} />
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--status-warning)" }}>Warning</span>
+                  </div>
+                  <div style={{
+                    fontSize: "11px",
+                    color: "var(--t3)",
+                    background: "var(--bg3)",
+                    borderRadius: "6px",
+                    padding: "6px 10px",
+                    borderLeft: "2px solid var(--status-warning)"
+                  }}>Disk at 82%</div>
+                </div>
+              </div>
+
+              {/* Vendor Node */}
+              <div style={{
+                background: "var(--bg2)",
+                border: "1px solid var(--border)",
+                borderRadius: "14px",
+                overflow: "hidden",
+                transition: "border-color 0.3s, transform 0.3s"
+              }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "12px 16px",
+                  background: "var(--bg3)",
+                  borderBottom: "1px solid var(--border)"
+                }}>
+                  <span style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "9px",
+                    fontWeight: 700,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: "1px",
+                    color: "#fff",
+                    background: "var(--node-vendor)",
+                    padding: "2px 8px",
+                    borderRadius: "3px"
+                  }}>VENDOR</span>
+                  <span style={{ fontSize: "14px", fontWeight: 700, color: "var(--t1)" }}>Stripe</span>
+                </div>
+                <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ fontSize: "12px", color: "var(--t2)" }}>Payment processor</div>
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    {["critical", "pci"].map((t) => (
+                      <span key={t} className="lp-chip">{t}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--status-healthy)" }} />
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--status-healthy)" }}>Healthy</span>
+                  </div>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    fontSize: "11px",
+                    background: "var(--bg3)",
+                    borderRadius: "6px",
+                    padding: "6px 10px"
+                  }}>
+                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--t3)" }}>SLA</span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, color: "var(--t1)" }}>99.99%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ================================================================
+          EDGE INFORMATION
+          ================================================================ */}
+      <section className="lp-section" style={{ paddingTop: "60px", paddingBottom: "120px" }}>
+        <div className="lp-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: "48px" }}>
+              <p className="lp-eyebrow">CONNECTIONS</p>
+              <h2 className="lp-section-title" style={{ maxWidth: "600px", margin: "0 auto 16px" }}>
+                Edges that tell the story.
+              </h2>
+              <p className="lp-section-subtitle" style={{ maxWidth: "500px", margin: "0 auto" }}>
+                Every connection carries meaning. Label relationships, assign types, and trace how everything flows.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              maxWidth: "620px",
+              margin: "0 auto"
+            }}>
+              {[
+                { from: "Payment Service", fromColor: "var(--node-system)", to: "Orders DB", toColor: "var(--node-db)", label: "writes orders", type: "data-flow", typeColor: "var(--node-api)" },
+                { from: "Sarah Chen", fromColor: "var(--node-person)", to: "Payment Service", toColor: "var(--node-system)", label: "owns", type: "ownership", typeColor: "var(--node-person)" },
+                { from: "Payment Service", fromColor: "var(--node-system)", to: "Stripe", toColor: "var(--node-vendor)", label: "processes payments via", type: "dependency", typeColor: "var(--status-warning)" },
+              ].map((edge, i) => (
+                <div key={i} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  padding: "16px 20px",
+                  background: "var(--bg2)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "12px",
+                  transition: "border-color 0.3s"
+                }}>
+                  {/* From */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: edge.fromColor }} />
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--t1)" }}>{edge.from}</span>
+                  </div>
+
+                  {/* Arrow + Label */}
+                  <div style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "4px",
+                    position: "relative"
+                  }}>
+                    <div style={{
+                      width: "100%",
+                      height: "1px",
+                      background: "var(--border2)",
+                      position: "relative"
+                    }}>
+                      <svg width="8" height="8" viewBox="0 0 8 8" fill="var(--border2)" style={{ position: "absolute", right: "-4px", top: "-3.5px" }}>
+                        <path d="M0 0l8 4-8 4z" />
+                      </svg>
+                    </div>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--t2)", whiteSpace: "nowrap" }}>{edge.label}</span>
+                  </div>
+
+                  {/* To */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
+                    <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: edge.toColor }} />
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--t1)" }}>{edge.to}</span>
+                  </div>
+
+                  {/* Type badge */}
+                  <span style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "10px",
+                    fontWeight: 600,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: "0.5px",
+                    color: edge.typeColor,
+                    background: `color-mix(in srgb, ${edge.typeColor} 10%, transparent)`,
+                    border: `1px solid color-mix(in srgb, ${edge.typeColor} 20%, transparent)`,
+                    padding: "3px 10px",
+                    borderRadius: "4px",
+                    whiteSpace: "nowrap",
+                    flexShrink: 0
+                  }}>{edge.type}</span>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ================================================================
+          USE CASES
+          ================================================================ */}
       <section className="lp-usecases lp-section">
         <div className="lp-container">
           <Reveal>
-            <p className="lp-eyebrow">FOR EVERY TEAM</p>
-            <h2 className="lp-section-title">One platform. Every dependency.</h2>
-            <p className="lp-section-subtitle">
-              From system architecture to project planning — SwayMaps adapts to how your team thinks.
-            </p>
+            <div style={{ textAlign: "center" }}>
+              <p className="lp-eyebrow">FOR EVERY TEAM</p>
+              <h2 className="lp-section-title" style={{ maxWidth: "600px", margin: "0 auto 16px" }}>One platform. Every dependency.</h2>
+              <p className="lp-section-subtitle" style={{ maxWidth: "560px", margin: "0 auto" }}>
+                From system architecture to project planning — SwayMaps adapts to how your team thinks.
+              </p>
+            </div>
           </Reveal>
 
           <div className="lp-usecase-grid">
             {[
-              { icon: <IconEngineering />, color: "var(--node-api)", name: "Engineering", desc: "Map microservices, APIs, and infrastructure", chips: ["API Gateway", "PostgreSQL", "Redis"] },
-              { icon: <IconProduct />, color: "var(--node-system)", name: "Product", desc: "Plan features, dependencies, and roadmaps", chips: ["Feature A", "User Research", "Launch"] },
-              { icon: <IconOperations />, color: "var(--node-vendor)", name: "Operations", desc: "Track vendors, contracts, and supply chains", chips: ["Stripe", "AWS", "Datadog"] },
-              { icon: <IconCompliance />, color: "var(--node-process)", name: "Compliance", desc: "Map data flows for SOC2, GDPR, HIPAA", chips: ["User Data", "Encryption", "Audit Log"] },
-              { icon: <IconLeadership />, color: "var(--node-cloud)", name: "Leadership", desc: "Visualize org structure and strategic initiatives", chips: ["CTO", "Platform Team", "Q2 Goals"] },
-              { icon: <IconPM />, color: "var(--node-person)", name: "Project Management", desc: "Map project dependencies and milestones", chips: ["Sprint 1", "Design Review", "QA"] },
+              { icon: <IconEngineering />, color: "var(--node-api)", name: "Engineering", desc: "Map microservices, APIs, and infrastructure. Store status, SLAs, on-call owners, and deploy metadata on every node.", info: "Track health, SLA, on-call" },
+              { icon: <IconProduct />, color: "var(--node-system)", name: "Product", desc: "Plan features, dependencies, and roadmaps. Tag nodes by quarter, team, and priority to filter what matters.", info: "Tag by quarter and priority" },
+              { icon: <IconOperations />, color: "var(--node-vendor)", name: "Operations", desc: "Track vendors, contracts, and supply chains. Attach contract dates, SLAs, and cost metadata to vendor nodes.", info: "Attach contracts and costs" },
+              { icon: <IconCompliance />, color: "var(--node-process)", name: "Compliance", desc: "Map data flows for SOC2, GDPR, HIPAA. Tag nodes with PII, encryption status, and audit classification.", info: "Tag PII and audit status" },
+              { icon: <IconLeadership />, color: "var(--node-cloud)", name: "Leadership", desc: "Visualize org structure and strategic initiatives. Store ownership, budget, and OKR data on every node.", info: "Store OKRs and budgets" },
+              { icon: <IconPM />, color: "var(--node-person)", name: "Project Management", desc: "Map project dependencies and milestones. Track status, blockers, and owners at a glance.", info: "Track blockers and owners" },
             ].map((uc, i) => (
               <Reveal key={i}>
                 <div className="lp-usecase-card">
@@ -574,11 +994,17 @@ export default function LandingPage() {
                   </div>
                   <div className="lp-usecase-name">{uc.name}</div>
                   <div className="lp-usecase-desc">{uc.desc}</div>
-                  <div className="lp-usecase-chips">
-                    {uc.chips.map((c) => (
-                      <span key={c} className="lp-chip">{c}</span>
-                    ))}
-                  </div>
+                  <div style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "11px",
+                    fontWeight: 500,
+                    color: "var(--accent)",
+                    background: "rgba(0, 194, 255, 0.06)",
+                    border: "1px solid rgba(0, 194, 255, 0.12)",
+                    borderRadius: "6px",
+                    padding: "6px 12px",
+                    display: "inline-block"
+                  }}>{uc.info}</div>
                 </div>
               </Reveal>
             ))}
@@ -586,12 +1012,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* PROBLEMS */}
+      {/* ================================================================
+          PROBLEMS
+          ================================================================ */}
       <section className="lp-problems lp-section">
         <div className="lp-container">
           <Reveal>
-            <p className="lp-eyebrow">THE PROBLEM</p>
-            <h2 className="lp-section-title">Plans fail when dependencies are invisible.</h2>
+            <div style={{ textAlign: "center" }}>
+              <p className="lp-eyebrow">THE PROBLEM</p>
+              <h2 className="lp-section-title" style={{ maxWidth: "700px", margin: "0 auto" }}>Plans fail when dependencies are invisible.</h2>
+            </div>
           </Reveal>
 
           <div className="lp-problems-grid">
@@ -628,12 +1058,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FEATURES */}
+      {/* ================================================================
+          FEATURES — 4 ALTERNATING SECTIONS
+          ================================================================ */}
       <section className="lp-features lp-section">
         <div className="lp-container">
           <Reveal>
-            <p className="lp-eyebrow">FEATURES</p>
-            <h2 className="lp-section-title">Everything you need to map your world.</h2>
+            <div style={{ textAlign: "center" }}>
+              <p className="lp-eyebrow">FEATURES</p>
+              <h2 className="lp-section-title" style={{ maxWidth: "600px", margin: "0 auto" }}>Everything you need to map your world.</h2>
+            </div>
           </Reveal>
 
           {/* F1: AI-Powered Generation */}
@@ -685,26 +1119,26 @@ export default function LandingPage() {
             </div>
           </Reveal>
 
-          {/* F2: Visual Canvas */}
+          {/* F2: Visual Canvas with Rich Data */}
           <Reveal>
             <div className="lp-feature-row lp-feature-row--reverse">
               <div className="lp-feature-text">
-                <h3 className="lp-feature-title">Drag, drop, connect.</h3>
+                <h3 className="lp-feature-title">11 node types. Infinite information.</h3>
                 <p className="lp-feature-desc">
-                  An infinite canvas that feels as natural as a whiteboard but with the structure of a database. 11 node types, status indicators, tags, and metadata on every element.
+                  An infinite canvas that feels as natural as a whiteboard but with the structure of a database. Every node stores title, type, status, owner, tags, description, and custom metadata. Your map is not just visual — it is queryable.
                 </p>
                 <ul className="lp-feature-bullets">
                   <li className="lp-feature-bullet">
                     <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
-                    11 node types for any use case
+                    Person, System, API, Database, Queue, Cache, Process, Cloud, Vendor, Team, Generic
                   </li>
                   <li className="lp-feature-bullet">
                     <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
-                    Color-coded status indicators
+                    Health status: Healthy, Warning, Critical
                   </li>
                   <li className="lp-feature-bullet">
                     <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
-                    Drag-and-drop with snap-to-grid
+                    Owner, tags, notes, and custom key-value metadata
                   </li>
                 </ul>
               </div>
@@ -716,11 +1150,13 @@ export default function LandingPage() {
                       { name: "System", color: "var(--node-system)" },
                       { name: "API", color: "var(--node-api)" },
                       { name: "Database", color: "var(--node-db)" },
+                      { name: "Queue", color: "var(--node-queue)" },
+                      { name: "Cache", color: "var(--node-cache)" },
                       { name: "Process", color: "var(--node-process)" },
                       { name: "Cloud", color: "var(--node-cloud)" },
                       { name: "Vendor", color: "var(--node-vendor)" },
                       { name: "Team", color: "var(--node-team)" },
-                      { name: "Queue", color: "var(--node-queue)" },
+                      { name: "Generic", color: "var(--t3)" },
                     ].map((n) => (
                       <div key={n.name} className="lp-fv-node-type">
                         <span className="lp-fv-node-type-dot" style={{ background: n.color }} />
@@ -834,17 +1270,26 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* MORE FEATURES */}
+      {/* ================================================================
+          MORE FEATURES — 3x2 COMPACT GRID
+          ================================================================ */}
       <section className="lp-more-features lp-section">
         <div className="lp-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: "48px" }}>
+              <p className="lp-eyebrow">AND MORE</p>
+              <h2 className="lp-section-title" style={{ maxWidth: "500px", margin: "0 auto" }}>Built for power users.</h2>
+            </div>
+          </Reveal>
+
           <div className="lp-more-grid">
             {[
-              { icon: <IconGrid />, name: "25+ Templates", desc: "Start from proven templates for any use case" },
               { icon: <IconCode />, name: "Diagram as Code", desc: "Define maps in YAML, version-control in Git" },
+              { icon: <IconActivity />, name: "Health Dashboard", desc: "0-100 health score, detect issues at a glance" },
               { icon: <IconDownload />, name: "Import & Export", desc: "Draw.io, Lucidchart, PNG, SVG, PDF, JSON" },
               { icon: <IconTerminal />, name: "Command Palette", desc: "Press \u2318K to search, navigate, act instantly" },
               { icon: <IconPlug />, name: "Integrations", desc: "Slack, Microsoft Teams, webhooks" },
-              { icon: <IconActivity />, name: "Health Dashboard", desc: "0-100 health score, detect issues at a glance" },
+              { icon: <IconNodeTypes />, name: "11 Node Types", desc: "Person, System, API, Database, Queue, Cache, Process, Cloud, Vendor, Team, Generic — each color-coded" },
             ].map((f, i) => (
               <Reveal key={i}>
                 <div className="lp-more-card">
@@ -858,152 +1303,27 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* PRICING */}
-      <section className="lp-pricing lp-section">
-        <div className="lp-container">
-          <Reveal>
-            <div style={{ textAlign: "center" }}>
-              <p className="lp-eyebrow">PRICING</p>
-              <h2 className="lp-section-title">Start free. Scale as you grow.</h2>
-              <p className="lp-section-subtitle" style={{ margin: "0 auto" }}>
-                3 maps free forever. No credit card required.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="lp-pricing-toggle">
-            <span className={`lp-pricing-toggle-label ${!annual ? "is-active" : ""}`}>Monthly</span>
-            <div
-              className={`lp-pricing-toggle-track ${annual ? "is-annual" : ""}`}
-              onClick={() => setAnnual(!annual)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setAnnual(!annual); }}
-            >
-              <div className="lp-pricing-toggle-thumb" />
-            </div>
-            <span className={`lp-pricing-toggle-label ${annual ? "is-active" : ""}`}>Annual</span>
-            <span className="lp-pricing-save">Save 30%</span>
-          </div>
-
-          <div className="lp-pricing-grid">
-            {/* Free */}
-            <Reveal>
-              <div className="lp-pricing-card">
-                <div className="lp-pricing-name">Free</div>
-                <div className="lp-pricing-price">
-                  <span className="lp-pricing-amount">$0</span>
-                </div>
-                <div className="lp-pricing-billed">Free forever</div>
-                <ul className="lp-pricing-features">
-                  {[
-                    { text: "3 maps", has: true },
-                    { text: "Unlimited nodes per map", has: true },
-                    { text: "PNG & JSON export", has: true },
-                    { text: "1 workspace", has: true },
-                    { text: "Community support", has: true },
-                    { text: "AI generation", has: false },
-                    { text: "Collaboration", has: false },
-                    { text: "Version history", has: false },
-                  ].map((f, i) => (
-                    <li key={i} className={`lp-pricing-feature ${!f.has ? "lp-pricing-feature--no" : ""}`}>
-                      <span className={`lp-pricing-check ${f.has ? "lp-pricing-check--yes" : "lp-pricing-check--no"}`}>
-                        {f.has ? <IconCheck size={10} /> : <IconMinus size={10} />}
-                      </span>
-                      {f.text}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/auth/signup" className="lp-btn lp-btn--ghost lp-pricing-cta">Get Started</Link>
-              </div>
-            </Reveal>
-
-            {/* Pro */}
-            <Reveal>
-              <div className="lp-pricing-card lp-pricing-card--popular">
-                <span className="lp-pricing-popular-badge">MOST POPULAR</span>
-                <div className="lp-pricing-name">Pro</div>
-                <div className="lp-pricing-price">
-                  <span className="lp-pricing-amount">${annual ? "19" : "29"}</span>
-                  <span className="lp-pricing-period">/mo</span>
-                </div>
-                <div className="lp-pricing-billed">{annual ? "Billed annually ($228/yr)" : "Billed monthly"}</div>
-                <ul className="lp-pricing-features">
-                  {[
-                    { text: "Unlimited maps", has: true },
-                    { text: "Unlimited nodes per map", has: true },
-                    { text: "All export formats", has: true },
-                    { text: "5 workspaces", has: true },
-                    { text: "AI generation", has: true },
-                    { text: "Priority support", has: true },
-                    { text: "Public sharing links", has: true },
-                    { text: "Version history", has: false },
-                  ].map((f, i) => (
-                    <li key={i} className={`lp-pricing-feature ${!f.has ? "lp-pricing-feature--no" : ""}`}>
-                      <span className={`lp-pricing-check ${f.has ? "lp-pricing-check--yes" : "lp-pricing-check--no"}`}>
-                        {f.has ? <IconCheck size={10} /> : <IconMinus size={10} />}
-                      </span>
-                      {f.text}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-pricing-cta">
-                  Start 14-Day Trial <IconArrowRight size={14} />
-                </Link>
-              </div>
-            </Reveal>
-
-            {/* Team */}
-            <Reveal>
-              <div className="lp-pricing-card">
-                <div className="lp-pricing-name">Team</div>
-                <div className="lp-pricing-price">
-                  <span className="lp-pricing-amount">${annual ? "59" : "79"}</span>
-                  <span className="lp-pricing-period">/mo</span>
-                </div>
-                <div className="lp-pricing-billed">{annual ? "Billed annually ($708/yr)" : "Billed monthly"}</div>
-                <ul className="lp-pricing-features">
-                  {[
-                    { text: "Everything in Pro", has: true },
-                    { text: "Unlimited workspaces", has: true },
-                    { text: "Team collaboration", has: true },
-                    { text: "Role-based access control", has: true },
-                    { text: "Version history & diff", has: true },
-                    { text: "Audit log", has: true },
-                    { text: "SSO & SAML", has: true },
-                    { text: "Dedicated support", has: true },
-                  ].map((f, i) => (
-                    <li key={i} className="lp-pricing-feature">
-                      <span className="lp-pricing-check lp-pricing-check--yes">
-                        <IconCheck size={10} />
-                      </span>
-                      {f.text}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/auth/signup" className="lp-btn lp-btn--ghost lp-pricing-cta">
-                  Start 14-Day Trial <IconArrowRight size={14} />
-                </Link>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* COMPARISON */}
+      {/* ================================================================
+          COMPARISON
+          ================================================================ */}
       <section className="lp-comparison lp-section">
         <div className="lp-container">
           <Reveal>
-            <p className="lp-eyebrow">WHY SWAYMAPS</p>
-            <h2 className="lp-section-title">Not another generic diagramming tool.</h2>
+            <div style={{ textAlign: "center" }}>
+              <p className="lp-eyebrow">WHY SWAYMAPS</p>
+              <h2 className="lp-section-title" style={{ maxWidth: "650px", margin: "0 auto 16px" }}>Not another generic diagramming tool.</h2>
+              <p className="lp-section-subtitle" style={{ maxWidth: "560px", margin: "0 auto" }}>
+                Other tools draw shapes. SwayMaps stores structured data on every node and edge — making your diagram a queryable knowledge base.
+              </p>
+            </div>
           </Reveal>
 
           <div className="lp-comparison-grid">
             {[
               {
                 name: "Lucidchart / Draw.io",
-                weakness: "General-purpose diagramming with no dependency intelligence. No impact analysis, no status tracking, no AI generation.",
-                advantage: "SwayMaps is purpose-built for dependency mapping with AI generation, health scores, and impact tracing built in.",
+                weakness: "General-purpose diagramming with no dependency intelligence. No structured data on nodes, no status tracking, no AI generation.",
+                advantage: "SwayMaps stores title, type, status, owner, tags, and metadata on every node. It is a diagram and a database.",
               },
               {
                 name: "ServiceNow CMDB",
@@ -1017,8 +1337,8 @@ export default function LandingPage() {
               },
               {
                 name: "Miro / FigJam",
-                weakness: "Freeform whiteboards with no structure. Great for brainstorming, terrible for tracking real dependencies.",
-                advantage: "SwayMaps combines the freedom of a canvas with structured nodes, typed edges, and dependency intelligence.",
+                weakness: "Freeform whiteboards with no structure. Great for brainstorming, terrible for tracking real dependencies with data.",
+                advantage: "SwayMaps combines the freedom of a canvas with structured nodes, typed edges, and rich information on every element.",
               },
             ].map((c, i) => (
               <Reveal key={i}>
@@ -1036,19 +1356,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* ================================================================
+          FAQ
+          ================================================================ */}
       <section className="lp-faq lp-section">
         <div className="lp-container">
           <Reveal>
-            <p className="lp-eyebrow">FAQ</p>
-            <h2 className="lp-section-title">Frequently asked questions.</h2>
+            <div style={{ textAlign: "center" }}>
+              <p className="lp-eyebrow">FAQ</p>
+              <h2 className="lp-section-title" style={{ maxWidth: "500px", margin: "0 auto" }}>Frequently asked questions.</h2>
+            </div>
           </Reveal>
 
           <div className="lp-faq-list">
             {[
               {
                 q: "What is SwayMaps?",
-                a: "SwayMaps is a visual planning and dependency mapping platform that lets any team map systems, trace impact, and align stakeholders. It works for engineering, product, operations, compliance, leadership, and project management teams.",
+                a: "SwayMaps is a visual planning and dependency mapping platform where every node stores rich structured data -- title, type, status, owner, tags, notes, and custom metadata. It works for engineering, product, operations, compliance, leadership, and project management teams. Your map is not just a diagram -- it is a queryable knowledge base.",
               },
               {
                 q: "Is SwayMaps free?",
@@ -1056,11 +1380,11 @@ export default function LandingPage() {
               },
               {
                 q: "What teams can use SwayMaps?",
-                a: "SwayMaps is designed for every team that plans and manages dependencies: engineering teams mapping microservices, product teams mapping feature dependencies, compliance teams mapping data flows for SOC2/GDPR, operations teams tracking vendors, leadership mapping org structures, and project managers mapping milestones.",
+                a: "SwayMaps is designed for every team that plans and manages dependencies: engineering teams mapping microservices with SLA and on-call metadata, product teams mapping feature dependencies with priority tags, compliance teams mapping data flows with PII and audit tags, operations teams tracking vendors with contract and cost metadata, leadership mapping org structures with budget and OKR data, and project managers mapping milestones with status and blocker tracking.",
               },
               {
                 q: "Does SwayMaps have AI features?",
-                a: "Yes, SwayMaps includes AI-powered map generation. Describe what you want to map in plain English and AI builds the first draft with nodes, edges, and relationships in seconds.",
+                a: "Yes, SwayMaps includes AI-powered map generation. Describe what you want to map in plain English and AI builds the first draft with nodes, edges, and relationships in seconds. Each generated node includes suggested types, statuses, and connections.",
               },
               {
                 q: "Can I import from other tools?",
@@ -1087,7 +1411,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
+      {/* ================================================================
+          FINAL CTA
+          ================================================================ */}
       <section className="lp-cta-section lp-section">
         <div className="lp-cta-glow" />
         <div className="lp-container">
@@ -1111,7 +1437,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
+      {/* ================================================================
+          FOOTER
+          ================================================================ */}
       <footer className="lp-footer">
         <div className="lp-container">
           <div className="lp-footer-grid">
@@ -1132,7 +1460,6 @@ export default function LandingPage() {
               <ul className="lp-footer-links">
                 <li><Link href="/features">Features</Link></li>
                 <li><Link href="/pricing">Pricing</Link></li>
-                <li><Link href="/templates-gallery">Templates</Link></li>
                 <li><Link href="/changelog">Changelog</Link></li>
               </ul>
             </div>
