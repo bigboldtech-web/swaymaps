@@ -91,14 +91,40 @@ const useCasesData = [
 ];
 
 /* ═══ COMPARISON DATA ═══ */
-const comparisonRows = [
-  { feature: "Purpose-built for dependencies", others: "General diagramming or CMDB", sway: "Built specifically for dependency mapping" },
-  { feature: "AI generation", others: "No or limited", sway: "Full AI-powered map generation" },
-  { feature: "Setup time", others: "Weeks to months", sway: "Under 60 seconds" },
-  { feature: "Pricing", others: "$13-100+/user/mo", sway: "Free forever tier, Pro from $19/mo" },
-  { feature: "Learning curve", others: "Steep, needs training", sway: "Intuitive, no training needed" },
-  { feature: "Export formats", others: "Limited or locked", sway: "PNG, SVG, PDF, JSON -- all plans" },
-  { feature: "Public sharing", others: "Requires account", sway: "One-click share links" },
+const competitors = [
+  {
+    name: "Lucidchart / Draw.io",
+    weakness: "Generic diagramming — no dependency intelligence, no metadata, no health scoring",
+    advantage: "Purpose-built for dependencies with AI generation, queryable metadata on every node, and health dashboards",
+  },
+  {
+    name: "ServiceNow CMDB",
+    weakness: "Expensive ($100+/user), complex setup, table-based — takes months to deploy",
+    advantage: "Visual-first, setup in 60 seconds, free tier available. 10x faster to adopt across teams",
+  },
+  {
+    name: "Backstage (Spotify)",
+    weakness: "Developer-only, heavy infrastructure setup, requires dedicated platform team to maintain",
+    advantage: "No-code, accessible to non-engineers. Compliance officers and managers use it too",
+  },
+  {
+    name: "Miro / FigJam",
+    weakness: "Whiteboards with sticky notes — no structured data, no node types, no API",
+    advantage: "Structured nodes with typed metadata, tags, status indicators, YAML DSL, and REST API",
+  },
+];
+
+const comparisonFeatures = [
+  { feature: "Purpose-built for dependencies", others: false, sway: true },
+  { feature: "AI-powered map generation", others: false, sway: true },
+  { feature: "Setup time", others: "Weeks", sway: "60 sec" },
+  { feature: "Typed node metadata", others: false, sway: true },
+  { feature: "Health scoring", others: false, sway: true },
+  { feature: "YAML / Diagram as Code", others: false, sway: true },
+  { feature: "Version history + diff", others: false, sway: true },
+  { feature: "Free tier", others: false, sway: true },
+  { feature: "Public sharing links", others: false, sway: true },
+  { feature: "Export (PNG, SVG, PDF, JSON)", others: "Limited", sway: true },
 ];
 
 /* ═══ PAGE COMPONENT ═══ */
@@ -481,29 +507,39 @@ export default function LandingPage() {
 
           <div className="problems-grid">
             <div className="problem-card pc1 reveal rd1">
-              <div className="problem-icon">!</div>
+              <div className="problem-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
               <h3>Blind Deployments</h3>
-              <p>Teams ship changes without knowing what breaks downstream. Rollbacks cost hours.</p>
+              <p>Teams ship changes without knowing what breaks downstream. One bad deploy costs $100K+ in rollbacks and downtime.</p>
             </div>
             <div className="problem-card pc2 reveal rd2">
-              <div className="problem-icon">?</div>
+              <div className="problem-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
               <h3>Slow Incidents</h3>
-              <p>Hours wasted tracing dependencies during outages. MTTR keeps climbing.</p>
+              <p>MTTR keeps climbing because nobody can trace the dependency chain. Hours wasted asking &ldquo;what calls what?&rdquo;</p>
             </div>
             <div className="problem-card pc3 reveal rd3">
-              <div className="problem-icon">+</div>
+              <div className="problem-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>
+              </div>
               <h3>Painful Onboarding</h3>
-              <p>New engineers take 3-6 months to understand the system. Tribal knowledge is the bottleneck.</p>
+              <p>New engineers take 3-6 months to understand the system. The knowledge lives in people&apos;s heads, not in docs.</p>
             </div>
             <div className="problem-card pc4 reveal rd4">
-              <div className="problem-icon">~</div>
+              <div className="problem-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
+              </div>
               <h3>Risky Migrations</h3>
-              <p>Moving to new infra without a clear map. You discover missed dependencies in production.</p>
+              <p>Cloud moves and vendor changes happen without dependency visibility. You discover what you missed in production.</p>
             </div>
             <div className="problem-card pc5 reveal">
-              <div className="problem-icon">S</div>
+              <div className="problem-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
               <h3>Compliance Gaps</h3>
-              <p>Auditors ask &ldquo;what touches PII?&rdquo; and nobody can answer quickly or confidently.</p>
+              <p>Auditors ask &ldquo;what touches PII?&rdquo; and nobody can answer in under a week. SOC2 and GDPR audits become fire drills.</p>
             </div>
           </div>
         </div>
@@ -514,46 +550,52 @@ export default function LandingPage() {
         <div className="container-w">
           <div className="reveal" style={{ textAlign: "center" }}>
             <div className="eyebrow">Features</div>
-            <div className="stitle">Everything you need to map your world</div>
+            <div className="stitle">Everything you need to<br/>map your world.</div>
             <div className="sdesc" style={{ margin: "16px auto 0" }}>
-              A complete toolkit for visualizing, sharing, and managing complex system dependencies.
+              From AI generation to version history — a complete platform for visual dependency intelligence.
             </div>
           </div>
 
           <div className="bento">
             {/* 1: AI -- 7col, 2row */}
             <div className="bc b1 reveal">
-              <div className="ci">AI</div>
+              <div className="ci" style={{fontSize:".75rem"}}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
               <h3>AI-Powered Generation</h3>
-              <p>Describe what you want to map in plain English. AI builds the first draft in seconds -- nodes, edges, and layout included.</p>
+              <p>Describe what you want to map in plain English. AI builds the first draft in seconds — nodes, edges, relationships, and layout included. Iterate with AI brainstorm.</p>
               <div className="ai-demo">
                 <div className="ai-prompt">
-                  <span className="spark">*</span>
-                  <span className="text">&ldquo;Map our payment pipeline with Stripe, webhooks, and the order database&rdquo;</span>
+                  <span className="spark">✦</span>
+                  <span className="text">&ldquo;Map our payment processing pipeline with Stripe, webhooks, and the order database&rdquo;</span>
                 </div>
                 <div className="ai-result-nodes">
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "#3b82f6" }} />Stripe API</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "#8b5cf6" }} />Webhooks</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "#22c55e" }} />Order Service</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "#f59e0b" }} />Orders DB</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "#ef4444" }} />Redis Queue</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "#06b6d4" }} />Notification</div>
+                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-api)" }} />Stripe API</div>
+                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-db)" }} />Webhooks</div>
+                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-system)" }} />Order Service</div>
+                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-vendor)" }} />Orders DB</div>
+                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-cache)" }} />Redis Queue</div>
+                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-process)" }} />Notification</div>
                 </div>
               </div>
             </div>
 
-            {/* 2: Drag & Drop -- 5col */}
+            {/* 2: Real-Time Collaboration -- 5col */}
             <div className="bc b2 reveal">
-              <div className="ci">D</div>
-              <h3>Drag-and-Drop Canvas</h3>
-              <p>Infinite canvas, smooth zoom, and snap-to-grid. Build maps as naturally as sketching on a whiteboard.</p>
+              <div className="ci">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <h3>Real-Time Collaboration</h3>
+              <p>Multiple people editing the same map. Workspace roles keep everyone aligned: Owner, Admin, Editor, Viewer. Inline comments on any node.</p>
             </div>
 
             {/* 3: Sharing -- 5col */}
             <div className="bc b3 reveal">
-              <div className="ci">S</div>
+              <div className="ci">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
+              </div>
               <h3>Public Sharing</h3>
-              <p>Share read-only maps with a single link. Perfect for stakeholder reviews and incident post-mortems.</p>
+              <p>Share read-only maps with a single link. Perfect for stakeholder reviews, incident post-mortems, and audit documentation.</p>
               <div className="share-link">
                 <span className="url">swaymaps.com/share/a8f2e9...</span>
                 <button className="copy-btn">COPY</button>
@@ -562,40 +604,46 @@ export default function LandingPage() {
 
             {/* 4: Version History -- 4col */}
             <div className="bc b4 reveal">
-              <div className="ci">V</div>
+              <div className="ci">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
               <h3>Version History</h3>
-              <p>Every save creates a snapshot. Roll back to any version with one click.</p>
+              <p>Every save creates a snapshot. Compare changes with the built-in diff viewer. Restore any version with one click.</p>
               <div className="version-demo">
                 <div className="ve">
-                  <span className="ind" style={{ background: "#22c55e" }} />
-                  <span className="lb">Latest</span>
+                  <span className="ind" style={{ background: "var(--healthy)" }} />
+                  <span className="lb">Added payment gateway</span>
                   <span className="tm">2m ago</span>
                 </div>
                 <div className="ve">
-                  <span className="ind" style={{ background: "#3b82f6" }} />
-                  <span className="lb">Added Redis cache</span>
+                  <span className="ind" style={{ background: "var(--accent)" }} />
+                  <span className="lb">+3 nodes, +4 edges</span>
                   <span className="tm">1h ago</span>
                 </div>
                 <div className="ve">
-                  <span className="ind" style={{ background: "#4a5a7a" }} />
-                  <span className="lb">Initial draft</span>
+                  <span className="ind" style={{ background: "var(--t3)" }} />
+                  <span className="lb">Initial architecture draft</span>
                   <span className="tm">3h ago</span>
                 </div>
               </div>
             </div>
 
-            {/* 5: Collaboration -- 4col */}
+            {/* 5: Diagram as Code -- 4col */}
             <div className="bc b5 reveal">
-              <div className="ci">C</div>
-              <h3>Real-Time Collaboration</h3>
-              <p>Multiple people editing the same map. See cursors, edits, and comments live.</p>
+              <div className="ci">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+              </div>
+              <h3>Diagram as Code</h3>
+              <p>Define maps in YAML. Version-control them in Git. Diff in pull requests. Apply to the visual canvas.</p>
             </div>
 
             {/* 6: Export -- 4col */}
             <div className="bc b6 reveal">
-              <div className="ci">E</div>
+              <div className="ci">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              </div>
               <h3>Export Anywhere</h3>
-              <p>Export as PNG, SVG, PDF, or JSON. Embed in Notion, Confluence, or your wiki.</p>
+              <p>Export as PNG, SVG, PDF, or JSON. Embed in Notion, Confluence, or any internal wiki via iframe.</p>
               <div className="format-badges">
                 <span>PNG</span>
                 <span>SVG</span>
@@ -606,23 +654,29 @@ export default function LandingPage() {
 
             {/* 7: Templates -- 4col */}
             <div className="bc b7 reveal">
-              <div className="ci">T</div>
+              <div className="ci">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              </div>
               <h3>25+ Templates</h3>
-              <p>Start from proven templates: microservices, org charts, data flows, CI/CD pipelines.</p>
+              <p>Microservices, org charts, CI/CD pipelines, compliance maps, vendor dependencies — one-click start.</p>
             </div>
 
             {/* 8: Command Palette -- 4col */}
             <div className="bc b8 reveal">
-              <div className="ci">K</div>
+              <div className="ci">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 3a3 3 0 00-3 3v12a3 3 0 003 3 3 3 0 003-3 3 3 0 00-3-3H6a3 3 0 00-3 3 3 3 0 003 3 3 3 0 003-3V6a3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3h12a3 3 0 003-3 3 3 0 00-3-3z"/></svg>
+              </div>
               <h3>Command Palette</h3>
-              <p>Press <span className="kbd">Cmd+K</span> to search nodes, run actions, and navigate instantly.</p>
+              <p>Press <span className="kbd">⌘K</span> to search nodes, run actions, toggle themes, and navigate — power-user speed.</p>
             </div>
 
-            {/* 9: 11 Node Types -- 4col */}
+            {/* 9: Health Dashboard -- 4col */}
             <div className="bc b9 reveal">
-              <div className="ci">11</div>
-              <h3>11 Node Types</h3>
-              <p>Person, System, Process, Database, API, Queue, Cache, Cloud, Team, Vendor, Generic.</p>
+              <div className="ci">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <h3>Health Dashboard</h3>
+              <p>0-100 health score for every map. Detect orphan nodes, circular dependencies, and missing metadata at a glance.</p>
             </div>
           </div>
         </div>
@@ -834,24 +888,45 @@ export default function LandingPage() {
       <section className="compare-section" id="compare">
         <div className="container">
           <div className="reveal" style={{ textAlign: "center" }}>
-            <div className="eyebrow">Comparison</div>
-            <div className="stitle">Why SwayMaps over the alternatives?</div>
+            <div className="eyebrow">Why SwayMaps</div>
+            <div className="stitle">Not another generic<br/>diagramming tool.</div>
             <div className="sdesc" style={{ margin: "16px auto 0" }}>
-              Generic diagramming tools and heavyweight CMDBs were never built for dependency mapping. SwayMaps is.
+              Purpose-built for structured dependency intelligence — not sticky notes on a whiteboard.
             </div>
           </div>
 
-          <div className="ct reveal">
+          {/* Competitor cards */}
+          <div className="reveal" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"16px",marginTop:"48px"}}>
+            {competitors.map((c, i) => (
+              <div key={i} style={{background:"var(--bg3)",border:"1px solid var(--border)",borderRadius:"14px",padding:"28px 24px",transition:"all .25s",position:"relative",overflow:"hidden"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"16px"}}>
+                  <span style={{fontSize:".7rem",fontWeight:700,textTransform:"uppercase",letterSpacing:".06em",padding:"3px 10px",borderRadius:"6px",background:"rgba(239,68,68,0.1)",color:"var(--critical)"}}>{c.name}</span>
+                </div>
+                <div style={{fontSize:".82rem",color:"var(--t3)",lineHeight:"1.6",marginBottom:"16px",paddingLeft:"12px",borderLeft:"2px solid rgba(239,68,68,0.3)"}}>
+                  {c.weakness}
+                </div>
+                <div style={{display:"flex",alignItems:"flex-start",gap:"8px"}}>
+                  <span style={{flexShrink:0,width:"20px",height:"20px",borderRadius:"6px",background:"rgba(0,194,255,0.1)",color:"var(--accent)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:".7rem",fontWeight:700,marginTop:"1px"}}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+                  </span>
+                  <span style={{fontSize:".84rem",color:"var(--accent)",lineHeight:"1.6",fontWeight:500}}>{c.advantage}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Feature checklist table */}
+          <div className="ct reveal" style={{marginTop:"32px"}}>
             <div className="ctr cth">
               <div>Feature</div>
-              <div>Lucidchart / ServiceNow / Backstage / Miro</div>
+              <div>Others</div>
               <div>SwayMaps</div>
             </div>
-            {comparisonRows.map((row, i) => (
+            {comparisonFeatures.map((row, i) => (
               <div className="ctr" key={i}>
                 <div>{row.feature}</div>
-                <div>{row.others}</div>
-                <div>{row.sway}</div>
+                <div>{row.others === false ? <span style={{color:"var(--critical)"}}>✕</span> : <span>{String(row.others)}</span>}</div>
+                <div>{row.sway === true ? <span style={{color:"var(--healthy)"}}>✓</span> : <span>{String(row.sway)}</span>}</div>
               </div>
             ))}
           </div>
