@@ -758,14 +758,14 @@ export default function LandingPage() {
               <div className="pamt">$0<span className="per"> /mo</span></div>
               <div className="pann">Free forever</div>
               <ul className="pf">
-                <li><span className="ck y">Y</span>3 maps</li>
-                <li><span className="ck y">Y</span>All 11 node types</li>
-                <li><span className="ck y">Y</span>PNG &amp; JSON export</li>
-                <li><span className="ck y">Y</span>Public sharing</li>
-                <li><span className="ck y">Y</span>Community templates</li>
-                <li><span className="ck n">--</span>AI generation</li>
-                <li><span className="ck n">--</span>Version history</li>
-                <li><span className="ck n">--</span>Team workspaces</li>
+                <li><span className="ck y">✓</span>3 maps</li>
+                <li><span className="ck y">✓</span>All 11 node types</li>
+                <li><span className="ck y">✓</span>PNG &amp; JSON export</li>
+                <li><span className="ck y">✓</span>Public sharing</li>
+                <li><span className="ck y">✓</span>Community templates</li>
+                <li><span className="ck n">—</span>AI generation</li>
+                <li><span className="ck n">—</span>Version history</li>
+                <li><span className="ck n">—</span>Team workspaces</li>
               </ul>
               <Link href="/auth/signup" className="pbtn secondary">Get Started Free</Link>
             </div>
@@ -780,14 +780,14 @@ export default function LandingPage() {
                 {annual ? "Billed $228/year" : "Billed monthly"} -- 14-day free trial
               </div>
               <ul className="pf">
-                <li><span className="ck y">Y</span>Unlimited maps</li>
-                <li><span className="ck y">Y</span>All 11 node types</li>
-                <li><span className="ck y">Y</span>All export formats (PNG, SVG, PDF, JSON)</li>
-                <li><span className="ck y">Y</span>AI generation</li>
-                <li><span className="ck y">Y</span>Version history</li>
-                <li><span className="ck y">Y</span>Public sharing</li>
-                <li><span className="ck y">Y</span>Priority support</li>
-                <li><span className="ck n">--</span>Team workspaces</li>
+                <li><span className="ck y">✓</span>Unlimited maps</li>
+                <li><span className="ck y">✓</span>All 11 node types</li>
+                <li><span className="ck y">✓</span>All export formats (PNG, SVG, PDF, JSON)</li>
+                <li><span className="ck y">✓</span>AI generation</li>
+                <li><span className="ck y">✓</span>Version history</li>
+                <li><span className="ck y">✓</span>Public sharing</li>
+                <li><span className="ck y">✓</span>Priority support</li>
+                <li><span className="ck n">—</span>Team workspaces</li>
               </ul>
               <Link href="/auth/signup" className="pbtn primary">Start 14-Day Free Trial</Link>
             </div>
@@ -802,14 +802,14 @@ export default function LandingPage() {
                 {annual ? "Billed $708/year" : "Billed monthly"} -- 14-day free trial
               </div>
               <ul className="pf">
-                <li><span className="ck y">Y</span>Everything in Pro</li>
-                <li><span className="ck y">Y</span>Team workspaces</li>
-                <li><span className="ck y">Y</span>Role-based access (owner, admin, editor, viewer)</li>
-                <li><span className="ck y">Y</span>Workspace invites</li>
-                <li><span className="ck y">Y</span>Audit log</li>
-                <li><span className="ck y">Y</span>Version diff viewer</li>
-                <li><span className="ck y">Y</span>Priority support</li>
-                <li><span className="ck y">Y</span>SSO (coming soon)</li>
+                <li><span className="ck y">✓</span>Everything in Pro</li>
+                <li><span className="ck y">✓</span>Team workspaces</li>
+                <li><span className="ck y">✓</span>Role-based access (owner, admin, editor, viewer)</li>
+                <li><span className="ck y">✓</span>Workspace invites</li>
+                <li><span className="ck y">✓</span>Audit log</li>
+                <li><span className="ck y">✓</span>Version diff viewer</li>
+                <li><span className="ck y">✓</span>Priority support</li>
+                <li><span className="ck y">✓</span>SSO (coming soon)</li>
               </ul>
               <Link href="/auth/signup" className="pbtn secondary">Start 14-Day Free Trial</Link>
             </div>
