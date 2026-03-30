@@ -4,1011 +4,1092 @@ import Link from "next/link";
 import { useState, useEffect, useRef, useCallback } from "react";
 import "./landing.css";
 
-/* ═══ LOGO SVG ═══ */
+/* ═══ SVG ICONS ═══ */
+function IconArrowRight({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 8h9M8.5 4l4 4-4 4" />
+    </svg>
+  );
+}
+
+function IconCheck({ size = 10 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 6.5l3 3 5-6" />
+    </svg>
+  );
+}
+
+function IconPlay({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor">
+      <path d="M4 2.5v11l9-5.5z" />
+    </svg>
+  );
+}
+
+function IconBlind() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  );
+}
+
+function IconClock() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+function IconUsers() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 00-3-3.87" />
+      <path d="M16 3.13a4 4 0 010 7.75" />
+    </svg>
+  );
+}
+
+function IconTemplate() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="16" height="16" rx="2" />
+      <line x1="2" y1="8" x2="18" y2="8" />
+      <line x1="8" y1="8" x2="8" y2="18" />
+    </svg>
+  );
+}
+
+function IconHealth() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 10h4l2-5 4 10 2-5h4" />
+    </svg>
+  );
+}
+
+function IconExport() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 10l4-4 4 4" />
+      <line x1="10" y1="6" x2="10" y2="16" />
+      <path d="M3 14v2a2 2 0 002 2h10a2 2 0 002-2v-2" />
+    </svg>
+  );
+}
+
+function IconCommand() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 3a2 2 0 00-2 2v2h4V5a2 2 0 00-2-2zM15 3a2 2 0 012 2v2h-4V5a2 2 0 012-2zM5 17a2 2 0 01-2-2v-2h4v2a2 2 0 01-2 2zM15 17a2 2 0 002-2v-2h-4v2a2 2 0 002 2z" />
+      <rect x="3" y="7" width="14" height="6" />
+    </svg>
+  );
+}
+
+function IconPlug() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 2v4M13 2v4M4 6h12v3a6 6 0 01-12 0V6zM10 15v3" />
+    </svg>
+  );
+}
+
+function IconNodes() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="5" cy="5" r="2.5" />
+      <circle cx="15" cy="5" r="2.5" />
+      <circle cx="10" cy="15" r="2.5" />
+      <line x1="6.5" y1="6.5" x2="8.5" y2="13" />
+      <line x1="13.5" y1="6.5" x2="11.5" y2="13" />
+    </svg>
+  );
+}
+
+function IconStar() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 1l2 4.5L15 6l-3.5 3.5L12.5 15 8 12.5 3.5 15l1-5.5L1 6l5-0.5z" />
+    </svg>
+  );
+}
+
+function IconLink() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7.5 10.5a4 4 0 005.5 0l2-2a4 4 0 00-5.5-5.5l-1 1" />
+      <path d="M10.5 7.5a4 4 0 00-5.5 0l-2 2a4 4 0 005.5 5.5l1-1" />
+    </svg>
+  );
+}
+
+function IconMenu() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="3" y1="5" x2="17" y2="5" />
+      <line x1="3" y1="10" x2="17" y2="10" />
+      <line x1="3" y1="15" x2="17" y2="15" />
+    </svg>
+  );
+}
+
+function IconDash() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="4" y1="8" x2="12" y2="8" />
+    </svg>
+  );
+}
+
+function IconTwitter() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function IconGitHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
+
+function IconLinkedIn() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
+
+function IconDiscord() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.947 2.418-2.157 2.418z" />
+    </svg>
+  );
+}
+
+function IconFile() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M7 1H3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V4L7 1z" />
+    </svg>
+  );
+}
+
+/* ═══ LOGO ═══ */
 function LogoMark() {
   return (
     <div className="logo-mark">
       <svg viewBox="0 0 40 40" fill="none">
-        <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
-        <circle cx="28" cy="10" r="3.5" fill="white"/>
-        <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6"/>
-        <circle cx="12" cy="30" r="3.5" fill="white"/>
+        <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+        <circle cx="28" cy="10" r="3.5" fill="white" />
+        <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6" />
+        <circle cx="12" cy="30" r="3.5" fill="white" />
       </svg>
     </div>
   );
 }
 
-/* ═══ USE CASE DATA ═══ */
-const useCasesData = [
-  {
-    id: "engineering",
-    label: "Engineering",
-    title: "System & Microservice Mapping",
-    desc: "Map every service, database, and API in your stack. See the blast radius of any change before you deploy.",
-    checks: [
-      "Visualize service-to-service dependencies in real time",
-      "Simulate blast radius before shipping changes",
-      "Keep architecture docs always up to date",
-    ],
-    nodes: [
-      { label: "API Gateway", badge: "System", color: "#3b82f6" },
-      { label: "Auth Service", badge: "Service", color: "#8b5cf6" },
-      { label: "PostgreSQL", badge: "Database", color: "#f59e0b" },
-      { label: "Redis Cache", badge: "Cache", color: "#ef4444" },
-    ],
-  },
-  {
-    id: "platform",
-    label: "Platform",
-    title: "Infrastructure Dependencies",
-    desc: "Visualize cloud resources, queues, caches, and every piece of infrastructure your platform runs on.",
-    checks: [
-      "Map cloud resources, queues, and caches",
-      "Trace infrastructure dependencies end to end",
-      "Reduce incident surface with clear ownership lines",
-    ],
-    nodes: [
-      { label: "AWS ECS", badge: "Cloud", color: "#6366f1" },
-      { label: "SQS Queue", badge: "Queue", color: "#2563eb" },
-      { label: "ElastiCache", badge: "Cache", color: "#ef4444" },
-      { label: "RDS Postgres", badge: "Database", color: "#f59e0b" },
-    ],
-  },
-  {
-    id: "compliance",
-    label: "Compliance",
-    title: "Data Flow & Audit Maps",
-    desc: "Track where PII flows through your systems. Be audit-ready with visual, shareable data maps.",
-    checks: [
-      "Map PII and sensitive data flows across services",
-      "Generate audit-ready visual reports",
-      "Stay compliant with SOC 2, GDPR, and HIPAA",
-    ],
-    nodes: [
-      { label: "User Input", badge: "Person", color: "#ec4899" },
-      { label: "Auth Service", badge: "System", color: "#3b82f6" },
-      { label: "PII Vault", badge: "Database", color: "#8b5cf6" },
-      { label: "Audit Log", badge: "Process", color: "#22c55e" },
-    ],
-  },
-  {
-    id: "leadership",
-    label: "Leadership",
-    title: "Org Knowledge & Onboarding",
-    desc: "Map tribal knowledge so it never walks out the door. Cut onboarding time from months to weeks.",
-    checks: [
-      "Capture tribal knowledge before it disappears",
-      "Reduce new engineer ramp-up by 60%+",
-      "Give leadership clear visibility into system complexity",
-    ],
-    nodes: [
-      { label: "New Hire", badge: "Person", color: "#ec4899" },
-      { label: "Team Wiki", badge: "Generic", color: "#14b8a6" },
-      { label: "Service Map", badge: "System", color: "#3b82f6" },
-      { label: "Mentor", badge: "Person", color: "#f97316" },
-    ],
-  },
-];
+/* ═══ INTERSECTION OBSERVER HOOK ═══ */
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
 
-/* ═══ COMPARISON DATA ═══ */
-const competitors = [
-  {
-    name: "Lucidchart / Draw.io",
-    weakness: "Generic diagramming — no dependency intelligence, no metadata, no health scoring",
-    advantage: "Purpose-built for dependencies with AI generation, queryable metadata on every node, and health dashboards",
-  },
-  {
-    name: "ServiceNow CMDB",
-    weakness: "Expensive ($100+/user), complex setup, table-based — takes months to deploy",
-    advantage: "Visual-first, setup in 60 seconds, free tier available. 10x faster to adopt across teams",
-  },
-  {
-    name: "Backstage (Spotify)",
-    weakness: "Developer-only, heavy infrastructure setup, requires dedicated platform team to maintain",
-    advantage: "No-code, accessible to non-engineers. Compliance officers and managers use it too",
-  },
-  {
-    name: "Miro / FigJam",
-    weakness: "Whiteboards with sticky notes — no structured data, no node types, no API",
-    advantage: "Structured nodes with typed metadata, tags, status indicators, YAML DSL, and REST API",
-  },
-];
-
-const comparisonFeatures = [
-  { feature: "Purpose-built for dependencies", others: false, sway: true },
-  { feature: "AI-powered map generation", others: false, sway: true },
-  { feature: "Setup time", others: "Weeks", sway: "60 sec" },
-  { feature: "Typed node metadata", others: false, sway: true },
-  { feature: "Health scoring", others: false, sway: true },
-  { feature: "YAML / Diagram as Code", others: false, sway: true },
-  { feature: "Version history + diff", others: false, sway: true },
-  { feature: "Free tier", others: false, sway: true },
-  { feature: "Public sharing links", others: false, sway: true },
-  { feature: "Export (PNG, SVG, PDF, JSON)", others: "Limited", sway: true },
-];
-
-/* ═══ PAGE COMPONENT ═══ */
-export default function LandingPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [activeTab, setActiveTab] = useState("engineering");
-  const [annual, setAnnual] = useState(true);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  /* --- Scroll: nav state --- */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  /* --- Scroll reveal --- */
-  useEffect(() => {
-    const els = document.querySelectorAll(".reveal");
-    if (!els.length) return;
+    const el = ref.current;
+    if (!el) return;
     const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("vis");
-            obs.unobserve(e.target);
-          }
-        });
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("lp-visible");
+          obs.unobserve(el);
+        }
       },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
-    els.forEach((el) => obs.observe(el));
+    obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
-  /* --- Background canvas animation --- */
+  return ref;
+}
+
+function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useReveal();
+  return (
+    <div ref={ref} className={`lp-reveal ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+/* ═══ MAIN PAGE ═══ */
+export default function LandingPage() {
+  const [scrolled, setScrolled] = useState(false);
+  const [annual, setAnnual] = useState(false);
+
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let raf: number;
-    let scrollY = 0;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const onScroll = () => {
-      scrollY = window.scrollY;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    /* Generate curves */
-    /* Generate structured curves that flow left-to-right like dependency paths */
-    const curves: {
-      x1: number; y1: number; cx1: number; cy1: number;
-      cx2: number; cy2: number; x2: number; y2: number;
-      speed: number; hue: number;
-    }[] = [];
-    const w = canvas.width;
-    const h = canvas.height;
-    for (let i = 0; i < 10; i++) {
-      const band = (i / 10) * h;  // distribute across vertical bands
-      const yBase = band + Math.random() * (h * 0.1);
-      const yEnd = band + (Math.random() - 0.5) * (h * 0.2);
-      curves.push({
-        x1: -w * 0.05,                           // start from left edge
-        y1: yBase,
-        cx1: w * 0.25 + Math.random() * w * 0.1, // first control — left-center
-        cy1: yBase + (Math.random() - 0.5) * 80,
-        cx2: w * 0.65 + Math.random() * w * 0.1, // second control — right-center
-        cy2: yEnd + (Math.random() - 0.5) * 80,
-        x2: w * 1.05,                             // end at right edge
-        y2: yEnd,
-        speed: 0.2 + Math.random() * 0.4,
-        hue: 195 + Math.random() * 20,            // tight cyan range
-      });
-    }
-
-    /* Generate node dots — spread evenly, not clustered */
-    const nodes: { x: number; y: number; r: number; pulse: number; hue: number }[] = [];
-    for (let i = 0; i < 20; i++) {
-      const col = i % 5;
-      const row = Math.floor(i / 5);
-      nodes.push({
-        x: (col + 0.5) * (w / 5) + (Math.random() - 0.5) * (w * 0.12),
-        y: (row + 0.5) * (h / 4) + (Math.random() - 0.5) * (h * 0.15),
-        r: 1.5 + Math.random() * 1.5,
-        pulse: Math.random() * Math.PI * 2,
-        hue: 195 + Math.random() * 20,
-      });
-    }
-
-    const draw = (time: number) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const t = time * 0.001;
-      const parallax = scrollY * 0.15;
-
-      /* Draw curves */
-      curves.forEach((c) => {
-        ctx.save();
-        ctx.translate(0, -parallax * 0.5);
-        const hue = c.hue + Math.sin(t * 0.1 + c.speed) * 15;
-        ctx.strokeStyle = `hsla(${hue}, 80%, 55%, 0.07)`;
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([6, 10]);
-        ctx.lineDashOffset = -t * 20 * c.speed;
-        ctx.beginPath();
-        ctx.moveTo(c.x1, c.y1);
-        ctx.bezierCurveTo(c.cx1, c.cy1, c.cx2, c.cy2, c.x2, c.y2);
-        ctx.stroke();
-        ctx.restore();
-      });
-
-      /* Draw nodes */
-      nodes.forEach((n) => {
-        ctx.save();
-        ctx.translate(0, -parallax * 0.3);
-        const glow = 0.3 + Math.sin(t * 1.5 + n.pulse) * 0.25;
-        const hue = n.hue + Math.sin(t * 0.15) * 10;
-        ctx.fillStyle = `hsla(${hue}, 80%, 60%, ${glow * 0.4})`;
-        ctx.shadowColor = `hsla(${hue}, 80%, 60%, ${glow * 0.3})`;
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      });
-
-      raf = requestAnimationFrame(draw);
-    };
-    raf = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("scroll", onScroll);
-    };
+    const handler = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
   }, []);
-
-  /* --- Smooth scroll helper --- */
-  const scrollTo = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault();
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
-  const activeUseCase = useCasesData.find((u) => u.id === activeTab)!;
 
   return (
-    <div className="landing-root">
-      {/* ═══ MAP BACKGROUND ═══ */}
-      <div className="map-bg">
-        <canvas ref={canvasRef} id="bgCanvas" />
-        <div className="grid-layer" />
-        <div className="scan" />
-        <div className="orb a" />
-        <div className="orb b" />
-        <div className="orb c" />
+    <div className="lp-root">
+      {/* Background */}
+      <div className="lp-bg">
+        <div className="lp-bg-grid" />
+        <div className="lp-bg-orb lp-bg-orb--cyan" />
+        <div className="lp-bg-orb lp-bg-orb--indigo" />
+        <div className="lp-bg-orb lp-bg-orb--pink" />
       </div>
 
-      {/* ═══ NAV ═══ */}
-      <nav className={`landing-nav${scrolled ? " scrolled" : ""}`}>
-        <div className="nav-inner">
-          <Link href="/" className="logo">
+      {/* ═══ NAVBAR ═══ */}
+      <nav className={`lp-nav ${scrolled ? "lp-nav--scrolled" : ""}`}>
+        <div className="lp-nav__inner">
+          <Link href="/landing" className="lp-nav__brand">
             <LogoMark />
-            <span className="logo-text">SwayMaps</span>
+            <span className="lp-nav__wordmark">SwayMaps</span>
           </Link>
-          <div className="nav-links">
-            <Link href="/features">Features</Link>
-            <Link href="/use-cases">Use Cases</Link>
-            <Link href="/pricing">Pricing</Link>
-            <Link href="/templates-gallery">Templates</Link>
-            <Link href="/docs">Docs</Link>
-            <Link href="/blog">Blog</Link>
-          </div>
-          <div className="nav-actions">
-            <Link href="/auth/signin" className="btn btn-ghost">Sign In</Link>
-            <Link href="/auth/signup" className="btn btn-primary">Start Free</Link>
+
+          <ul className="lp-nav__links">
+            <li><Link href="/features">Features</Link></li>
+            <li><Link href="/use-cases">Use Cases</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
+            <li><Link href="/docs">Docs</Link></li>
+          </ul>
+
+          <div className="lp-nav__cta">
+            <Link href="/auth/signin" className="lp-btn lp-btn--ghost">Sign In</Link>
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary">
+              Get Started <IconArrowRight size={14} />
+            </Link>
+            <button className="lp-nav__mobile-btn" aria-label="Menu">
+              <IconMenu />
+            </button>
           </div>
         </div>
       </nav>
 
       {/* ═══ HERO ═══ */}
-      <section className="hero">
-        <div className="container-w">
-          <div className="hero-badge">
-            <span className="pulse-dot" />
-            Now with AI Generation &amp; Command Palette
+      <section className="lp-hero">
+        <div className="lp-container">
+          <div className="lp-hero__badge">
+            <span className="lp-hero__badge-dot" />
+            Now with AI-Powered Generation
           </div>
 
-          <h1>
-            See What Depends<br />
-            <span className="grad">
-              <span style={{ fontSize: "1.15em", letterSpacing: "-0.04em" }}>O</span>n What.
-            </span>
+          <h1 className="lp-hero__title">
+            Map every dependency.<br />
+            <span className="lp-hero__title-gradient">Ship with confidence.</span>
           </h1>
 
-          <p className="hero-sub">
-            The visual dependency mapping platform for engineering teams.
-            Map systems, trace impact, ship with confidence.
+          <p className="lp-hero__subtitle">
+            The visual dependency platform for engineering teams. See what depends on what — before it breaks.
           </p>
 
-          <div className="hero-actions">
-            <Link href="/auth/signup" className="btn btn-primary btn-lg">
-              Start Free -- No Credit Card
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <div className="lp-hero__buttons">
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary-lg">
+              Start Free — No Credit Card <IconArrowRight size={16} />
             </Link>
-            <a href="#features" onClick={(e) => scrollTo(e, "features")} className="btn btn-outline btn-lg">
-              See Features
-            </a>
+            <Link href="/docs" className="lp-btn lp-btn--outline-lg">
+              <IconPlay size={14} /> Watch Demo
+            </Link>
           </div>
 
-          <p className="hero-trust">
-            Trusted by engineering teams at startups and Fortune 500s
-          </p>
+          <div className="lp-hero__trust">
+            <span className="lp-hero__trust-text">Trusted by 500+ engineering teams</span>
+            <div className="lp-hero__logos">
+              <span>Stripe</span>
+              <span>Vercel</span>
+              <span>Datadog</span>
+              <span>Linear</span>
+              <span>Notion</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          {/* ═══ HERO DEMO ═══ */}
-          <div className="hero-demo">
-            <div className="demo-frame">
-              <div className="demo-topbar">
-                <div className="demo-topbar-left">
-                  <div className="demo-dots">
-                    <span /><span /><span />
+      {/* ═══ PRODUCT SCREENSHOT ═══ */}
+      <section className="lp-product">
+        <div className="lp-container">
+          <RevealSection>
+            <div className="lp-product__frame">
+              <div className="lp-product__topbar">
+                <div className="lp-product__topbar-left">
+                  <div className="lp-product__dots">
+                    <span className="lp-product__dot lp-product__dot--red" />
+                    <span className="lp-product__dot lp-product__dot--yellow" />
+                    <span className="lp-product__dot lp-product__dot--green" />
                   </div>
-                  <span className="demo-filename">Microservice Architecture — SwayMaps</span>
+                  <span className="lp-product__filename">Microservice Architecture — SwayMaps</span>
                 </div>
-                <div className="demo-topbar-center">
-                  <span>12 nodes</span>
-                  <span className="sep">·</span>
-                  <span>16 edges</span>
-                  <span className="sep">|</span>
-                  <span className="demo-saved">✓ Saved</span>
-                </div>
-                <div className="demo-topbar-right">
-                  <div className="demo-ai-btn">✦ AI Assist</div>
-                  <div className="demo-share-btn">Share</div>
+                <div className="lp-product__topbar-right">
+                  <span className="lp-product__stat">12 nodes</span>
+                  <span className="lp-product__stat">16 edges</span>
+                  <span className="lp-product__stat lp-product__stat--saved">Saved</span>
+                  <button className="lp-product__topbar-btn lp-product__topbar-btn--ai">
+                    <IconStar /> AI Assist
+                  </button>
+                  <button className="lp-product__topbar-btn lp-product__topbar-btn--share">
+                    Share
+                  </button>
                 </div>
               </div>
 
-              <div className="demo-canvas">
-                {/* SVG Edges — viewBox 0 0 100 100, non-scaling-stroke keeps lines thin */}
-                <svg className="demo-edges" viewBox="0 0 100 100" preserveAspectRatio="none" style={{width:"100%",height:"100%"}}>
-                  {/* Web Client to API Gateway */}
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-api)"}} d="M 50 15 L 50 33"/>
-                  {/* API Gateway to services row */}
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-api)"}} d="M 50 40 C 50 50, 19 50, 19 58"/>
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-api)"}} d="M 50 40 C 50 50, 38 50, 38 58"/>
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-system)"}} d="M 50 40 C 50 50, 60 50, 60 58"/>
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-system)"}} d="M 50 40 C 50 50, 80 50, 80 58"/>
-                  {/* Services to DBs row */}
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-process)"}} d="M 19 68 C 19 76, 15 76, 15 83"/>
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-db)"}} d="M 38 68 C 38 76, 35 76, 35 83"/>
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-db)"}} d="M 60 68 C 60 76, 55 76, 55 83"/>
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-vendor)"}} d="M 80 68 C 80 76, 77 76, 77 83"/>
-                  {/* Cross connections (subtle) */}
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-system)",opacity:0.3}} d="M 38 63 C 45 60, 53 60, 60 63"/>
-                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-vendor)",opacity:0.3}} d="M 60 68 C 66 76, 72 76, 77 83"/>
+              <div className="lp-product__canvas">
+                <div className="lp-product__canvas-grid" />
+
+                {/* SVG Edges */}
+                <svg className="lp-product__edges" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  {/* Web Client -> API Gateway */}
+                  <path d="M 50 15 L 50 28" className="lp-product__edge" stroke="#3b82f6" vectorEffect="non-scaling-stroke" />
+                  {/* API Gateway -> Auth Service */}
+                  <path d="M 44 35 L 18 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
+                  {/* API Gateway -> User Service */}
+                  <path d="M 48 35 L 38 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
+                  {/* API Gateway -> Order Service */}
+                  <path d="M 52 35 L 62 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
+                  {/* API Gateway -> Notifications */}
+                  <path d="M 56 35 L 82 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
+                  {/* Auth Service -> PostgreSQL */}
+                  <path d="M 15 58 L 15 75" className="lp-product__edge" stroke="#22c55e" vectorEffect="non-scaling-stroke" />
+                  {/* User Service -> PostgreSQL */}
+                  <path d="M 36 58 L 20 75" className="lp-product__edge" stroke="#8b5cf6" vectorEffect="non-scaling-stroke" />
+                  {/* User Service -> Redis */}
+                  <path d="M 40 58 L 40 75" className="lp-product__edge" stroke="#ef4444" vectorEffect="non-scaling-stroke" />
+                  {/* Order Service -> Orders DB */}
+                  <path d="M 62 58 L 62 75" className="lp-product__edge" stroke="#8b5cf6" vectorEffect="non-scaling-stroke" />
+                  {/* Order Service -> Kafka */}
+                  <path d="M 66 58 L 82 75" className="lp-product__edge" stroke="#f59e0b" vectorEffect="non-scaling-stroke" />
+                  {/* Notifications -> Kafka */}
+                  <path d="M 83 58 L 83 75" className="lp-product__edge" stroke="#f59e0b" vectorEffect="non-scaling-stroke" />
                 </svg>
 
-                {/* Nodes — percentage positions matching SVG coords */}
-                <div className="dnode" style={{ top: "8%", left: "50%", transform: "translateX(-50%)" }}>
-                  Web Client <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
-                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
+                {/* Nodes - Row 1 */}
+                <div className="lp-node" style={{ left: "42%", top: "6%" }}>
+                  <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
+                  Web Client
+                  <span className="lp-node__status" style={{ background: "#22c55e" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "30%", left: "50%", transform: "translateX(-50%)" }}>
-                  API Gateway <span className="dnode-badge" style={{ background: "var(--n-api)" }}>API</span>
-                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
+                {/* Row 2 */}
+                <div className="lp-node" style={{ left: "40%", top: "25%" }}>
+                  <span className="lp-node__badge" style={{ background: "#06b6d4" }}>API</span>
+                  API Gateway
+                  <span className="lp-node__status" style={{ background: "#22c55e" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "57%", left: "12%" }}>
-                  Auth Service <span className="dnode-badge" style={{ background: "var(--n-process)" }}>PROCESS</span>
-                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
+                {/* Row 3 */}
+                <div className="lp-node" style={{ left: "5%", top: "46%" }}>
+                  <span className="lp-node__badge" style={{ background: "#22c55e" }}>PROC</span>
+                  Auth Service
+                </div>
+                <div className="lp-node" style={{ left: "27%", top: "46%" }}>
+                  <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
+                  User Service
+                </div>
+                <div className="lp-node" style={{ left: "52%", top: "46%" }}>
+                  <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
+                  Order Service
+                  <span className="lp-node__status" style={{ background: "#f59e0b" }} />
+                </div>
+                <div className="lp-node" style={{ left: "74%", top: "46%" }}>
+                  <span className="lp-node__badge" style={{ background: "#2563eb" }}>QUEUE</span>
+                  Notifications
                 </div>
 
-                <div className="dnode" style={{ top: "57%", left: "31%" }}>
-                  User Service <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
-                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
+                {/* Row 4 */}
+                <div className="lp-node" style={{ left: "5%", top: "72%" }}>
+                  <span className="lp-node__badge" style={{ background: "#8b5cf6" }}>DB</span>
+                  PostgreSQL
+                </div>
+                <div className="lp-node" style={{ left: "28%", top: "72%" }}>
+                  <span className="lp-node__badge" style={{ background: "#ef4444" }}>CACHE</span>
+                  Redis
+                </div>
+                <div className="lp-node" style={{ left: "52%", top: "72%" }}>
+                  <span className="lp-node__badge" style={{ background: "#8b5cf6" }}>DB</span>
+                  Orders DB
+                  <span className="lp-node__status" style={{ background: "#ef4444" }} />
+                </div>
+                <div className="lp-node" style={{ left: "74%", top: "72%" }}>
+                  <span className="lp-node__badge" style={{ background: "#f59e0b" }}>VENDOR</span>
+                  Kafka
                 </div>
 
-                <div className="dnode" style={{ top: "57%", left: "52%" }}>
-                  Order Service <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
-                  <span className="dnode-status" style={{ background: "var(--warning)" }} />
-                </div>
-
-                <div className="dnode" style={{ top: "57%", left: "73%" }}>
-                  Notifications <span className="dnode-badge" style={{ background: "var(--n-queue)" }}>QUEUE</span>
-                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
-                </div>
-
-                <div className="dnode" style={{ top: "82%", left: "8%" }}>
-                  PostgreSQL <span className="dnode-badge" style={{ background: "var(--n-db)" }}>DB</span>
-                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
-                </div>
-
-                <div className="dnode" style={{ top: "82%", left: "28%" }}>
-                  Redis <span className="dnode-badge" style={{ background: "var(--n-cache)" }}>CACHE</span>
-                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
-                </div>
-
-                <div className="dnode" style={{ top: "82%", left: "48%" }}>
-                  Orders DB <span className="dnode-badge" style={{ background: "var(--n-db)" }}>DB</span>
-                  <span className="dnode-status" style={{ background: "var(--critical)" }} />
-                </div>
-
-                <div className="dnode" style={{ top: "82%", left: "70%" }}>
-                  Kafka <span className="dnode-badge" style={{ background: "var(--n-vendor)" }}>VENDOR</span>
-                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
-                </div>
-
-                <div className="demo-fade" />
+                <div className="lp-product__fade" />
               </div>
             </div>
-          </div>
+          </RevealSection>
         </div>
       </section>
 
-      {/* ═══ SOCIAL PROOF BAR ═══ */}
-      <section className="proof-bar" style={{padding:"56px 0 48px",borderBottom:"1px solid var(--border)"}}>
-        <div className="container-w">
-          {/* Company logos */}
-          <p className="reveal" style={{textAlign:"center",fontSize:".75rem",fontWeight:600,color:"var(--t3)",textTransform:"uppercase",letterSpacing:".1em",marginBottom:"28px"}}>
-            Trusted by engineering teams at innovative companies
-          </p>
-          <div className="reveal" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"48px",flexWrap:"wrap",marginBottom:"48px",opacity:0.5}}>
-            {["Stripe","Shopify","Datadog","Vercel","Linear","Notion"].map((company) => (
-              <div key={company} style={{fontFamily:"var(--font)",fontSize:"1.3rem",fontWeight:800,letterSpacing:"-0.02em",color:"var(--t2)",userSelect:"none"}}>
-                {company}
+      {/* ═══ STATS BAR ═══ */}
+      <section className="lp-stats">
+        <div className="lp-container">
+          <RevealSection>
+            <div className="lp-stats__inner">
+              <div className="lp-stats__item">
+                <span className="lp-stats__number">2,400+</span>
+                <span className="lp-stats__label">Maps Created</span>
               </div>
-            ))}
-          </div>
-
-          {/* Stats */}
-          <div className="proof-inner reveal">
-            <div className="proof-stat">
-              <div className="num">2,400+</div>
-              <div className="lbl">Maps Created</div>
+              <div className="lp-stats__item">
+                <span className="lp-stats__number">500+</span>
+                <span className="lp-stats__label">Teams</span>
+              </div>
+              <div className="lp-stats__item">
+                <span className="lp-stats__number">60%</span>
+                <span className="lp-stats__label">Faster Incident Response</span>
+              </div>
+              <div className="lp-stats__item">
+                <span className="lp-stats__number">99.9%</span>
+                <span className="lp-stats__label">Uptime</span>
+              </div>
             </div>
-            <div className="proof-divider" />
-            <div className="proof-stat">
-              <div className="num">500+</div>
-              <div className="lbl">Teams Using SwayMaps</div>
-            </div>
-            <div className="proof-divider" />
-            <div className="proof-stat">
-              <div className="num">60%</div>
-              <div className="lbl">Faster Incident Response</div>
-            </div>
-            <div className="proof-divider" />
-            <div className="proof-stat">
-              <div className="num">3x</div>
-              <div className="lbl">Faster Onboarding</div>
-            </div>
-            <div className="proof-divider" />
-            <div className="proof-stat">
-              <div className="num">99.9%</div>
-              <div className="lbl">Uptime</div>
-            </div>
-          </div>
+          </RevealSection>
         </div>
       </section>
 
-      {/* ═══ PROBLEMS ═══ */}
-      <section id="problems">
-        <div className="container">
-          <div className="reveal">
-            <div className="eyebrow">The Problem</div>
-            <div className="stitle">Your systems are connected.<br />Your knowledge isn&apos;t.</div>
-            <div className="sdesc">
-              Dependencies live in tribal knowledge, stale wikis, and &ldquo;ask Sarah.&rdquo;
-              When something breaks, everyone scrambles.
+      {/* ═══ PROBLEM ═══ */}
+      <section className="lp-problem">
+        <div className="lp-container">
+          <RevealSection>
+            <div className="lp-problem__header">
+              <div className="lp-eyebrow">The Problem</div>
+              <h2 className="lp-section-title">
+                Your systems are connected.<br />Your knowledge isn&apos;t.
+              </h2>
+              <p className="lp-section-sub">
+                Modern architectures are a web of microservices, APIs, databases, and third-party dependencies. When something breaks, every second spent guessing costs money.
+              </p>
             </div>
-          </div>
+          </RevealSection>
 
-          <div className="problems-grid">
-            <div className="problem-card pc1 reveal rd1">
-              <div className="problem-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <RevealSection>
+            <div className="lp-problem__cards">
+              <div className="lp-problem__card">
+                <div className="lp-problem__card-icon" style={{ background: "rgba(239, 68, 68, 0.1)" }}>
+                  <IconBlind />
+                </div>
+                <h3 className="lp-problem__card-title">Blind Deployments</h3>
+                <p className="lp-problem__card-desc">
+                  Teams ship code without knowing what depends on what. A single change cascades through services nobody mapped, taking production down with it.
+                </p>
+                <div className="lp-problem__card-stat">$540K avg cost per major outage</div>
               </div>
-              <h3>Blind Deployments</h3>
-              <p>Teams ship changes without knowing what breaks downstream. One bad deploy costs $100K+ in rollbacks and downtime.</p>
-            </div>
-            <div className="problem-card pc2 reveal rd2">
-              <div className="problem-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+
+              <div className="lp-problem__card">
+                <div className="lp-problem__card-icon" style={{ background: "rgba(245, 158, 11, 0.1)" }}>
+                  <IconClock />
+                </div>
+                <h3 className="lp-problem__card-title">Slow Incident Response</h3>
+                <p className="lp-problem__card-desc">
+                  When an outage hits, teams spend hours tracing dependency chains through Slack threads, wikis, and tribal knowledge instead of fixing the issue.
+                </p>
+                <div className="lp-problem__card-stat">4.2 hours avg MTTR</div>
               </div>
-              <h3>Slow Incidents</h3>
-              <p>MTTR keeps climbing because nobody can trace the dependency chain. Hours wasted asking &ldquo;what calls what?&rdquo;</p>
-            </div>
-            <div className="problem-card pc3 reveal rd3">
-              <div className="problem-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"/></svg>
+
+              <div className="lp-problem__card">
+                <div className="lp-problem__card-icon" style={{ background: "rgba(139, 92, 246, 0.1)" }}>
+                  <IconUsers />
+                </div>
+                <h3 className="lp-problem__card-title">Knowledge Silos</h3>
+                <p className="lp-problem__card-desc">
+                  Critical system knowledge lives in the heads of a few senior engineers. When they leave, months of institutional context walk out the door.
+                </p>
+                <div className="lp-problem__card-stat">3-6 months to onboard new engineers</div>
               </div>
-              <h3>Painful Onboarding</h3>
-              <p>New engineers take 3-6 months to understand the system. The knowledge lives in people&apos;s heads, not in docs.</p>
             </div>
-            <div className="problem-card pc4 reveal rd4">
-              <div className="problem-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
-              </div>
-              <h3>Risky Migrations</h3>
-              <p>Cloud moves and vendor changes happen without dependency visibility. You discover what you missed in production.</p>
-            </div>
-            <div className="problem-card pc5 reveal">
-              <div className="problem-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              </div>
-              <h3>Compliance Gaps</h3>
-              <p>Auditors ask &ldquo;what touches PII?&rdquo; and nobody can answer in under a week. SOC2 and GDPR audits become fire drills.</p>
-            </div>
-          </div>
+          </RevealSection>
         </div>
       </section>
 
-      {/* ═══ FEATURES BENTO ═══ */}
-      <section id="features">
-        <div className="container-w">
-          <div className="reveal" style={{ textAlign: "center" }}>
-            <div className="eyebrow">Features</div>
-            <div className="stitle">Everything you need to<br/>map your world.</div>
-            <div className="sdesc" style={{ margin: "16px auto 0" }}>
-              From AI generation to version history — a complete platform for visual dependency intelligence.
+      {/* ═══ FEATURES ═══ */}
+      <section className="lp-features">
+        <div className="lp-container">
+          <RevealSection>
+            <div className="lp-features__header">
+              <div className="lp-eyebrow">Features</div>
+              <h2 className="lp-section-title">Everything you need to map your world.</h2>
+              <p className="lp-section-sub">
+                From AI-powered generation to real-time collaboration, SwayMaps gives your team a single source of truth for system dependencies.
+              </p>
             </div>
-          </div>
+          </RevealSection>
 
-          <div className="bento">
-            {/* 1: AI -- 7col, 2row */}
-            <div className="bc b1 reveal">
-              <div className="ci" style={{fontSize:".75rem"}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              </div>
-              <h3>AI-Powered Generation</h3>
-              <p>Describe what you want to map in plain English. AI builds the first draft in seconds — nodes, edges, relationships, and layout included. Iterate with AI brainstorm.</p>
-              <div className="ai-demo">
-                <div className="ai-prompt">
-                  <span className="spark">✦</span>
-                  <span className="text">&ldquo;Map our payment processing pipeline with Stripe, webhooks, and the order database&rdquo;</span>
-                </div>
-                <div className="ai-result-nodes">
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-api)" }} />Stripe API</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-db)" }} />Webhooks</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-system)" }} />Order Service</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-vendor)" }} />Orders DB</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-cache)" }} />Redis Queue</div>
-                  <div className="ai-mini-node"><span className="dot" style={{ background: "var(--n-process)" }} />Notification</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 2: Real-Time Collaboration -- 5col */}
-            <div className="bc b2 reveal">
-              <div className="ci">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-              </div>
-              <h3>Real-Time Collaboration</h3>
-              <p>Multiple people editing the same map. Workspace roles keep everyone aligned: Owner, Admin, Editor, Viewer. Inline comments on any node.</p>
-            </div>
-
-            {/* 3: Sharing -- 5col */}
-            <div className="bc b3 reveal">
-              <div className="ci">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/></svg>
-              </div>
-              <h3>Public Sharing</h3>
-              <p>Share read-only maps with a single link. Perfect for stakeholder reviews, incident post-mortems, and audit documentation.</p>
-              <div className="share-link">
-                <span className="url">swaymaps.com/share/a8f2e9...</span>
-                <button className="copy-btn">COPY</button>
-              </div>
-            </div>
-
-            {/* 4: Version History -- 4col */}
-            <div className="bc b4 reveal">
-              <div className="ci">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              </div>
-              <h3>Version History</h3>
-              <p>Every save creates a snapshot. Compare changes with the built-in diff viewer. Restore any version with one click.</p>
-              <div className="version-demo">
-                <div className="ve">
-                  <span className="ind" style={{ background: "var(--healthy)" }} />
-                  <span className="lb">Added payment gateway</span>
-                  <span className="tm">2m ago</span>
-                </div>
-                <div className="ve">
-                  <span className="ind" style={{ background: "var(--accent)" }} />
-                  <span className="lb">+3 nodes, +4 edges</span>
-                  <span className="tm">1h ago</span>
-                </div>
-                <div className="ve">
-                  <span className="ind" style={{ background: "var(--t3)" }} />
-                  <span className="lb">Initial architecture draft</span>
-                  <span className="tm">3h ago</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 5: Diagram as Code -- 4col */}
-            <div className="bc b5 reveal">
-              <div className="ci">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
-              </div>
-              <h3>Diagram as Code</h3>
-              <p>Define maps in YAML. Version-control them in Git. Diff in pull requests. Apply to the visual canvas.</p>
-            </div>
-
-            {/* 6: Export -- 4col */}
-            <div className="bc b6 reveal">
-              <div className="ci">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-              </div>
-              <h3>Export Anywhere</h3>
-              <p>Export as PNG, SVG, PDF, or JSON. Embed in Notion, Confluence, or any internal wiki via iframe.</p>
-              <div className="format-badges">
-                <span>PNG</span>
-                <span>SVG</span>
-                <span>PDF</span>
-                <span>JSON</span>
-              </div>
-            </div>
-
-            {/* 7: Templates -- 4col */}
-            <div className="bc b7 reveal">
-              <div className="ci">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-              </div>
-              <h3>25+ Templates</h3>
-              <p>Microservices, org charts, CI/CD pipelines, compliance maps, vendor dependencies — one-click start.</p>
-            </div>
-
-            {/* 8: Command Palette -- 4col */}
-            <div className="bc b8 reveal">
-              <div className="ci">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 3a3 3 0 00-3 3v12a3 3 0 003 3 3 3 0 003-3 3 3 0 00-3-3H6a3 3 0 00-3 3 3 3 0 003 3 3 3 0 003-3V6a3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3h12a3 3 0 003-3 3 3 0 00-3-3z"/></svg>
-              </div>
-              <h3>Command Palette</h3>
-              <p>Press <span className="kbd">⌘K</span> to search nodes, run actions, toggle themes, and navigate — power-user speed.</p>
-            </div>
-
-            {/* 9: Health Dashboard -- 4col */}
-            <div className="bc b9 reveal">
-              <div className="ci">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-              </div>
-              <h3>Health Dashboard</h3>
-              <p>0-100 health score for every map. Detect orphan nodes, circular dependencies, and missing metadata at a glance.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ USE CASES ═══ */}
-      <section className="usecases" id="usecases">
-        <div className="container">
-          <div className="uc-header reveal">
-            <div className="eyebrow">Use Cases</div>
-            <div className="stitle">Built for teams that can&apos;t afford to guess</div>
-            <div className="sdesc">
-              From engineering leads to compliance officers, SwayMaps gives every team a shared source of truth.
-            </div>
-          </div>
-
-          <div className="uc-tabs reveal">
-            {useCasesData.map((uc) => (
-              <button
-                key={uc.id}
-                className={`uc-tab${activeTab === uc.id ? " active" : ""}`}
-                onClick={() => setActiveTab(uc.id)}
-              >
-                {uc.label}
-              </button>
-            ))}
-          </div>
-
-          {useCasesData.map((uc) => (
-            <div key={uc.id} className={`uc-panel${activeTab === uc.id ? " active" : ""}`}>
-              <div className="uc-content">
-                <div className="uc-info">
-                  <h3>{uc.title}</h3>
-                  <p>{uc.desc}</p>
-                  <ul className="uc-checklist">
-                    {uc.checks.map((c, i) => (
-                      <li key={i}>{c}</li>
-                    ))}
+          {/* Feature 1: AI */}
+          <div className="lp-feat">
+            <RevealSection>
+              <div className="lp-feat__grid">
+                <div className="lp-feat__text">
+                  <h3>Describe it. AI maps it.</h3>
+                  <p>
+                    Skip the drag-and-drop. Describe your system architecture in plain English and watch as AI instantly generates a complete dependency map with nodes, edges, and relationships.
+                  </p>
+                  <ul className="lp-feat__bullets">
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Natural language to dependency map in seconds
+                    </li>
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Automatically detects node types, relationships, and dependencies
+                    </li>
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Refine and iterate with follow-up prompts
+                    </li>
                   </ul>
                 </div>
-                <div className="uc-visual">
-                  <div className="uc-vn">
-                    {uc.nodes.map((n, i) => (
-                      <div className="ucn" key={i}>
-                        <span
-                          style={{
-                            width: 10,
-                            height: 10,
-                            borderRadius: 4,
-                            background: n.color,
-                            flexShrink: 0,
-                          }}
-                        />
-                        {n.label}
-                        <span className="badge" style={{ background: n.color }}>{n.badge}</span>
-                      </div>
-                    ))}
+                <div className="lp-feat__visual">
+                  <div className="lp-ai-prompt">
+                    <div className="lp-ai-prompt__label">
+                      <IconStar /> AI ASSIST
+                    </div>
+                    <div className="lp-ai-prompt__text">
+                      Map our payment processing pipeline from checkout through Stripe to the orders database and notification service
+                      <span className="lp-ai-prompt__cursor" />
+                    </div>
+                  </div>
+                  <div className="lp-ai-chips">
+                    <div className="lp-ai-chip">
+                      <span className="lp-ai-chip__dot" style={{ background: "#3b82f6" }} />
+                      Checkout UI
+                    </div>
+                    <div className="lp-ai-chip">
+                      <span className="lp-ai-chip__dot" style={{ background: "#06b6d4" }} />
+                      Payment API
+                    </div>
+                    <div className="lp-ai-chip">
+                      <span className="lp-ai-chip__dot" style={{ background: "#f59e0b" }} />
+                      Stripe
+                    </div>
+                    <div className="lp-ai-chip">
+                      <span className="lp-ai-chip__dot" style={{ background: "#8b5cf6" }} />
+                      Orders DB
+                    </div>
+                    <div className="lp-ai-chip">
+                      <span className="lp-ai-chip__dot" style={{ background: "#2563eb" }} />
+                      Event Queue
+                    </div>
+                    <div className="lp-ai-chip">
+                      <span className="lp-ai-chip__dot" style={{ background: "#22c55e" }} />
+                      Notifications
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            </RevealSection>
+          </div>
 
-      {/* ═══ DIAGRAM AS CODE (YAML) ═══ */}
-      <section id="yaml">
-        <div className="container">
-          <div className="code-section">
-            <div className="reveal">
-              <div className="eyebrow">Diagram as Code</div>
-              <div className="stitle">Define maps in YAML.<br />Version them in Git.</div>
-              <div className="sdesc">
-                Infrastructure-as-code teams love this. Define your dependency map declaratively,
-                check it into version control, and render it instantly.
+          {/* Feature 2: Collaboration */}
+          <div className="lp-feat">
+            <RevealSection>
+              <div className="lp-feat__grid lp-feat__grid--reverse">
+                <div className="lp-feat__text">
+                  <h3>Map together, in real time.</h3>
+                  <p>
+                    Invite your team to shared workspaces with granular role-based access. Everyone sees the same map, always up to date, with full audit history.
+                  </p>
+                  <ul className="lp-feat__bullets">
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Workspaces with Owner, Admin, Editor, and Viewer roles
+                    </li>
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Share maps via secure public links with one click
+                    </li>
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Full audit log of every change, by every team member
+                    </li>
+                  </ul>
+                </div>
+                <div className="lp-feat__visual">
+                  <div className="lp-collab-roles">
+                    <div className="lp-collab-role">
+                      <div className="lp-collab-role__avatar" style={{ background: "#3b82f6" }}>AK</div>
+                      <div className="lp-collab-role__info">
+                        <div className="lp-collab-role__name">Alex Kim</div>
+                        <div className="lp-collab-role__label">alex@company.com</div>
+                      </div>
+                      <span className="lp-collab-role__badge" style={{ background: "rgba(59, 130, 246, 0.15)", color: "#3b82f6" }}>Owner</span>
+                    </div>
+                    <div className="lp-collab-role">
+                      <div className="lp-collab-role__avatar" style={{ background: "#8b5cf6" }}>SR</div>
+                      <div className="lp-collab-role__info">
+                        <div className="lp-collab-role__name">Sarah Rodriguez</div>
+                        <div className="lp-collab-role__label">sarah@company.com</div>
+                      </div>
+                      <span className="lp-collab-role__badge" style={{ background: "rgba(139, 92, 246, 0.15)", color: "#8b5cf6" }}>Admin</span>
+                    </div>
+                    <div className="lp-collab-role">
+                      <div className="lp-collab-role__avatar" style={{ background: "#22c55e" }}>JT</div>
+                      <div className="lp-collab-role__info">
+                        <div className="lp-collab-role__name">James Turner</div>
+                        <div className="lp-collab-role__label">james@company.com</div>
+                      </div>
+                      <span className="lp-collab-role__badge" style={{ background: "rgba(34, 197, 94, 0.15)", color: "#22c55e" }}>Editor</span>
+                    </div>
+                    <div className="lp-collab-role">
+                      <div className="lp-collab-role__avatar" style={{ background: "#f59e0b" }}>ML</div>
+                      <div className="lp-collab-role__info">
+                        <div className="lp-collab-role__name">Maya Lee</div>
+                        <div className="lp-collab-role__label">maya@company.com</div>
+                      </div>
+                      <span className="lp-collab-role__badge" style={{ background: "rgba(245, 158, 11, 0.15)", color: "#f59e0b" }}>Viewer</span>
+                    </div>
+                  </div>
+                  <div className="lp-collab-share">
+                    <IconLink />
+                    <span className="lp-collab-share__url">swaymaps.com/share/a1b2c3d4-e5f6</span>
+                    <button className="lp-collab-share__btn">Copy</button>
+                  </div>
+                </div>
               </div>
-              <div style={{ marginTop: 28 }}>
-                <Link href="/auth/signup" className="btn btn-primary">
-                  Try It Free
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </Link>
-              </div>
-            </div>
+            </RevealSection>
+          </div>
 
-            <div className="code-block reveal">
-              <div className="code-header">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.2"/><path d="M4 5l2.5 2L4 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/><path d="M8 9h2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
-                architecture.yaml
+          {/* Feature 3: Version History */}
+          <div className="lp-feat">
+            <RevealSection>
+              <div className="lp-feat__grid">
+                <div className="lp-feat__text">
+                  <h3>Every change, tracked.</h3>
+                  <p>
+                    SwayMaps automatically snapshots your maps on every save. Browse the full version timeline, see diffs between any two versions, and restore with one click.
+                  </p>
+                  <ul className="lp-feat__bullets">
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Automatic version snapshots on every save
+                    </li>
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Visual diff viewer to compare any two versions
+                    </li>
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      One-click restore to any previous state
+                    </li>
+                  </ul>
+                </div>
+                <div className="lp-feat__visual">
+                  <div className="lp-versions">
+                    <div className="lp-version-item">
+                      <div className="lp-version-item__timeline">
+                        <span className="lp-version-item__dot" style={{ borderColor: "#22c55e" }} />
+                      </div>
+                      <div className="lp-version-item__content">
+                        <div className="lp-version-item__title">Added Redis caching layer</div>
+                        <div className="lp-version-item__meta">v12 -- Alex Kim -- 2 hours ago</div>
+                        <div className="lp-version-item__changes">
+                          <span className="lp-version-item__change--add">+2 nodes</span>
+                          <span className="lp-version-item__change--add">+3 edges</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lp-version-item">
+                      <div className="lp-version-item__timeline">
+                        <span className="lp-version-item__dot" style={{ borderColor: "#f59e0b" }} />
+                      </div>
+                      <div className="lp-version-item__content">
+                        <div className="lp-version-item__title">Updated Order Service status to warning</div>
+                        <div className="lp-version-item__meta">v11 -- Sarah Rodriguez -- 5 hours ago</div>
+                        <div className="lp-version-item__changes">
+                          <span className="lp-version-item__change--mod">~1 node modified</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lp-version-item">
+                      <div className="lp-version-item__timeline">
+                        <span className="lp-version-item__dot" style={{ borderColor: "#3b82f6" }} />
+                      </div>
+                      <div className="lp-version-item__content">
+                        <div className="lp-version-item__title">Added Kafka event bus integration</div>
+                        <div className="lp-version-item__meta">v10 -- James Turner -- yesterday</div>
+                        <div className="lp-version-item__changes">
+                          <span className="lp-version-item__change--add">+1 node</span>
+                          <span className="lp-version-item__change--add">+2 edges</span>
+                          <span className="lp-version-item__change--del">-1 edge</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="lp-version-item">
+                      <div className="lp-version-item__timeline">
+                        <span className="lp-version-item__dot" style={{ borderColor: "#ef4444" }} />
+                      </div>
+                      <div className="lp-version-item__content">
+                        <div className="lp-version-item__title">Removed deprecated Auth v1 service</div>
+                        <div className="lp-version-item__meta">v9 -- Alex Kim -- 2 days ago</div>
+                        <div className="lp-version-item__changes">
+                          <span className="lp-version-item__change--del">-1 node</span>
+                          <span className="lp-version-item__change--del">-4 edges</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="code-body">
-                <span className="c"># SwayMaps dependency definition</span>{"\n"}
-                <span className="k">name</span>: <span className="v">&quot;Payment Pipeline&quot;</span>{"\n"}
-                <span className="k">nodes</span>:{"\n"}
-                {"  "}<span className="k">- id</span>: <span className="v">stripe-api</span>{"\n"}
-                {"    "}<span className="k">type</span>: <span className="v">api</span>{"\n"}
-                {"    "}<span className="k">label</span>: <span className="s">&quot;Stripe API&quot;</span>{"\n"}
-                {"  "}<span className="k">- id</span>: <span className="v">webhook-handler</span>{"\n"}
-                {"    "}<span className="k">type</span>: <span className="v">process</span>{"\n"}
-                {"    "}<span className="k">label</span>: <span className="s">&quot;Webhook Handler&quot;</span>{"\n"}
-                {"  "}<span className="k">- id</span>: <span className="v">orders-db</span>{"\n"}
-                {"    "}<span className="k">type</span>: <span className="v">database</span>{"\n"}
-                {"    "}<span className="k">label</span>: <span className="s">&quot;Orders DB&quot;</span>{"\n"}
-                <span className="k">edges</span>:{"\n"}
-                {"  "}<span className="k">- from</span>: <span className="v">stripe-api</span>{"\n"}
-                {"    "}<span className="k">to</span>: <span className="v">webhook-handler</span>{"\n"}
-                {"    "}<span className="k">label</span>: <span className="s">&quot;payment.success&quot;</span>{"\n"}
-                {"  "}<span className="k">- from</span>: <span className="v">webhook-handler</span>{"\n"}
-                {"    "}<span className="k">to</span>: <span className="v">orders-db</span>{"\n"}
-                {"    "}<span className="k">label</span>: <span className="s">&quot;update status&quot;</span>
+            </RevealSection>
+          </div>
+
+          {/* Feature 4: Diagram as Code */}
+          <div className="lp-feat">
+            <RevealSection>
+              <div className="lp-feat__grid lp-feat__grid--reverse">
+                <div className="lp-feat__text">
+                  <h3>Maps that live in your repo.</h3>
+                  <p>
+                    Export your dependency maps as YAML and check them into Git. Review map changes in PRs, track history with commits, and automate updates in CI/CD.
+                  </p>
+                  <ul className="lp-feat__bullets">
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Clean YAML DSL for readable, versionable maps
+                    </li>
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Import and export to keep code and canvas in sync
+                    </li>
+                    <li>
+                      <span className="lp-feat__check"><IconCheck /></span>
+                      Diff-friendly format for meaningful PR reviews
+                    </li>
+                  </ul>
+                </div>
+                <div className="lp-feat__visual">
+                  <div className="lp-code-block">
+                    <div className="lp-code-block__header">
+                      <IconFile /> architecture.sway.yml
+                    </div>
+                    <div className="lp-code-block__body">
+                      <div><span className="code-comment"># Payment Pipeline</span></div>
+                      <div><span className="code-key">name</span>: <span className="code-str">&quot;Payment Pipeline&quot;</span></div>
+                      <div><span className="code-key">version</span>: <span className="code-num">2</span></div>
+                      <div>&nbsp;</div>
+                      <div><span className="code-key">nodes</span>:</div>
+                      <div>&nbsp; - <span className="code-key">id</span>: <span className="code-str">&quot;checkout&quot;</span></div>
+                      <div>&nbsp; &nbsp; <span className="code-key">type</span>: <span className="code-type">system</span></div>
+                      <div>&nbsp; &nbsp; <span className="code-key">label</span>: <span className="code-str">&quot;Checkout UI&quot;</span></div>
+                      <div>&nbsp; &nbsp; <span className="code-key">status</span>: <span className="code-str">&quot;healthy&quot;</span></div>
+                      <div>&nbsp;</div>
+                      <div>&nbsp; - <span className="code-key">id</span>: <span className="code-str">&quot;stripe&quot;</span></div>
+                      <div>&nbsp; &nbsp; <span className="code-key">type</span>: <span className="code-type">vendor</span></div>
+                      <div>&nbsp; &nbsp; <span className="code-key">label</span>: <span className="code-str">&quot;Stripe API&quot;</span></div>
+                      <div>&nbsp;</div>
+                      <div><span className="code-key">edges</span>:</div>
+                      <div>&nbsp; - <span className="code-key">from</span>: <span className="code-str">&quot;checkout&quot;</span></div>
+                      <div>&nbsp; &nbsp; <span className="code-key">to</span>: <span className="code-str">&quot;stripe&quot;</span></div>
+                      <div>&nbsp; &nbsp; <span className="code-key">label</span>: <span className="code-str">&quot;process payment&quot;</span></div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </RevealSection>
           </div>
         </div>
       </section>
 
-      {/* ═══ PRICING ═══ */}
-      <section id="pricing">
-        <div className="container">
-          <div className="pricing-header reveal">
-            <div className="eyebrow">Pricing</div>
-            <div className="stitle">Simple, transparent pricing</div>
-            <div className="sdesc">
-              Start free. Upgrade when you need more maps, more collaborators, or more power.
+      {/* ═══ MORE FEATURES GRID ═══ */}
+      <section className="lp-more">
+        <div className="lp-container">
+          <RevealSection>
+            <div className="lp-more__header">
+              <div className="lp-eyebrow">And More</div>
+              <h2 className="lp-section-title">Built for power users.</h2>
             </div>
-            <div className="pricing-toggle">
-              <button
-                className={!annual ? "active" : ""}
-                onClick={() => setAnnual(false)}
-              >
-                Monthly
-              </button>
-              <button
-                className={annual ? "active" : ""}
-                onClick={() => setAnnual(true)}
-              >
-                Annual
-              </button>
-              {annual && <span className="save-badge">Save 30%+</span>}
-            </div>
-          </div>
+          </RevealSection>
 
-          <div className="pricing-grid reveal">
-            {/* Free */}
-            <div className="pc-card">
-              <div className="ptier">Free</div>
-              <div className="pamt">$0<span className="per"> /mo</span></div>
-              <div className="pann">Free forever</div>
-              <ul className="pf">
-                <li><span className="ck y">✓</span>3 maps</li>
-                <li><span className="ck y">✓</span>All 11 node types</li>
-                <li><span className="ck y">✓</span>PNG &amp; JSON export</li>
-                <li><span className="ck y">✓</span>Public sharing</li>
-                <li><span className="ck y">✓</span>Community templates</li>
-                <li><span className="ck n">—</span>AI generation</li>
-                <li><span className="ck n">—</span>Version history</li>
-                <li><span className="ck n">—</span>Team workspaces</li>
-              </ul>
-              <Link href="/auth/signup" className="pbtn secondary">Get Started Free</Link>
+          <RevealSection>
+            <div className="lp-more__grid">
+              <div className="lp-more__card">
+                <div className="lp-more__card-icon"><IconTemplate /></div>
+                <h3 className="lp-more__card-title">25+ Templates</h3>
+                <p className="lp-more__card-desc">One-click start from proven architecture templates for microservices, data pipelines, and more.</p>
+              </div>
+              <div className="lp-more__card">
+                <div className="lp-more__card-icon"><IconHealth /></div>
+                <h3 className="lp-more__card-title">Health Dashboard</h3>
+                <p className="lp-more__card-desc">0-100 health score per map. Detect orphaned nodes, missing edges, and configuration issues instantly.</p>
+              </div>
+              <div className="lp-more__card">
+                <div className="lp-more__card-icon"><IconExport /></div>
+                <h3 className="lp-more__card-title">Import and Export</h3>
+                <p className="lp-more__card-desc">Bring in Draw.io and Lucidchart files. Export to PNG, SVG, PDF, or JSON for any workflow.</p>
+              </div>
+              <div className="lp-more__card">
+                <div className="lp-more__card-icon"><IconCommand /></div>
+                <h3 className="lp-more__card-title">Command Palette</h3>
+                <p className="lp-more__card-desc">Press Cmd+K to search, navigate, and act. Keyboard-first design for maximum speed.</p>
+              </div>
+              <div className="lp-more__card">
+                <div className="lp-more__card-icon"><IconPlug /></div>
+                <h3 className="lp-more__card-title">Integrations</h3>
+                <p className="lp-more__card-desc">Connect to Slack, Microsoft Teams, and webhooks. Get notified when maps change.</p>
+              </div>
+              <div className="lp-more__card">
+                <div className="lp-more__card-icon"><IconNodes /></div>
+                <h3 className="lp-more__card-title">11 Node Types</h3>
+                <p className="lp-more__card-desc">Person, System, API, Database, Queue, Cache, Process, Cloud, Vendor, Team, and Generic.</p>
+              </div>
             </div>
-
-            {/* Pro */}
-            <div className="pc-card pop">
-              <div className="ptier">Pro</div>
-              <div className="pamt">
-                ${annual ? "19" : "29"}<span className="per"> /mo</span>
-              </div>
-              <div className="pann">
-                {annual ? "Billed $228/year" : "Billed monthly"} -- 14-day free trial
-              </div>
-              <ul className="pf">
-                <li><span className="ck y">✓</span>Unlimited maps</li>
-                <li><span className="ck y">✓</span>All 11 node types</li>
-                <li><span className="ck y">✓</span>All export formats (PNG, SVG, PDF, JSON)</li>
-                <li><span className="ck y">✓</span>AI generation</li>
-                <li><span className="ck y">✓</span>Version history</li>
-                <li><span className="ck y">✓</span>Public sharing</li>
-                <li><span className="ck y">✓</span>Priority support</li>
-                <li><span className="ck n">—</span>Team workspaces</li>
-              </ul>
-              <Link href="/auth/signup" className="pbtn primary">Start 14-Day Free Trial</Link>
-            </div>
-
-            {/* Team */}
-            <div className="pc-card">
-              <div className="ptier">Team</div>
-              <div className="pamt">
-                ${annual ? "59" : "79"}<span className="per"> /mo</span>
-              </div>
-              <div className="pann">
-                {annual ? "Billed $708/year" : "Billed monthly"} -- 14-day free trial
-              </div>
-              <ul className="pf">
-                <li><span className="ck y">✓</span>Everything in Pro</li>
-                <li><span className="ck y">✓</span>Team workspaces</li>
-                <li><span className="ck y">✓</span>Role-based access (owner, admin, editor, viewer)</li>
-                <li><span className="ck y">✓</span>Workspace invites</li>
-                <li><span className="ck y">✓</span>Audit log</li>
-                <li><span className="ck y">✓</span>Version diff viewer</li>
-                <li><span className="ck y">✓</span>Priority support</li>
-                <li><span className="ck y">✓</span>SSO (coming soon)</li>
-              </ul>
-              <Link href="/auth/signup" className="pbtn secondary">Start 14-Day Free Trial</Link>
-            </div>
-          </div>
+          </RevealSection>
         </div>
       </section>
 
       {/* ═══ COMPARISON ═══ */}
-      <section className="compare-section" id="compare">
-        <div className="container">
-          <div className="reveal" style={{ textAlign: "center" }}>
-            <div className="eyebrow">Why SwayMaps</div>
-            <div className="stitle">Not another generic<br/>diagramming tool.</div>
-            <div className="sdesc" style={{ margin: "16px auto 0" }}>
-              Purpose-built for structured dependency intelligence — not sticky notes on a whiteboard.
+      <section className="lp-compare">
+        <div className="lp-container">
+          <RevealSection>
+            <div className="lp-compare__header">
+              <div className="lp-eyebrow">Why SwayMaps</div>
+              <h2 className="lp-section-title">Built for dependencies. Not general diagramming.</h2>
+              <p className="lp-section-sub">
+                Generic tools force you to build dependency intelligence from scratch. SwayMaps gives it to you out of the box.
+              </p>
             </div>
-          </div>
+          </RevealSection>
 
-          {/* Competitor cards */}
-          <div className="reveal" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"16px",marginTop:"48px"}}>
-            {competitors.map((c, i) => (
-              <div key={i} style={{background:"var(--bg3)",border:"1px solid var(--border)",borderRadius:"14px",padding:"28px 24px",transition:"all .25s",position:"relative",overflow:"hidden"}}>
-                <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"16px"}}>
-                  <span style={{fontSize:".7rem",fontWeight:700,textTransform:"uppercase",letterSpacing:".06em",padding:"3px 10px",borderRadius:"6px",background:"rgba(239,68,68,0.1)",color:"var(--critical)"}}>{c.name}</span>
+          <RevealSection>
+            <div className="lp-compare__grid">
+              <div className="lp-compare__card">
+                <div className="lp-compare__card-name">Lucidchart / Draw.io</div>
+                <div className="lp-compare__weakness">
+                  General-purpose diagramming tools with no concept of dependencies, health status, or node types. Maps become stale immediately.
                 </div>
-                <div style={{fontSize:".82rem",color:"var(--t3)",lineHeight:"1.6",marginBottom:"16px",paddingLeft:"12px",borderLeft:"2px solid rgba(239,68,68,0.3)"}}>
-                  {c.weakness}
-                </div>
-                <div style={{display:"flex",alignItems:"flex-start",gap:"8px"}}>
-                  <span style={{flexShrink:0,width:"20px",height:"20px",borderRadius:"6px",background:"rgba(0,194,255,0.1)",color:"var(--accent)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:".7rem",fontWeight:700,marginTop:"1px"}}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-                  </span>
-                  <span style={{fontSize:".84rem",color:"var(--accent)",lineHeight:"1.6",fontWeight:500}}>{c.advantage}</span>
+                <div className="lp-compare__advantage">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5l4 4 8-9" /></svg>
+                  SwayMaps: Purpose-built for dependencies with typed nodes, health tracking, and version history.
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Feature checklist table */}
-          <div className="ct reveal" style={{marginTop:"32px"}}>
-            <div className="ctr cth">
-              <div>Feature</div>
-              <div>Others</div>
-              <div>SwayMaps</div>
-            </div>
-            {comparisonFeatures.map((row, i) => (
-              <div className="ctr" key={i}>
-                <div>{row.feature}</div>
-                <div>{row.others === false ? <span style={{color:"var(--critical)"}}>✕</span> : <span>{String(row.others)}</span>}</div>
-                <div>{row.sway === true ? <span style={{color:"var(--healthy)"}}>✓</span> : <span>{String(row.sway)}</span>}</div>
+              <div className="lp-compare__card">
+                <div className="lp-compare__card-name">ServiceNow CMDB</div>
+                <div className="lp-compare__weakness">
+                  Enterprise CMDB tools are expensive, complex, and require months of implementation. Teams avoid them because they are painful to use.
+                </div>
+                <div className="lp-compare__advantage">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5l4 4 8-9" /></svg>
+                  SwayMaps: Visual-first, zero setup. Start mapping in 30 seconds, not 3 months.
+                </div>
               </div>
-            ))}
-          </div>
+
+              <div className="lp-compare__card">
+                <div className="lp-compare__card-name">Backstage</div>
+                <div className="lp-compare__weakness">
+                  Developer portals like Backstage are powerful but require significant engineering investment to deploy, customize, and maintain.
+                </div>
+                <div className="lp-compare__advantage">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5l4 4 8-9" /></svg>
+                  SwayMaps: SaaS that works instantly. No infrastructure, no YAML configs, no maintenance.
+                </div>
+              </div>
+
+              <div className="lp-compare__card">
+                <div className="lp-compare__card-name">Miro / FigJam</div>
+                <div className="lp-compare__weakness">
+                  Whiteboard tools are great for brainstorming but lack structure. Maps are untyped, unversioned, and impossible to keep up to date.
+                </div>
+                <div className="lp-compare__advantage">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5l4 4 8-9" /></svg>
+                  SwayMaps: Structured maps with typed nodes, directed edges, health status, and auto-versioning.
+                </div>
+              </div>
+            </div>
+          </RevealSection>
+        </div>
+      </section>
+
+      {/* ═══ PRICING ═══ */}
+      <section className="lp-pricing">
+        <div className="lp-container">
+          <RevealSection>
+            <div className="lp-pricing__header">
+              <div className="lp-eyebrow">Pricing</div>
+              <h2 className="lp-section-title">Start free. Scale as you grow.</h2>
+              <p className="lp-section-sub" style={{ margin: "0 auto" }}>
+                Every plan includes a 14-day free trial. No credit card required to get started.
+              </p>
+
+              <div className="lp-pricing__toggle">
+                <span className={`lp-pricing__toggle-label ${!annual ? "lp-pricing__toggle-label--active" : ""}`}>Monthly</span>
+                <button
+                  className={`lp-pricing__toggle-switch ${annual ? "lp-pricing__toggle-switch--active" : ""}`}
+                  onClick={() => setAnnual(!annual)}
+                  aria-label="Toggle annual pricing"
+                >
+                  <span className="lp-pricing__toggle-knob" />
+                </button>
+                <span className={`lp-pricing__toggle-label ${annual ? "lp-pricing__toggle-label--active" : ""}`}>Annual</span>
+                <span className="lp-pricing__save">Save 30%</span>
+              </div>
+            </div>
+          </RevealSection>
+
+          <RevealSection>
+            <div className="lp-pricing__cards">
+              {/* Free */}
+              <div className="lp-pricing__card">
+                <div className="lp-pricing__plan-name">Free</div>
+                <div className="lp-pricing__plan-desc">For individuals exploring dependency mapping.</div>
+                <div className="lp-pricing__price">
+                  <span className="lp-pricing__price-amount">$0</span>
+                  <span className="lp-pricing__price-period">/month</span>
+                </div>
+                <div className="lp-pricing__price-note">Free forever</div>
+                <ul className="lp-pricing__features">
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Up to 3 maps</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> All 11 node types</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> PNG and JSON export</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> 25+ templates</li>
+                  <li><svg className="lp-dash" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="8" x2="11" y2="8" /></svg> <span style={{ color: "var(--t3)" }}>No AI generation</span></li>
+                  <li><svg className="lp-dash" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="8" x2="11" y2="8" /></svg> <span style={{ color: "var(--t3)" }}>No workspaces</span></li>
+                </ul>
+                <Link href="/auth/signup" className="lp-btn lp-btn--ghost">Get Started</Link>
+              </div>
+
+              {/* Pro */}
+              <div className="lp-pricing__card lp-pricing__card--popular">
+                <div className="lp-pricing__popular-badge">MOST POPULAR</div>
+                <div className="lp-pricing__plan-name">Pro</div>
+                <div className="lp-pricing__plan-desc">For engineers and small teams who need full power.</div>
+                <div className="lp-pricing__price">
+                  <span className="lp-pricing__price-amount">${annual ? "19" : "29"}</span>
+                  <span className="lp-pricing__price-period">/month</span>
+                </div>
+                <div className="lp-pricing__price-note">{annual ? "Billed annually ($228/yr)" : "Billed monthly"}</div>
+                <ul className="lp-pricing__features">
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Unlimited maps</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> AI-powered generation</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> All export formats</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Version history</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Public sharing</li>
+                  <li><svg className="lp-dash" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="8" x2="11" y2="8" /></svg> <span style={{ color: "var(--t3)" }}>No team workspaces</span></li>
+                </ul>
+                <Link href="/auth/signup" className="lp-btn lp-btn--primary">Start Free Trial</Link>
+              </div>
+
+              {/* Team */}
+              <div className="lp-pricing__card">
+                <div className="lp-pricing__plan-name">Team</div>
+                <div className="lp-pricing__plan-desc">For teams that need collaboration and governance.</div>
+                <div className="lp-pricing__price">
+                  <span className="lp-pricing__price-amount">${annual ? "59" : "79"}</span>
+                  <span className="lp-pricing__price-period">/month</span>
+                </div>
+                <div className="lp-pricing__price-note">{annual ? "Billed annually ($708/yr)" : "Billed monthly"}</div>
+                <ul className="lp-pricing__features">
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Everything in Pro</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Team workspaces</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Role-based access control</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Full audit log</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Slack and Teams integration</li>
+                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Priority support</li>
+                </ul>
+                <Link href="/auth/signup" className="lp-btn lp-btn--ghost">Start Free Trial</Link>
+              </div>
+            </div>
+          </RevealSection>
         </div>
       </section>
 
       {/* ═══ FINAL CTA ═══ */}
-      <section className="final-cta">
-        <div className="container reveal">
-          <h2>
-            Stop guessing.<br />
-            <span className="grad">Start mapping.</span>
-          </h2>
-          <p>
-            Join engineering teams who replaced tribal knowledge with a
-            living, visual map of their entire system.
-          </p>
-          <div className="fca">
-            <Link href="/auth/signup" className="btn btn-primary btn-lg">
-              Start Free -- No Credit Card
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </Link>
-            <a href="#pricing" onClick={(e) => scrollTo(e, "pricing")} className="btn btn-outline btn-lg">
-              View Pricing
-            </a>
-          </div>
+      <section className="lp-cta">
+        <div className="lp-cta__glow" />
+        <div className="lp-container">
+          <RevealSection>
+            <h2 className="lp-cta__title">
+              Stop guessing.<br />
+              <span className="lp-gradient-text">Start mapping.</span>
+            </h2>
+            <p className="lp-cta__subtitle">
+              Join 500+ engineering teams who use SwayMaps to visualize dependencies, reduce incidents, and ship with confidence.
+            </p>
+            <div className="lp-cta__buttons">
+              <Link href="/auth/signup" className="lp-btn lp-btn--primary-lg">
+                Start Free — No Credit Card <IconArrowRight size={16} />
+              </Link>
+              <Link href="/pricing" className="lp-btn lp-btn--outline-lg">
+                View Pricing
+              </Link>
+            </div>
+          </RevealSection>
         </div>
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="landing-footer">
-        <div className="container-w">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <Link href="/" className="logo" style={{ marginBottom: 14, display: "inline-flex" }}>
+      <footer className="lp-footer">
+        <div className="lp-container">
+          <div className="lp-footer__grid">
+            <div className="lp-footer__brand">
+              <Link href="/landing" className="lp-footer__brand-logo">
                 <LogoMark />
-                <span className="logo-text">SwayMaps</span>
+                <span>SwayMaps</span>
               </Link>
-              <p>
-                The visual dependency intelligence platform. Map systems, trace impact, ship with confidence.
+              <p className="lp-footer__brand-tagline">
+                The visual dependency intelligence platform for engineering teams.
               </p>
             </div>
 
-            <div className="footer-col">
-              <h4>Product</h4>
-              <Link href="/features">Features</Link>
-              <Link href="/pricing">Pricing</Link>
-              <Link href="/use-cases">Use Cases</Link>
-              <Link href="/templates-gallery">Templates</Link>
+            <div>
+              <h4 className="lp-footer__col-title">Product</h4>
+              <ul className="lp-footer__col-links">
+                <li><Link href="/features">Features</Link></li>
+                <li><Link href="/pricing">Pricing</Link></li>
+                <li><Link href="/templates-gallery">Templates</Link></li>
+                <li><Link href="/changelog">Changelog</Link></li>
+              </ul>
             </div>
 
-            <div className="footer-col">
-              <h4>Resources</h4>
-              <Link href="/docs">Documentation</Link>
-              <Link href="/changelog">Changelog</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/docs">API Reference</Link>
+            <div>
+              <h4 className="lp-footer__col-title">Resources</h4>
+              <ul className="lp-footer__col-links">
+                <li><Link href="/docs">Documentation</Link></li>
+                <li><Link href="/blog">Blog</Link></li>
+                <li><Link href="/use-cases">Use Cases</Link></li>
+              </ul>
             </div>
 
-            <div className="footer-col">
-              <h4>Company</h4>
-              <Link href="/about">About</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/contact">Contact</Link>
-              <a href="mailto:support@swaymaps.com">Support</a>
+            <div>
+              <h4 className="lp-footer__col-title">Company</h4>
+              <ul className="lp-footer__col-links">
+                <li><Link href="/about">About</Link></li>
+                <li><Link href="/contact">Contact</Link></li>
+              </ul>
             </div>
 
-            <div className="footer-col">
-              <h4>Legal</h4>
-              <Link href="/legal/terms">Terms of Service</Link>
-              <Link href="/legal/privacy">Privacy Policy</Link>
-              <Link href="/legal/privacy">Cookie Policy</Link>
-              <Link href="/legal/privacy">GDPR</Link>
+            <div>
+              <h4 className="lp-footer__col-title">Legal</h4>
+              <ul className="lp-footer__col-links">
+                <li><Link href="/legal/terms">Terms of Service</Link></li>
+                <li><Link href="/legal/privacy">Privacy Policy</Link></li>
+              </ul>
             </div>
           </div>
 
-          <div className="footer-bottom">
-            <span>2026 SwayMaps. All rights reserved.</span>
-            <div className="footer-bottom-links">
-              <Link href="/legal/terms">Terms</Link>
-              <Link href="/legal/privacy">Privacy</Link>
-              <a href="mailto:support@swaymaps.com">Contact</a>
+          <div className="lp-footer__bottom">
+            <span className="lp-footer__copyright">2026 SwayMaps. All rights reserved.</span>
+            <div className="lp-footer__socials">
+              <a href="https://twitter.com/swaymaps" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><IconTwitter /></a>
+              <a href="https://github.com/swaymaps" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><IconGitHub /></a>
+              <a href="https://linkedin.com/company/swaymaps" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><IconLinkedIn /></a>
+              <a href="https://discord.gg/swaymaps" target="_blank" rel="noopener noreferrer" aria-label="Discord"><IconDiscord /></a>
             </div>
           </div>
         </div>
