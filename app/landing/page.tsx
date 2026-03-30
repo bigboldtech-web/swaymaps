@@ -353,83 +353,84 @@ export default function LandingPage() {
               <div className="lp-product__canvas">
                 <div className="lp-product__canvas-grid" />
 
-                {/* SVG Edges */}
-                <svg className="lp-product__edges" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  {/* Web Client -> API Gateway */}
-                  <path d="M 50 15 L 50 28" className="lp-product__edge" stroke="#3b82f6" vectorEffect="non-scaling-stroke" />
-                  {/* API Gateway -> Auth Service */}
-                  <path d="M 44 35 L 18 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
-                  {/* API Gateway -> User Service */}
-                  <path d="M 48 35 L 38 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
-                  {/* API Gateway -> Order Service */}
-                  <path d="M 52 35 L 62 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
-                  {/* API Gateway -> Notifications */}
-                  <path d="M 56 35 L 82 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
-                  {/* Auth Service -> PostgreSQL */}
-                  <path d="M 15 58 L 15 75" className="lp-product__edge" stroke="#22c55e" vectorEffect="non-scaling-stroke" />
-                  {/* User Service -> PostgreSQL */}
-                  <path d="M 36 58 L 20 75" className="lp-product__edge" stroke="#8b5cf6" vectorEffect="non-scaling-stroke" />
-                  {/* User Service -> Redis */}
-                  <path d="M 40 58 L 40 75" className="lp-product__edge" stroke="#ef4444" vectorEffect="non-scaling-stroke" />
-                  {/* Order Service -> Orders DB */}
-                  <path d="M 62 58 L 62 75" className="lp-product__edge" stroke="#8b5cf6" vectorEffect="non-scaling-stroke" />
-                  {/* Order Service -> Kafka */}
-                  <path d="M 66 58 L 82 75" className="lp-product__edge" stroke="#f59e0b" vectorEffect="non-scaling-stroke" />
-                  {/* Notifications -> Kafka */}
-                  <path d="M 83 58 L 83 75" className="lp-product__edge" stroke="#f59e0b" vectorEffect="non-scaling-stroke" />
-                </svg>
-
-                {/* Nodes - Row 1 */}
-                <div className="lp-node" style={{ left: "42%", top: "6%" }}>
+                {/* Nodes positioned with consistent spacing */}
+                {/* Row 1: top=8%, center */}
+                <div className="lp-node" style={{ left: "50%", top: "8%", transform: "translateX(-50%)" }}>
                   <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
                   Web Client
                   <span className="lp-node__status" style={{ background: "#22c55e" }} />
                 </div>
 
-                {/* Row 2 */}
-                <div className="lp-node" style={{ left: "40%", top: "25%" }}>
+                {/* Row 2: top=26%, center */}
+                <div className="lp-node" style={{ left: "50%", top: "26%", transform: "translateX(-50%)" }}>
                   <span className="lp-node__badge" style={{ background: "#06b6d4" }}>API</span>
                   API Gateway
                   <span className="lp-node__status" style={{ background: "#22c55e" }} />
                 </div>
 
-                {/* Row 3 */}
-                <div className="lp-node" style={{ left: "5%", top: "46%" }}>
+                {/* Row 3: top=48%, evenly spaced at 8%, 30%, 55%, 78% */}
+                <div className="lp-node" style={{ left: "8%", top: "48%" }}>
                   <span className="lp-node__badge" style={{ background: "#22c55e" }}>PROC</span>
                   Auth Service
                 </div>
-                <div className="lp-node" style={{ left: "27%", top: "46%" }}>
+                <div className="lp-node" style={{ left: "30%", top: "48%" }}>
                   <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
                   User Service
                 </div>
-                <div className="lp-node" style={{ left: "52%", top: "46%" }}>
+                <div className="lp-node" style={{ left: "55%", top: "48%" }}>
                   <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
                   Order Service
                   <span className="lp-node__status" style={{ background: "#f59e0b" }} />
                 </div>
-                <div className="lp-node" style={{ left: "74%", top: "46%" }}>
+                <div className="lp-node" style={{ left: "78%", top: "48%" }}>
                   <span className="lp-node__badge" style={{ background: "#2563eb" }}>QUEUE</span>
                   Notifications
                 </div>
 
-                {/* Row 4 */}
-                <div className="lp-node" style={{ left: "5%", top: "72%" }}>
+                {/* Row 4: top=72%, at 8%, 30%, 55%, 78% */}
+                <div className="lp-node" style={{ left: "8%", top: "72%" }}>
                   <span className="lp-node__badge" style={{ background: "#8b5cf6" }}>DB</span>
                   PostgreSQL
                 </div>
-                <div className="lp-node" style={{ left: "28%", top: "72%" }}>
+                <div className="lp-node" style={{ left: "30%", top: "72%" }}>
                   <span className="lp-node__badge" style={{ background: "#ef4444" }}>CACHE</span>
                   Redis
                 </div>
-                <div className="lp-node" style={{ left: "52%", top: "72%" }}>
+                <div className="lp-node" style={{ left: "55%", top: "72%" }}>
                   <span className="lp-node__badge" style={{ background: "#8b5cf6" }}>DB</span>
                   Orders DB
                   <span className="lp-node__status" style={{ background: "#ef4444" }} />
                 </div>
-                <div className="lp-node" style={{ left: "74%", top: "72%" }}>
+                <div className="lp-node" style={{ left: "78%", top: "72%" }}>
                   <span className="lp-node__badge" style={{ background: "#f59e0b" }}>VENDOR</span>
                   Kafka
                 </div>
+
+                {/* SVG Edges — coordinates match node centers:
+                    Row1: 50,12  Row2: 50,30
+                    Row3: 14,52  36,52  62,52  84,52
+                    Row4: 14,76  36,76  62,76  84,76  */}
+                <svg className="lp-product__edges" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  {/* Web Client -> API Gateway */}
+                  <path d="M 50 16 L 50 28" className="lp-product__edge" stroke="#3b82f6" vectorEffect="non-scaling-stroke" />
+                  {/* API Gateway -> Row 3 services (curved) */}
+                  <path d="M 48 34 C 48 42, 14 42, 14 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
+                  <path d="M 49 34 C 49 42, 36 42, 36 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
+                  <path d="M 51 34 C 51 42, 62 42, 62 50" className="lp-product__edge" stroke="#3b82f6" vectorEffect="non-scaling-stroke" />
+                  <path d="M 52 34 C 52 42, 84 42, 84 50" className="lp-product__edge" stroke="#2563eb" vectorEffect="non-scaling-stroke" />
+                  {/* Auth -> PostgreSQL */}
+                  <path d="M 14 56 L 14 74" className="lp-product__edge" stroke="#22c55e" vectorEffect="non-scaling-stroke" />
+                  {/* User Service -> Redis */}
+                  <path d="M 36 56 L 36 74" className="lp-product__edge" stroke="#ef4444" vectorEffect="non-scaling-stroke" />
+                  {/* Order Service -> Orders DB */}
+                  <path d="M 62 56 L 62 74" className="lp-product__edge" stroke="#8b5cf6" vectorEffect="non-scaling-stroke" />
+                  {/* Notifications -> Kafka */}
+                  <path d="M 84 56 L 84 74" className="lp-product__edge" stroke="#f59e0b" vectorEffect="non-scaling-stroke" />
+                  {/* Cross: User Service -> PostgreSQL */}
+                  <path d="M 34 56 C 34 64, 16 64, 16 74" className="lp-product__edge" stroke="#8b5cf6" vectorEffect="non-scaling-stroke" style={{opacity:0.4}} />
+                  {/* Cross: Order Service -> Kafka */}
+                  <path d="M 64 56 C 64 64, 82 64, 82 74" className="lp-product__edge" stroke="#f59e0b" vectorEffect="non-scaling-stroke" style={{opacity:0.4}} />
+                </svg>
 
                 <div className="lp-product__fade" />
               </div>
