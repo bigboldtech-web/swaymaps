@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, useRef, useCallback } from "react";
 import "./landing.css";
 
-/* ═══ SVG ICONS ═══ */
+/* ---- SVG ICONS ---- */
 function IconArrowRight({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -21,10 +21,10 @@ function IconCheck({ size = 10 }: { size?: number }) {
   );
 }
 
-function IconPlay({ size = 16 }: { size?: number }) {
+function IconMinus({ size = 10 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor">
-      <path d="M4 2.5v11l9-5.5z" />
+    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M2 6h8" />
     </svg>
   );
 }
@@ -47,105 +47,115 @@ function IconClock() {
   );
 }
 
-function IconUsers() {
+function IconBrain() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M23 21v-2a4 4 0 00-3-3.87" />
-      <path d="M16 3.13a4 4 0 010 7.75" />
+      <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6l4 5 4-5c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z" />
+      <circle cx="12" cy="9" r="2" />
     </svg>
   );
 }
 
-function IconTemplate() {
+function IconSpark() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="16" height="16" rx="2" />
-      <line x1="2" y1="8" x2="18" y2="8" />
-      <line x1="8" y1="8" x2="8" y2="18" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.4l-6.4 4.8L8 14 2 9.2h7.6z" />
     </svg>
   );
 }
 
-function IconHealth() {
+function IconGrid() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 10h4l2-5 4 10 2-5h4" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
     </svg>
   );
 }
 
-function IconExport() {
+function IconCode() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 10l4-4 4 4" />
-      <line x1="10" y1="6" x2="10" y2="16" />
-      <path d="M3 14v2a2 2 0 002 2h10a2 2 0 002-2v-2" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
     </svg>
   );
 }
 
-function IconCommand() {
+function IconDownload() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 3a2 2 0 00-2 2v2h4V5a2 2 0 00-2-2zM15 3a2 2 0 012 2v2h-4V5a2 2 0 012-2zM5 17a2 2 0 01-2-2v-2h4v2a2 2 0 01-2 2zM15 17a2 2 0 002-2v-2h-4v2a2 2 0 002 2z" />
-      <rect x="3" y="7" width="14" height="6" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  );
+}
+
+function IconTerminal() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" />
     </svg>
   );
 }
 
 function IconPlug() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 2v4M13 2v4M4 6h12v3a6 6 0 01-12 0V6zM10 15v3" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v6m-4-2v4m8-4v4" /><rect x="4" y="10" width="16" height="6" rx="2" /><path d="M9 16v4m6-4v4" />
     </svg>
   );
 }
 
-function IconNodes() {
+function IconActivity() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="5" cy="5" r="2.5" />
-      <circle cx="15" cy="5" r="2.5" />
-      <circle cx="10" cy="15" r="2.5" />
-      <line x1="6.5" y1="6.5" x2="8.5" y2="13" />
-      <line x1="13.5" y1="6.5" x2="11.5" y2="13" />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
   );
 }
 
-function IconStar() {
+function IconEngineering() {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M8 1l2 4.5L15 6l-3.5 3.5L12.5 15 8 12.5 3.5 15l1-5.5L1 6l5-0.5z" />
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
     </svg>
   );
 }
 
-function IconLink() {
+function IconProduct() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7.5 10.5a4 4 0 005.5 0l2-2a4 4 0 00-5.5-5.5l-1 1" />
-      <path d="M10.5 7.5a4 4 0 00-5.5 0l-2 2a4 4 0 005.5 5.5l1-1" />
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" />
     </svg>
   );
 }
 
-function IconMenu() {
+function IconOperations() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="3" y1="5" x2="17" y2="5" />
-      <line x1="3" y1="10" x2="17" y2="10" />
-      <line x1="3" y1="15" x2="17" y2="15" />
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   );
 }
 
-function IconDash() {
+function IconCompliance() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="4" y1="8" x2="12" y2="8" />
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
+function IconLeadership() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+function IconPM() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
     </svg>
   );
 }
@@ -161,7 +171,7 @@ function IconTwitter() {
 function IconGitHub() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
     </svg>
   );
 }
@@ -169,65 +179,45 @@ function IconGitHub() {
 function IconLinkedIn() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
     </svg>
   );
 }
 
-function IconDiscord() {
+/* ---- LOGO ---- */
+function Logo({ size = 24 }: { size?: number }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.095 2.157 2.42 0 1.333-.947 2.418-2.157 2.418z" />
+    <svg viewBox="0 0 40 40" fill="none" width={size} height={size}>
+      <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+      <circle cx="28" cy="10" r="3.5" fill="white" />
+      <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6" />
+      <circle cx="12" cy="30" r="3.5" fill="white" />
     </svg>
   );
 }
 
-function IconFile() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 1H3a1 1 0 00-1 1v8a1 1 0 001 1h6a1 1 0 001-1V4L7 1z" />
-    </svg>
-  );
-}
-
-/* ═══ LOGO ═══ */
-function LogoMark() {
-  return (
-    <div className="logo-mark">
-      <svg viewBox="0 0 40 40" fill="none">
-        <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none" />
-        <circle cx="28" cy="10" r="3.5" fill="white" />
-        <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6" />
-        <circle cx="12" cy="30" r="3.5" fill="white" />
-      </svg>
-    </div>
-  );
-}
-
-/* ═══ INTERSECTION OBSERVER HOOK ═══ */
+/* ---- SCROLL REVEAL HOOK ---- */
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const obs = new IntersectionObserver(
+    const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.classList.add("lp-visible");
-          obs.unobserve(el);
+          el.classList.add("is-visible");
+          io.unobserve(el);
         }
       },
       { threshold: 0.1 }
     );
-    obs.observe(el);
-    return () => obs.disconnect();
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
-
   return ref;
 }
 
-function RevealSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useReveal();
   return (
     <div ref={ref} className={`lp-reveal ${className}`}>
@@ -236,821 +226,732 @@ function RevealSection({ children, className = "" }: { children: React.ReactNode
   );
 }
 
-/* ═══ MAIN PAGE ═══ */
+/* ============================================================
+   LANDING PAGE
+   ============================================================ */
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [annual, setAnnual] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <div className="lp-root">
-      {/* Background */}
+      {/* BACKGROUND */}
       <div className="lp-bg">
-        <div className="lp-bg-grid" />
-        <div className="lp-bg-orb lp-bg-orb--cyan" />
-        <div className="lp-bg-orb lp-bg-orb--indigo" />
-        <div className="lp-bg-orb lp-bg-orb--pink" />
+        <div className="lp-orb lp-orb--1" />
+        <div className="lp-orb lp-orb--2" />
+        <div className="lp-orb lp-orb--3" />
       </div>
 
-      {/* ═══ NAVBAR ═══ */}
-      <nav className={`lp-nav ${scrolled ? "lp-nav--scrolled" : ""}`}>
-        <div className="lp-nav__inner">
-          <Link href="/landing" className="lp-nav__brand">
-            <LogoMark />
-            <span className="lp-nav__wordmark">SwayMaps</span>
+      {/* NAVBAR */}
+      <nav className={`lp-nav ${scrolled ? "is-scrolled" : ""}`}>
+        <div className="lp-nav-inner">
+          <Link href="/" className="lp-nav-logo">
+            <span className="lp-nav-logo-icon">
+              <Logo size={20} />
+            </span>
+            SwayMaps
           </Link>
 
-          <ul className="lp-nav__links">
+          <ul className="lp-nav-links">
             <li><Link href="/features">Features</Link></li>
             <li><Link href="/use-cases">Use Cases</Link></li>
             <li><Link href="/pricing">Pricing</Link></li>
             <li><Link href="/docs">Docs</Link></li>
           </ul>
 
-          <div className="lp-nav__cta">
+          <div className="lp-nav-ctas">
             <Link href="/auth/signin" className="lp-btn lp-btn--ghost">Sign In</Link>
             <Link href="/auth/signup" className="lp-btn lp-btn--primary">
               Get Started <IconArrowRight size={14} />
             </Link>
-            <button className="lp-nav__mobile-btn" aria-label="Menu">
-              <IconMenu />
-            </button>
           </div>
         </div>
       </nav>
 
-      {/* ═══ HERO ═══ */}
+      {/* HERO */}
       <section className="lp-hero">
         <div className="lp-container">
-          <div className="lp-hero__badge">
-            <span className="lp-hero__badge-dot" />
-            Now with AI-Powered Generation
+          <div className="lp-hero-badge">
+            <span className="lp-hero-badge-dot" />
+            Trusted by 500+ teams worldwide
           </div>
 
-          <h1 className="lp-hero__title">
-            Map every dependency.<br />
-            <span className="lp-hero__title-gradient">Ship with confidence.</span>
+          <h1>
+            See what depends<br />
+            <span className="lp-hero-grad">on what.</span>
           </h1>
 
-          <p className="lp-hero__subtitle">
-            The visual dependency platform for engineering teams. See what depends on what — before it breaks.
+          <p className="lp-hero-sub">
+            The visual planning and dependency mapping platform for every team. Map systems, trace impact, align stakeholders — all in one place.
           </p>
 
-          <div className="lp-hero__buttons">
-            <Link href="/auth/signup" className="lp-btn lp-btn--primary-lg">
+          <div className="lp-hero-ctas">
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-btn--lg">
               Start Free — No Credit Card <IconArrowRight size={16} />
             </Link>
-            <Link href="/docs" className="lp-btn lp-btn--outline-lg">
-              <IconPlay size={14} /> Watch Demo
+            <Link href="/features" className="lp-btn lp-btn--outline-lg">
+              See How It Works
             </Link>
           </div>
 
-          <div className="lp-hero__trust">
-            <span className="lp-hero__trust-text">Trusted by 500+ engineering teams</span>
-            <div className="lp-hero__logos">
-              <span>Stripe</span>
-              <span>Vercel</span>
-              <span>Datadog</span>
-              <span>Linear</span>
-              <span>Notion</span>
-            </div>
+          <p className="lp-hero-trust">Teams of all sizes use SwayMaps</p>
+          <div className="lp-hero-logos">
+            <span>Stripe</span>
+            <span>Shopify</span>
+            <span>Notion</span>
+            <span>Linear</span>
+            <span>Datadog</span>
+            <span>Vercel</span>
           </div>
-        </div>
-      </section>
 
-      {/* ═══ PRODUCT SCREENSHOT ═══ */}
-      <section className="lp-product">
-        <div className="lp-container">
-          <RevealSection>
-            <div className="lp-product__frame">
-              <div className="lp-product__topbar">
-                <div className="lp-product__topbar-left">
-                  <div className="lp-product__dots">
-                    <span className="lp-product__dot lp-product__dot--red" />
-                    <span className="lp-product__dot lp-product__dot--yellow" />
-                    <span className="lp-product__dot lp-product__dot--green" />
-                  </div>
-                  <span className="lp-product__filename">Microservice Architecture — SwayMaps</span>
+          {/* BROWSER FRAME */}
+          <Reveal>
+            <div className="lp-browser">
+              <div className="lp-browser-bar">
+                <div className="lp-browser-dots">
+                  <span className="lp-browser-dot" />
+                  <span className="lp-browser-dot" />
+                  <span className="lp-browser-dot" />
                 </div>
-                <div className="lp-product__topbar-right">
-                  <span className="lp-product__stat">12 nodes</span>
-                  <span className="lp-product__stat">16 edges</span>
-                  <span className="lp-product__stat lp-product__stat--saved">Saved</span>
-                  <button className="lp-product__topbar-btn lp-product__topbar-btn--ai">
-                    <IconStar /> AI Assist
-                  </button>
-                  <button className="lp-product__topbar-btn lp-product__topbar-btn--share">
-                    Share
-                  </button>
+                <span className="lp-browser-title">Project Dependencies — SwayMaps</span>
+                <div className="lp-browser-actions">
+                  <span className="lp-browser-action">10 nodes &middot; 14 edges &middot; <span style={{ color: "var(--status-healthy)" }}>&#10003;</span> Saved</span>
+                  <span className="lp-browser-action lp-browser-action--ai">&#10022; AI Assist</span>
+                  <span className="lp-browser-action lp-browser-action--share">Share</span>
                 </div>
               </div>
 
-              <div className="lp-product__canvas">
-                <div className="lp-product__canvas-grid" />
+              <div className="lp-canvas">
+                <div className="lp-canvas-grid" />
 
-                {/* Nodes positioned with consistent spacing */}
-                {/* Row 1: top=8%, center */}
-                <div className="lp-node" style={{ left: "50%", top: "8%", transform: "translateX(-50%)" }}>
-                  <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
-                  Web Client
-                  <span className="lp-node__status" style={{ background: "#22c55e" }} />
-                </div>
-
-                {/* Row 2: top=26%, center */}
-                <div className="lp-node" style={{ left: "50%", top: "26%", transform: "translateX(-50%)" }}>
-                  <span className="lp-node__badge" style={{ background: "#06b6d4" }}>API</span>
-                  API Gateway
-                  <span className="lp-node__status" style={{ background: "#22c55e" }} />
-                </div>
-
-                {/* Row 3: top=48%, evenly spaced at 8%, 30%, 55%, 78% */}
-                <div className="lp-node" style={{ left: "8%", top: "48%" }}>
-                  <span className="lp-node__badge" style={{ background: "#22c55e" }}>PROC</span>
-                  Auth Service
-                </div>
-                <div className="lp-node" style={{ left: "30%", top: "48%" }}>
-                  <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
-                  User Service
-                </div>
-                <div className="lp-node" style={{ left: "55%", top: "48%" }}>
-                  <span className="lp-node__badge" style={{ background: "#3b82f6" }}>SYS</span>
-                  Order Service
-                  <span className="lp-node__status" style={{ background: "#f59e0b" }} />
-                </div>
-                <div className="lp-node" style={{ left: "78%", top: "48%" }}>
-                  <span className="lp-node__badge" style={{ background: "#2563eb" }}>QUEUE</span>
-                  Notifications
-                </div>
-
-                {/* Row 4: top=72%, at 8%, 30%, 55%, 78% */}
-                <div className="lp-node" style={{ left: "8%", top: "72%" }}>
-                  <span className="lp-node__badge" style={{ background: "#8b5cf6" }}>DB</span>
-                  PostgreSQL
-                </div>
-                <div className="lp-node" style={{ left: "30%", top: "72%" }}>
-                  <span className="lp-node__badge" style={{ background: "#ef4444" }}>CACHE</span>
-                  Redis
-                </div>
-                <div className="lp-node" style={{ left: "55%", top: "72%" }}>
-                  <span className="lp-node__badge" style={{ background: "#8b5cf6" }}>DB</span>
-                  Orders DB
-                  <span className="lp-node__status" style={{ background: "#ef4444" }} />
-                </div>
-                <div className="lp-node" style={{ left: "78%", top: "72%" }}>
-                  <span className="lp-node__badge" style={{ background: "#f59e0b" }}>VENDOR</span>
-                  Kafka
-                </div>
-
-                {/* SVG Edges — coordinates match node centers:
-                    Row1: 50,12  Row2: 50,30
-                    Row3: 14,52  36,52  62,52  84,52
-                    Row4: 14,76  36,76  62,76  84,76  */}
-                <svg className="lp-product__edges" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  {/* Web Client -> API Gateway */}
-                  <path d="M 50 16 L 50 28" className="lp-product__edge" stroke="#3b82f6" vectorEffect="non-scaling-stroke" />
-                  {/* API Gateway -> Row 3 services (curved) */}
-                  <path d="M 48 34 C 48 42, 14 42, 14 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
-                  <path d="M 49 34 C 49 42, 36 42, 36 50" className="lp-product__edge" stroke="#06b6d4" vectorEffect="non-scaling-stroke" />
-                  <path d="M 51 34 C 51 42, 62 42, 62 50" className="lp-product__edge" stroke="#3b82f6" vectorEffect="non-scaling-stroke" />
-                  <path d="M 52 34 C 52 42, 84 42, 84 50" className="lp-product__edge" stroke="#2563eb" vectorEffect="non-scaling-stroke" />
-                  {/* Auth -> PostgreSQL */}
-                  <path d="M 14 56 L 14 74" className="lp-product__edge" stroke="#22c55e" vectorEffect="non-scaling-stroke" />
-                  {/* User Service -> Redis */}
-                  <path d="M 36 56 L 36 74" className="lp-product__edge" stroke="#ef4444" vectorEffect="non-scaling-stroke" />
-                  {/* Order Service -> Orders DB */}
-                  <path d="M 62 56 L 62 74" className="lp-product__edge" stroke="#8b5cf6" vectorEffect="non-scaling-stroke" />
-                  {/* Notifications -> Kafka */}
-                  <path d="M 84 56 L 84 74" className="lp-product__edge" stroke="#f59e0b" vectorEffect="non-scaling-stroke" />
-                  {/* Cross: User Service -> PostgreSQL */}
-                  <path d="M 34 56 C 34 64, 16 64, 16 74" className="lp-product__edge" stroke="#8b5cf6" vectorEffect="non-scaling-stroke" style={{opacity:0.4}} />
-                  {/* Cross: Order Service -> Kafka */}
-                  <path d="M 64 56 C 64 64, 82 64, 82 74" className="lp-product__edge" stroke="#f59e0b" vectorEffect="non-scaling-stroke" style={{opacity:0.4}} />
+                {/* EDGES SVG */}
+                <svg className="lp-canvas-edges" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  {/* Product Launch -> Design System */}
+                  <path d="M50,18 C50,28 25,28 25,38" vectorEffect="non-scaling-stroke" />
+                  {/* Product Launch -> API Integration */}
+                  <path d="M50,18 C50,28 50,28 50,38" vectorEffect="non-scaling-stroke" />
+                  {/* Product Launch -> Marketing Plan */}
+                  <path d="M50,18 C50,28 75,28 75,38" vectorEffect="non-scaling-stroke" />
+                  {/* Design System -> User Research */}
+                  <path d="M25,38 C25,48 15,48 15,58" vectorEffect="non-scaling-stroke" />
+                  {/* Design System -> Backend Dev */}
+                  <path d="M25,38 C25,48 38,48 38,58" vectorEffect="non-scaling-stroke" />
+                  {/* API Integration -> Backend Dev */}
+                  <path d="M50,38 C50,48 38,48 38,58" vectorEffect="non-scaling-stroke" />
+                  {/* API Integration -> Content Strategy */}
+                  <path d="M50,38 C50,48 62,48 62,58" vectorEffect="non-scaling-stroke" />
+                  {/* Marketing Plan -> Content Strategy */}
+                  <path d="M75,38 C75,48 62,48 62,58" vectorEffect="non-scaling-stroke" />
+                  {/* Marketing Plan -> Legal Review */}
+                  <path d="M75,38 C75,48 85,48 85,58" vectorEffect="non-scaling-stroke" />
+                  {/* User Research -> Brand Assets */}
+                  <path d="M15,58 C15,68 25,68 25,78" vectorEffect="non-scaling-stroke" />
+                  {/* Backend Dev -> Database Migration */}
+                  <path d="M38,58 C38,68 50,68 50,78" vectorEffect="non-scaling-stroke" />
+                  {/* Content Strategy -> Launch Event */}
+                  <path d="M62,58 C62,68 75,68 75,78" vectorEffect="non-scaling-stroke" />
+                  {/* Legal Review -> Launch Event */}
+                  <path d="M85,58 C85,68 75,68 75,78" vectorEffect="non-scaling-stroke" />
+                  {/* Brand Assets -> Launch Event */}
+                  <path d="M25,78 C25,86 75,86 75,78" vectorEffect="non-scaling-stroke" />
                 </svg>
 
-                <div className="lp-product__fade" />
+                {/* ROW 1 */}
+                <div className="lp-node" style={{ left: "50%", top: "18%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-system)" }} />
+                  Product Launch
+                  <span className="lp-node-status" style={{ background: "var(--status-healthy)" }} />
+                </div>
+
+                {/* ROW 2 */}
+                <div className="lp-node" style={{ left: "25%", top: "38%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-process)" }} />
+                  Design System
+                </div>
+                <div className="lp-node" style={{ left: "50%", top: "38%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-api)" }} />
+                  API Integration
+                </div>
+                <div className="lp-node" style={{ left: "75%", top: "38%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-team)" }} />
+                  Marketing Plan
+                </div>
+
+                {/* ROW 3 */}
+                <div className="lp-node" style={{ left: "15%", top: "58%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-person)" }} />
+                  User Research
+                </div>
+                <div className="lp-node" style={{ left: "38%", top: "58%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-system)" }} />
+                  Backend Dev
+                </div>
+                <div className="lp-node" style={{ left: "62%", top: "58%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-vendor)" }} />
+                  Content Strategy
+                </div>
+                <div className="lp-node" style={{ left: "85%", top: "58%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-cloud)" }} />
+                  Legal Review
+                </div>
+
+                {/* ROW 4 */}
+                <div className="lp-node" style={{ left: "25%", top: "78%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-api)" }} />
+                  Brand Assets
+                </div>
+                <div className="lp-node" style={{ left: "50%", top: "78%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-db)" }} />
+                  Database Migration
+                </div>
+                <div className="lp-node" style={{ left: "75%", top: "78%" }}>
+                  <span className="lp-node-badge" style={{ background: "var(--node-queue)" }} />
+                  Launch Event
+                </div>
               </div>
             </div>
-          </RevealSection>
+          </Reveal>
         </div>
       </section>
 
-      {/* ═══ STATS BAR ═══ */}
-      <section className="lp-stats">
+      {/* USE CASES */}
+      <section className="lp-usecases lp-section">
         <div className="lp-container">
-          <RevealSection>
-            <div className="lp-stats__inner">
-              <div className="lp-stats__item">
-                <span className="lp-stats__number">2,400+</span>
-                <span className="lp-stats__label">Maps Created</span>
-              </div>
-              <div className="lp-stats__item">
-                <span className="lp-stats__number">500+</span>
-                <span className="lp-stats__label">Teams</span>
-              </div>
-              <div className="lp-stats__item">
-                <span className="lp-stats__number">60%</span>
-                <span className="lp-stats__label">Faster Incident Response</span>
-              </div>
-              <div className="lp-stats__item">
-                <span className="lp-stats__number">99.9%</span>
-                <span className="lp-stats__label">Uptime</span>
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-
-      {/* ═══ PROBLEM ═══ */}
-      <section className="lp-problem">
-        <div className="lp-container">
-          <RevealSection>
-            <div className="lp-problem__header">
-              <div className="lp-eyebrow">The Problem</div>
-              <h2 className="lp-section-title">
-                Your systems are connected.<br />Your knowledge isn&apos;t.
-              </h2>
-              <p className="lp-section-sub">
-                Modern architectures are a web of microservices, APIs, databases, and third-party dependencies. When something breaks, every second spent guessing costs money.
-              </p>
-            </div>
-          </RevealSection>
-
-          <RevealSection>
-            <div className="lp-problem__cards">
-              <div className="lp-problem__card">
-                <div className="lp-problem__card-icon" style={{ background: "rgba(239, 68, 68, 0.1)" }}>
-                  <IconBlind />
-                </div>
-                <h3 className="lp-problem__card-title">Blind Deployments</h3>
-                <p className="lp-problem__card-desc">
-                  Teams ship code without knowing what depends on what. A single change cascades through services nobody mapped, taking production down with it.
-                </p>
-                <div className="lp-problem__card-stat">$540K avg cost per major outage</div>
-              </div>
-
-              <div className="lp-problem__card">
-                <div className="lp-problem__card-icon" style={{ background: "rgba(245, 158, 11, 0.1)" }}>
-                  <IconClock />
-                </div>
-                <h3 className="lp-problem__card-title">Slow Incident Response</h3>
-                <p className="lp-problem__card-desc">
-                  When an outage hits, teams spend hours tracing dependency chains through Slack threads, wikis, and tribal knowledge instead of fixing the issue.
-                </p>
-                <div className="lp-problem__card-stat">4.2 hours avg MTTR</div>
-              </div>
-
-              <div className="lp-problem__card">
-                <div className="lp-problem__card-icon" style={{ background: "rgba(139, 92, 246, 0.1)" }}>
-                  <IconUsers />
-                </div>
-                <h3 className="lp-problem__card-title">Knowledge Silos</h3>
-                <p className="lp-problem__card-desc">
-                  Critical system knowledge lives in the heads of a few senior engineers. When they leave, months of institutional context walk out the door.
-                </p>
-                <div className="lp-problem__card-stat">3-6 months to onboard new engineers</div>
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-
-      {/* ═══ FEATURES ═══ */}
-      <section className="lp-features">
-        <div className="lp-container">
-          <RevealSection>
-            <div className="lp-features__header">
-              <div className="lp-eyebrow">Features</div>
-              <h2 className="lp-section-title">Everything you need to map your world.</h2>
-              <p className="lp-section-sub">
-                From AI-powered generation to real-time collaboration, SwayMaps gives your team a single source of truth for system dependencies.
-              </p>
-            </div>
-          </RevealSection>
-
-          {/* Feature 1: AI */}
-          <div className="lp-feat">
-            <RevealSection>
-              <div className="lp-feat__grid">
-                <div className="lp-feat__text">
-                  <h3>Describe it. AI maps it.</h3>
-                  <p>
-                    Skip the drag-and-drop. Describe your system architecture in plain English and watch as AI instantly generates a complete dependency map with nodes, edges, and relationships.
-                  </p>
-                  <ul className="lp-feat__bullets">
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Natural language to dependency map in seconds
-                    </li>
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Automatically detects node types, relationships, and dependencies
-                    </li>
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Refine and iterate with follow-up prompts
-                    </li>
-                  </ul>
-                </div>
-                <div className="lp-feat__visual">
-                  <div className="lp-ai-prompt">
-                    <div className="lp-ai-prompt__label">
-                      <IconStar /> AI ASSIST
-                    </div>
-                    <div className="lp-ai-prompt__text">
-                      Map our payment processing pipeline from checkout through Stripe to the orders database and notification service
-                      <span className="lp-ai-prompt__cursor" />
-                    </div>
-                  </div>
-                  <div className="lp-ai-chips">
-                    <div className="lp-ai-chip">
-                      <span className="lp-ai-chip__dot" style={{ background: "#3b82f6" }} />
-                      Checkout UI
-                    </div>
-                    <div className="lp-ai-chip">
-                      <span className="lp-ai-chip__dot" style={{ background: "#06b6d4" }} />
-                      Payment API
-                    </div>
-                    <div className="lp-ai-chip">
-                      <span className="lp-ai-chip__dot" style={{ background: "#f59e0b" }} />
-                      Stripe
-                    </div>
-                    <div className="lp-ai-chip">
-                      <span className="lp-ai-chip__dot" style={{ background: "#8b5cf6" }} />
-                      Orders DB
-                    </div>
-                    <div className="lp-ai-chip">
-                      <span className="lp-ai-chip__dot" style={{ background: "#2563eb" }} />
-                      Event Queue
-                    </div>
-                    <div className="lp-ai-chip">
-                      <span className="lp-ai-chip__dot" style={{ background: "#22c55e" }} />
-                      Notifications
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </RevealSection>
-          </div>
-
-          {/* Feature 2: Collaboration */}
-          <div className="lp-feat">
-            <RevealSection>
-              <div className="lp-feat__grid lp-feat__grid--reverse">
-                <div className="lp-feat__text">
-                  <h3>Map together, in real time.</h3>
-                  <p>
-                    Invite your team to shared workspaces with granular role-based access. Everyone sees the same map, always up to date, with full audit history.
-                  </p>
-                  <ul className="lp-feat__bullets">
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Workspaces with Owner, Admin, Editor, and Viewer roles
-                    </li>
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Share maps via secure public links with one click
-                    </li>
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Full audit log of every change, by every team member
-                    </li>
-                  </ul>
-                </div>
-                <div className="lp-feat__visual">
-                  <div className="lp-collab-roles">
-                    <div className="lp-collab-role">
-                      <div className="lp-collab-role__avatar" style={{ background: "#3b82f6" }}>AK</div>
-                      <div className="lp-collab-role__info">
-                        <div className="lp-collab-role__name">Alex Kim</div>
-                        <div className="lp-collab-role__label">alex@company.com</div>
-                      </div>
-                      <span className="lp-collab-role__badge" style={{ background: "rgba(59, 130, 246, 0.15)", color: "#3b82f6" }}>Owner</span>
-                    </div>
-                    <div className="lp-collab-role">
-                      <div className="lp-collab-role__avatar" style={{ background: "#8b5cf6" }}>SR</div>
-                      <div className="lp-collab-role__info">
-                        <div className="lp-collab-role__name">Sarah Rodriguez</div>
-                        <div className="lp-collab-role__label">sarah@company.com</div>
-                      </div>
-                      <span className="lp-collab-role__badge" style={{ background: "rgba(139, 92, 246, 0.15)", color: "#8b5cf6" }}>Admin</span>
-                    </div>
-                    <div className="lp-collab-role">
-                      <div className="lp-collab-role__avatar" style={{ background: "#22c55e" }}>JT</div>
-                      <div className="lp-collab-role__info">
-                        <div className="lp-collab-role__name">James Turner</div>
-                        <div className="lp-collab-role__label">james@company.com</div>
-                      </div>
-                      <span className="lp-collab-role__badge" style={{ background: "rgba(34, 197, 94, 0.15)", color: "#22c55e" }}>Editor</span>
-                    </div>
-                    <div className="lp-collab-role">
-                      <div className="lp-collab-role__avatar" style={{ background: "#f59e0b" }}>ML</div>
-                      <div className="lp-collab-role__info">
-                        <div className="lp-collab-role__name">Maya Lee</div>
-                        <div className="lp-collab-role__label">maya@company.com</div>
-                      </div>
-                      <span className="lp-collab-role__badge" style={{ background: "rgba(245, 158, 11, 0.15)", color: "#f59e0b" }}>Viewer</span>
-                    </div>
-                  </div>
-                  <div className="lp-collab-share">
-                    <IconLink />
-                    <span className="lp-collab-share__url">swaymaps.com/share/a1b2c3d4-e5f6</span>
-                    <button className="lp-collab-share__btn">Copy</button>
-                  </div>
-                </div>
-              </div>
-            </RevealSection>
-          </div>
-
-          {/* Feature 3: Version History */}
-          <div className="lp-feat">
-            <RevealSection>
-              <div className="lp-feat__grid">
-                <div className="lp-feat__text">
-                  <h3>Every change, tracked.</h3>
-                  <p>
-                    SwayMaps automatically snapshots your maps on every save. Browse the full version timeline, see diffs between any two versions, and restore with one click.
-                  </p>
-                  <ul className="lp-feat__bullets">
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Automatic version snapshots on every save
-                    </li>
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Visual diff viewer to compare any two versions
-                    </li>
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      One-click restore to any previous state
-                    </li>
-                  </ul>
-                </div>
-                <div className="lp-feat__visual">
-                  <div className="lp-versions">
-                    <div className="lp-version-item">
-                      <div className="lp-version-item__timeline">
-                        <span className="lp-version-item__dot" style={{ borderColor: "#22c55e" }} />
-                      </div>
-                      <div className="lp-version-item__content">
-                        <div className="lp-version-item__title">Added Redis caching layer</div>
-                        <div className="lp-version-item__meta">v12 -- Alex Kim -- 2 hours ago</div>
-                        <div className="lp-version-item__changes">
-                          <span className="lp-version-item__change--add">+2 nodes</span>
-                          <span className="lp-version-item__change--add">+3 edges</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="lp-version-item">
-                      <div className="lp-version-item__timeline">
-                        <span className="lp-version-item__dot" style={{ borderColor: "#f59e0b" }} />
-                      </div>
-                      <div className="lp-version-item__content">
-                        <div className="lp-version-item__title">Updated Order Service status to warning</div>
-                        <div className="lp-version-item__meta">v11 -- Sarah Rodriguez -- 5 hours ago</div>
-                        <div className="lp-version-item__changes">
-                          <span className="lp-version-item__change--mod">~1 node modified</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="lp-version-item">
-                      <div className="lp-version-item__timeline">
-                        <span className="lp-version-item__dot" style={{ borderColor: "#3b82f6" }} />
-                      </div>
-                      <div className="lp-version-item__content">
-                        <div className="lp-version-item__title">Added Kafka event bus integration</div>
-                        <div className="lp-version-item__meta">v10 -- James Turner -- yesterday</div>
-                        <div className="lp-version-item__changes">
-                          <span className="lp-version-item__change--add">+1 node</span>
-                          <span className="lp-version-item__change--add">+2 edges</span>
-                          <span className="lp-version-item__change--del">-1 edge</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="lp-version-item">
-                      <div className="lp-version-item__timeline">
-                        <span className="lp-version-item__dot" style={{ borderColor: "#ef4444" }} />
-                      </div>
-                      <div className="lp-version-item__content">
-                        <div className="lp-version-item__title">Removed deprecated Auth v1 service</div>
-                        <div className="lp-version-item__meta">v9 -- Alex Kim -- 2 days ago</div>
-                        <div className="lp-version-item__changes">
-                          <span className="lp-version-item__change--del">-1 node</span>
-                          <span className="lp-version-item__change--del">-4 edges</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </RevealSection>
-          </div>
-
-          {/* Feature 4: Diagram as Code */}
-          <div className="lp-feat">
-            <RevealSection>
-              <div className="lp-feat__grid lp-feat__grid--reverse">
-                <div className="lp-feat__text">
-                  <h3>Maps that live in your repo.</h3>
-                  <p>
-                    Export your dependency maps as YAML and check them into Git. Review map changes in PRs, track history with commits, and automate updates in CI/CD.
-                  </p>
-                  <ul className="lp-feat__bullets">
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Clean YAML DSL for readable, versionable maps
-                    </li>
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Import and export to keep code and canvas in sync
-                    </li>
-                    <li>
-                      <span className="lp-feat__check"><IconCheck /></span>
-                      Diff-friendly format for meaningful PR reviews
-                    </li>
-                  </ul>
-                </div>
-                <div className="lp-feat__visual">
-                  <div className="lp-code-block">
-                    <div className="lp-code-block__header">
-                      <IconFile /> architecture.sway.yml
-                    </div>
-                    <div className="lp-code-block__body">
-                      <div><span className="code-comment"># Payment Pipeline</span></div>
-                      <div><span className="code-key">name</span>: <span className="code-str">&quot;Payment Pipeline&quot;</span></div>
-                      <div><span className="code-key">version</span>: <span className="code-num">2</span></div>
-                      <div>&nbsp;</div>
-                      <div><span className="code-key">nodes</span>:</div>
-                      <div>&nbsp; - <span className="code-key">id</span>: <span className="code-str">&quot;checkout&quot;</span></div>
-                      <div>&nbsp; &nbsp; <span className="code-key">type</span>: <span className="code-type">system</span></div>
-                      <div>&nbsp; &nbsp; <span className="code-key">label</span>: <span className="code-str">&quot;Checkout UI&quot;</span></div>
-                      <div>&nbsp; &nbsp; <span className="code-key">status</span>: <span className="code-str">&quot;healthy&quot;</span></div>
-                      <div>&nbsp;</div>
-                      <div>&nbsp; - <span className="code-key">id</span>: <span className="code-str">&quot;stripe&quot;</span></div>
-                      <div>&nbsp; &nbsp; <span className="code-key">type</span>: <span className="code-type">vendor</span></div>
-                      <div>&nbsp; &nbsp; <span className="code-key">label</span>: <span className="code-str">&quot;Stripe API&quot;</span></div>
-                      <div>&nbsp;</div>
-                      <div><span className="code-key">edges</span>:</div>
-                      <div>&nbsp; - <span className="code-key">from</span>: <span className="code-str">&quot;checkout&quot;</span></div>
-                      <div>&nbsp; &nbsp; <span className="code-key">to</span>: <span className="code-str">&quot;stripe&quot;</span></div>
-                      <div>&nbsp; &nbsp; <span className="code-key">label</span>: <span className="code-str">&quot;process payment&quot;</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </RevealSection>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ MORE FEATURES GRID ═══ */}
-      <section className="lp-more">
-        <div className="lp-container">
-          <RevealSection>
-            <div className="lp-more__header">
-              <div className="lp-eyebrow">And More</div>
-              <h2 className="lp-section-title">Built for power users.</h2>
-            </div>
-          </RevealSection>
-
-          <RevealSection>
-            <div className="lp-more__grid">
-              <div className="lp-more__card">
-                <div className="lp-more__card-icon"><IconTemplate /></div>
-                <h3 className="lp-more__card-title">25+ Templates</h3>
-                <p className="lp-more__card-desc">One-click start from proven architecture templates for microservices, data pipelines, and more.</p>
-              </div>
-              <div className="lp-more__card">
-                <div className="lp-more__card-icon"><IconHealth /></div>
-                <h3 className="lp-more__card-title">Health Dashboard</h3>
-                <p className="lp-more__card-desc">0-100 health score per map. Detect orphaned nodes, missing edges, and configuration issues instantly.</p>
-              </div>
-              <div className="lp-more__card">
-                <div className="lp-more__card-icon"><IconExport /></div>
-                <h3 className="lp-more__card-title">Import and Export</h3>
-                <p className="lp-more__card-desc">Bring in Draw.io and Lucidchart files. Export to PNG, SVG, PDF, or JSON for any workflow.</p>
-              </div>
-              <div className="lp-more__card">
-                <div className="lp-more__card-icon"><IconCommand /></div>
-                <h3 className="lp-more__card-title">Command Palette</h3>
-                <p className="lp-more__card-desc">Press Cmd+K to search, navigate, and act. Keyboard-first design for maximum speed.</p>
-              </div>
-              <div className="lp-more__card">
-                <div className="lp-more__card-icon"><IconPlug /></div>
-                <h3 className="lp-more__card-title">Integrations</h3>
-                <p className="lp-more__card-desc">Connect to Slack, Microsoft Teams, and webhooks. Get notified when maps change.</p>
-              </div>
-              <div className="lp-more__card">
-                <div className="lp-more__card-icon"><IconNodes /></div>
-                <h3 className="lp-more__card-title">11 Node Types</h3>
-                <p className="lp-more__card-desc">Person, System, API, Database, Queue, Cache, Process, Cloud, Vendor, Team, and Generic.</p>
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-
-      {/* ═══ COMPARISON ═══ */}
-      <section className="lp-compare">
-        <div className="lp-container">
-          <RevealSection>
-            <div className="lp-compare__header">
-              <div className="lp-eyebrow">Why SwayMaps</div>
-              <h2 className="lp-section-title">Built for dependencies. Not general diagramming.</h2>
-              <p className="lp-section-sub">
-                Generic tools force you to build dependency intelligence from scratch. SwayMaps gives it to you out of the box.
-              </p>
-            </div>
-          </RevealSection>
-
-          <RevealSection>
-            <div className="lp-compare__grid">
-              <div className="lp-compare__card">
-                <div className="lp-compare__card-name">Lucidchart / Draw.io</div>
-                <div className="lp-compare__weakness">
-                  General-purpose diagramming tools with no concept of dependencies, health status, or node types. Maps become stale immediately.
-                </div>
-                <div className="lp-compare__advantage">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5l4 4 8-9" /></svg>
-                  SwayMaps: Purpose-built for dependencies with typed nodes, health tracking, and version history.
-                </div>
-              </div>
-
-              <div className="lp-compare__card">
-                <div className="lp-compare__card-name">ServiceNow CMDB</div>
-                <div className="lp-compare__weakness">
-                  Enterprise CMDB tools are expensive, complex, and require months of implementation. Teams avoid them because they are painful to use.
-                </div>
-                <div className="lp-compare__advantage">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5l4 4 8-9" /></svg>
-                  SwayMaps: Visual-first, zero setup. Start mapping in 30 seconds, not 3 months.
-                </div>
-              </div>
-
-              <div className="lp-compare__card">
-                <div className="lp-compare__card-name">Backstage</div>
-                <div className="lp-compare__weakness">
-                  Developer portals like Backstage are powerful but require significant engineering investment to deploy, customize, and maintain.
-                </div>
-                <div className="lp-compare__advantage">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5l4 4 8-9" /></svg>
-                  SwayMaps: SaaS that works instantly. No infrastructure, no YAML configs, no maintenance.
-                </div>
-              </div>
-
-              <div className="lp-compare__card">
-                <div className="lp-compare__card-name">Miro / FigJam</div>
-                <div className="lp-compare__weakness">
-                  Whiteboard tools are great for brainstorming but lack structure. Maps are untyped, unversioned, and impossible to keep up to date.
-                </div>
-                <div className="lp-compare__advantage">
-                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9.5l4 4 8-9" /></svg>
-                  SwayMaps: Structured maps with typed nodes, directed edges, health status, and auto-versioning.
-                </div>
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-
-      {/* ═══ PRICING ═══ */}
-      <section className="lp-pricing">
-        <div className="lp-container">
-          <RevealSection>
-            <div className="lp-pricing__header">
-              <div className="lp-eyebrow">Pricing</div>
-              <h2 className="lp-section-title">Start free. Scale as you grow.</h2>
-              <p className="lp-section-sub" style={{ margin: "0 auto" }}>
-                Every plan includes a 14-day free trial. No credit card required to get started.
-              </p>
-
-              <div className="lp-pricing__toggle">
-                <span className={`lp-pricing__toggle-label ${!annual ? "lp-pricing__toggle-label--active" : ""}`}>Monthly</span>
-                <button
-                  className={`lp-pricing__toggle-switch ${annual ? "lp-pricing__toggle-switch--active" : ""}`}
-                  onClick={() => setAnnual(!annual)}
-                  aria-label="Toggle annual pricing"
-                >
-                  <span className="lp-pricing__toggle-knob" />
-                </button>
-                <span className={`lp-pricing__toggle-label ${annual ? "lp-pricing__toggle-label--active" : ""}`}>Annual</span>
-                <span className="lp-pricing__save">Save 30%</span>
-              </div>
-            </div>
-          </RevealSection>
-
-          <RevealSection>
-            <div className="lp-pricing__cards">
-              {/* Free */}
-              <div className="lp-pricing__card">
-                <div className="lp-pricing__plan-name">Free</div>
-                <div className="lp-pricing__plan-desc">For individuals exploring dependency mapping.</div>
-                <div className="lp-pricing__price">
-                  <span className="lp-pricing__price-amount">$0</span>
-                  <span className="lp-pricing__price-period">/month</span>
-                </div>
-                <div className="lp-pricing__price-note">Free forever</div>
-                <ul className="lp-pricing__features">
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Up to 3 maps</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> All 11 node types</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> PNG and JSON export</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> 25+ templates</li>
-                  <li><svg className="lp-dash" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="8" x2="11" y2="8" /></svg> <span style={{ color: "var(--t3)" }}>No AI generation</span></li>
-                  <li><svg className="lp-dash" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="8" x2="11" y2="8" /></svg> <span style={{ color: "var(--t3)" }}>No workspaces</span></li>
-                </ul>
-                <Link href="/auth/signup" className="lp-btn lp-btn--ghost">Get Started</Link>
-              </div>
-
-              {/* Pro */}
-              <div className="lp-pricing__card lp-pricing__card--popular">
-                <div className="lp-pricing__popular-badge">MOST POPULAR</div>
-                <div className="lp-pricing__plan-name">Pro</div>
-                <div className="lp-pricing__plan-desc">For engineers and small teams who need full power.</div>
-                <div className="lp-pricing__price">
-                  <span className="lp-pricing__price-amount">${annual ? "19" : "29"}</span>
-                  <span className="lp-pricing__price-period">/month</span>
-                </div>
-                <div className="lp-pricing__price-note">{annual ? "Billed annually ($228/yr)" : "Billed monthly"}</div>
-                <ul className="lp-pricing__features">
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Unlimited maps</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> AI-powered generation</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> All export formats</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Version history</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Public sharing</li>
-                  <li><svg className="lp-dash" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="8" x2="11" y2="8" /></svg> <span style={{ color: "var(--t3)" }}>No team workspaces</span></li>
-                </ul>
-                <Link href="/auth/signup" className="lp-btn lp-btn--primary">Start Free Trial</Link>
-              </div>
-
-              {/* Team */}
-              <div className="lp-pricing__card">
-                <div className="lp-pricing__plan-name">Team</div>
-                <div className="lp-pricing__plan-desc">For teams that need collaboration and governance.</div>
-                <div className="lp-pricing__price">
-                  <span className="lp-pricing__price-amount">${annual ? "59" : "79"}</span>
-                  <span className="lp-pricing__price-period">/month</span>
-                </div>
-                <div className="lp-pricing__price-note">{annual ? "Billed annually ($708/yr)" : "Billed monthly"}</div>
-                <ul className="lp-pricing__features">
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Everything in Pro</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Team workspaces</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Role-based access control</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Full audit log</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Slack and Teams integration</li>
-                  <li><svg className="lp-check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 8.5l3.5 3.5 6.5-7" /></svg> Priority support</li>
-                </ul>
-                <Link href="/auth/signup" className="lp-btn lp-btn--ghost">Start Free Trial</Link>
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
-
-      {/* ═══ FINAL CTA ═══ */}
-      <section className="lp-cta">
-        <div className="lp-cta__glow" />
-        <div className="lp-container">
-          <RevealSection>
-            <h2 className="lp-cta__title">
-              Stop guessing.<br />
-              <span className="lp-gradient-text">Start mapping.</span>
-            </h2>
-            <p className="lp-cta__subtitle">
-              Join 500+ engineering teams who use SwayMaps to visualize dependencies, reduce incidents, and ship with confidence.
+          <Reveal>
+            <p className="lp-eyebrow">FOR EVERY TEAM</p>
+            <h2 className="lp-section-title">One platform. Every dependency.</h2>
+            <p className="lp-section-subtitle">
+              From system architecture to project planning — SwayMaps adapts to how your team thinks.
             </p>
-            <div className="lp-cta__buttons">
-              <Link href="/auth/signup" className="lp-btn lp-btn--primary-lg">
+          </Reveal>
+
+          <div className="lp-usecase-grid">
+            {[
+              { icon: <IconEngineering />, color: "var(--node-api)", name: "Engineering", desc: "Map microservices, APIs, and infrastructure", chips: ["API Gateway", "PostgreSQL", "Redis"] },
+              { icon: <IconProduct />, color: "var(--node-system)", name: "Product", desc: "Plan features, dependencies, and roadmaps", chips: ["Feature A", "User Research", "Launch"] },
+              { icon: <IconOperations />, color: "var(--node-vendor)", name: "Operations", desc: "Track vendors, contracts, and supply chains", chips: ["Stripe", "AWS", "Datadog"] },
+              { icon: <IconCompliance />, color: "var(--node-process)", name: "Compliance", desc: "Map data flows for SOC2, GDPR, HIPAA", chips: ["User Data", "Encryption", "Audit Log"] },
+              { icon: <IconLeadership />, color: "var(--node-cloud)", name: "Leadership", desc: "Visualize org structure and strategic initiatives", chips: ["CTO", "Platform Team", "Q2 Goals"] },
+              { icon: <IconPM />, color: "var(--node-person)", name: "Project Management", desc: "Map project dependencies and milestones", chips: ["Sprint 1", "Design Review", "QA"] },
+            ].map((uc, i) => (
+              <Reveal key={i}>
+                <div className="lp-usecase-card">
+                  <div className="lp-usecase-icon" style={{ background: `${uc.color}15`, border: `1px solid ${uc.color}30` }}>
+                    <span style={{ color: uc.color }}>{uc.icon}</span>
+                  </div>
+                  <div className="lp-usecase-name">{uc.name}</div>
+                  <div className="lp-usecase-desc">{uc.desc}</div>
+                  <div className="lp-usecase-chips">
+                    {uc.chips.map((c) => (
+                      <span key={c} className="lp-chip">{c}</span>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PROBLEMS */}
+      <section className="lp-problems lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <p className="lp-eyebrow">THE PROBLEM</p>
+            <h2 className="lp-section-title">Plans fail when dependencies are invisible.</h2>
+          </Reveal>
+
+          <div className="lp-problems-grid">
+            {[
+              {
+                icon: <IconBlind />,
+                title: "Blind Decisions",
+                desc: "Teams make changes without seeing downstream impact. Projects derail because nobody mapped the dependencies.",
+                stat: "$540K avg cost per major failure",
+              },
+              {
+                icon: <IconClock />,
+                title: "Slow Response",
+                desc: "When something breaks or changes, hours are wasted tracing what depends on what.",
+                stat: "4.2 hours avg response time",
+              },
+              {
+                icon: <IconBrain />,
+                title: "Knowledge Loss",
+                desc: "Critical knowledge lives in people's heads. When they leave, the knowledge leaves too.",
+                stat: "67% of teams lack documentation",
+              },
+            ].map((p, i) => (
+              <Reveal key={i}>
+                <div className="lp-problem-card">
+                  <div className="lp-problem-icon">{p.icon}</div>
+                  <div className="lp-problem-title">{p.title}</div>
+                  <div className="lp-problem-desc">{p.desc}</div>
+                  <div className="lp-problem-stat">{p.stat}</div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section className="lp-features lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <p className="lp-eyebrow">FEATURES</p>
+            <h2 className="lp-section-title">Everything you need to map your world.</h2>
+          </Reveal>
+
+          {/* F1: AI-Powered Generation */}
+          <Reveal>
+            <div className="lp-feature-row">
+              <div className="lp-feature-text">
+                <h3 className="lp-feature-title">Describe it. AI maps it.</h3>
+                <p className="lp-feature-desc">
+                  Tell SwayMaps what you want to map in plain English. AI generates nodes, edges, and relationships in seconds. Works for any domain — not just engineering.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Generate maps from natural language
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    AI suggests connections automatically
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Works for any team or use case
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  <div className="lp-fv-prompt">
+                    <span className="lp-fv-prompt-icon"><IconSpark /></span>
+                    <span className="lp-fv-prompt-text">&quot;Map our Q2 product launch dependencies including design, engineering, and marketing&quot;</span>
+                  </div>
+                  <div className="lp-fv-generated">
+                    {[
+                      { name: "Product Launch", color: "var(--node-system)" },
+                      { name: "Design System", color: "var(--node-process)" },
+                      { name: "API Layer", color: "var(--node-api)" },
+                      { name: "Marketing", color: "var(--node-team)" },
+                      { name: "User Testing", color: "var(--node-person)" },
+                      { name: "Legal Review", color: "var(--node-cloud)" },
+                    ].map((n) => (
+                      <span key={n.name} className="lp-fv-gen-node">
+                        <span className="lp-fv-gen-dot" style={{ background: n.color }} />
+                        {n.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* F2: Visual Canvas */}
+          <Reveal>
+            <div className="lp-feature-row lp-feature-row--reverse">
+              <div className="lp-feature-text">
+                <h3 className="lp-feature-title">Drag, drop, connect.</h3>
+                <p className="lp-feature-desc">
+                  An infinite canvas that feels as natural as a whiteboard but with the structure of a database. 11 node types, status indicators, tags, and metadata on every element.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    11 node types for any use case
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Color-coded status indicators
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Drag-and-drop with snap-to-grid
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  <div className="lp-fv-node-grid">
+                    {[
+                      { name: "Person", color: "var(--node-person)" },
+                      { name: "System", color: "var(--node-system)" },
+                      { name: "API", color: "var(--node-api)" },
+                      { name: "Database", color: "var(--node-db)" },
+                      { name: "Process", color: "var(--node-process)" },
+                      { name: "Cloud", color: "var(--node-cloud)" },
+                      { name: "Vendor", color: "var(--node-vendor)" },
+                      { name: "Team", color: "var(--node-team)" },
+                      { name: "Queue", color: "var(--node-queue)" },
+                    ].map((n) => (
+                      <div key={n.name} className="lp-fv-node-type">
+                        <span className="lp-fv-node-type-dot" style={{ background: n.color }} />
+                        {n.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* F3: Collaboration */}
+          <Reveal>
+            <div className="lp-feature-row">
+              <div className="lp-feature-text">
+                <h3 className="lp-feature-title">Plan together, in real time.</h3>
+                <p className="lp-feature-desc">
+                  Invite your entire team. Assign roles, leave comments on any node, share read-only links with stakeholders. Everyone sees the same source of truth.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Workspaces with Owner/Admin/Editor/Viewer roles
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Inline threaded comments on any node
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    One-click public sharing links
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  <div className="lp-fv-roles">
+                    {[
+                      { name: "Sarah Chen", initials: "SC", role: "Owner", color: "var(--node-person)" },
+                      { name: "Alex Rivera", initials: "AR", role: "Editor", color: "var(--node-system)" },
+                      { name: "Jordan Lee", initials: "JL", role: "Viewer", color: "var(--node-process)" },
+                    ].map((r) => (
+                      <div key={r.name} className="lp-fv-role">
+                        <div className="lp-fv-role-left">
+                          <div className="lp-fv-role-avatar" style={{ background: r.color }}>{r.initials}</div>
+                          <span className="lp-fv-role-name">{r.name}</span>
+                        </div>
+                        <span className="lp-fv-role-badge">{r.role}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="lp-fv-share">
+                    <span className="lp-fv-share-url">swaymaps.com/share/a1b2c3d4</span>
+                    <span className="lp-fv-share-btn">Copy</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* F4: Version History */}
+          <Reveal>
+            <div className="lp-feature-row lp-feature-row--reverse">
+              <div className="lp-feature-text">
+                <h3 className="lp-feature-title">Every change, tracked.</h3>
+                <p className="lp-feature-desc">
+                  SwayMaps auto-saves version snapshots. Compare any two versions with the built-in diff viewer. Restore previous states with one click.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Auto-save snapshots every 5 minutes
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Visual diff viewer shows what changed
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    One-click restore to any version
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  <div className="lp-fv-timeline">
+                    {[
+                      { label: "Added Marketing Plan node", time: "2 min ago", changes: [{ type: "add", text: "+1 node" }, { type: "add", text: "+3 edges" }] },
+                      { label: "Updated API Integration status", time: "18 min ago", changes: [{ type: "mod", text: "1 modified" }] },
+                      { label: "Removed legacy Auth Service", time: "1 hour ago", changes: [{ type: "del", text: "-1 node" }, { type: "del", text: "-2 edges" }] },
+                      { label: "Initial map created", time: "3 hours ago", changes: [{ type: "add", text: "+8 nodes" }, { type: "add", text: "+11 edges" }] },
+                    ].map((v, i) => (
+                      <div key={i} className="lp-fv-version">
+                        <div className="lp-fv-version-info">
+                          <div className="lp-fv-version-label">{v.label}</div>
+                          <div className="lp-fv-version-meta">{v.time}</div>
+                          <div className="lp-fv-version-changes">
+                            {v.changes.map((c, ci) => (
+                              <span key={ci} className={`lp-fv-change lp-fv-change--${c.type}`}>{c.text}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* MORE FEATURES */}
+      <section className="lp-more-features lp-section">
+        <div className="lp-container">
+          <div className="lp-more-grid">
+            {[
+              { icon: <IconGrid />, name: "25+ Templates", desc: "Start from proven templates for any use case" },
+              { icon: <IconCode />, name: "Diagram as Code", desc: "Define maps in YAML, version-control in Git" },
+              { icon: <IconDownload />, name: "Import & Export", desc: "Draw.io, Lucidchart, PNG, SVG, PDF, JSON" },
+              { icon: <IconTerminal />, name: "Command Palette", desc: "Press \u2318K to search, navigate, act instantly" },
+              { icon: <IconPlug />, name: "Integrations", desc: "Slack, Microsoft Teams, webhooks" },
+              { icon: <IconActivity />, name: "Health Dashboard", desc: "0-100 health score, detect issues at a glance" },
+            ].map((f, i) => (
+              <Reveal key={i}>
+                <div className="lp-more-card">
+                  <div className="lp-more-icon">{f.icon}</div>
+                  <div className="lp-more-name">{f.name}</div>
+                  <div className="lp-more-desc">{f.desc}</div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section className="lp-pricing lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div style={{ textAlign: "center" }}>
+              <p className="lp-eyebrow">PRICING</p>
+              <h2 className="lp-section-title">Start free. Scale as you grow.</h2>
+              <p className="lp-section-subtitle" style={{ margin: "0 auto" }}>
+                3 maps free forever. No credit card required.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="lp-pricing-toggle">
+            <span className={`lp-pricing-toggle-label ${!annual ? "is-active" : ""}`}>Monthly</span>
+            <div
+              className={`lp-pricing-toggle-track ${annual ? "is-annual" : ""}`}
+              onClick={() => setAnnual(!annual)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setAnnual(!annual); }}
+            >
+              <div className="lp-pricing-toggle-thumb" />
+            </div>
+            <span className={`lp-pricing-toggle-label ${annual ? "is-active" : ""}`}>Annual</span>
+            <span className="lp-pricing-save">Save 30%</span>
+          </div>
+
+          <div className="lp-pricing-grid">
+            {/* Free */}
+            <Reveal>
+              <div className="lp-pricing-card">
+                <div className="lp-pricing-name">Free</div>
+                <div className="lp-pricing-price">
+                  <span className="lp-pricing-amount">$0</span>
+                </div>
+                <div className="lp-pricing-billed">Free forever</div>
+                <ul className="lp-pricing-features">
+                  {[
+                    { text: "3 maps", has: true },
+                    { text: "Unlimited nodes per map", has: true },
+                    { text: "PNG & JSON export", has: true },
+                    { text: "1 workspace", has: true },
+                    { text: "Community support", has: true },
+                    { text: "AI generation", has: false },
+                    { text: "Collaboration", has: false },
+                    { text: "Version history", has: false },
+                  ].map((f, i) => (
+                    <li key={i} className={`lp-pricing-feature ${!f.has ? "lp-pricing-feature--no" : ""}`}>
+                      <span className={`lp-pricing-check ${f.has ? "lp-pricing-check--yes" : "lp-pricing-check--no"}`}>
+                        {f.has ? <IconCheck size={10} /> : <IconMinus size={10} />}
+                      </span>
+                      {f.text}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/auth/signup" className="lp-btn lp-btn--ghost lp-pricing-cta">Get Started</Link>
+              </div>
+            </Reveal>
+
+            {/* Pro */}
+            <Reveal>
+              <div className="lp-pricing-card lp-pricing-card--popular">
+                <span className="lp-pricing-popular-badge">MOST POPULAR</span>
+                <div className="lp-pricing-name">Pro</div>
+                <div className="lp-pricing-price">
+                  <span className="lp-pricing-amount">${annual ? "19" : "29"}</span>
+                  <span className="lp-pricing-period">/mo</span>
+                </div>
+                <div className="lp-pricing-billed">{annual ? "Billed annually ($228/yr)" : "Billed monthly"}</div>
+                <ul className="lp-pricing-features">
+                  {[
+                    { text: "Unlimited maps", has: true },
+                    { text: "Unlimited nodes per map", has: true },
+                    { text: "All export formats", has: true },
+                    { text: "5 workspaces", has: true },
+                    { text: "AI generation", has: true },
+                    { text: "Priority support", has: true },
+                    { text: "Public sharing links", has: true },
+                    { text: "Version history", has: false },
+                  ].map((f, i) => (
+                    <li key={i} className={`lp-pricing-feature ${!f.has ? "lp-pricing-feature--no" : ""}`}>
+                      <span className={`lp-pricing-check ${f.has ? "lp-pricing-check--yes" : "lp-pricing-check--no"}`}>
+                        {f.has ? <IconCheck size={10} /> : <IconMinus size={10} />}
+                      </span>
+                      {f.text}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-pricing-cta">
+                  Start 14-Day Trial <IconArrowRight size={14} />
+                </Link>
+              </div>
+            </Reveal>
+
+            {/* Team */}
+            <Reveal>
+              <div className="lp-pricing-card">
+                <div className="lp-pricing-name">Team</div>
+                <div className="lp-pricing-price">
+                  <span className="lp-pricing-amount">${annual ? "59" : "79"}</span>
+                  <span className="lp-pricing-period">/mo</span>
+                </div>
+                <div className="lp-pricing-billed">{annual ? "Billed annually ($708/yr)" : "Billed monthly"}</div>
+                <ul className="lp-pricing-features">
+                  {[
+                    { text: "Everything in Pro", has: true },
+                    { text: "Unlimited workspaces", has: true },
+                    { text: "Team collaboration", has: true },
+                    { text: "Role-based access control", has: true },
+                    { text: "Version history & diff", has: true },
+                    { text: "Audit log", has: true },
+                    { text: "SSO & SAML", has: true },
+                    { text: "Dedicated support", has: true },
+                  ].map((f, i) => (
+                    <li key={i} className="lp-pricing-feature">
+                      <span className="lp-pricing-check lp-pricing-check--yes">
+                        <IconCheck size={10} />
+                      </span>
+                      {f.text}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/auth/signup" className="lp-btn lp-btn--ghost lp-pricing-cta">
+                  Start 14-Day Trial <IconArrowRight size={14} />
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* COMPARISON */}
+      <section className="lp-comparison lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <p className="lp-eyebrow">WHY SWAYMAPS</p>
+            <h2 className="lp-section-title">Not another generic diagramming tool.</h2>
+          </Reveal>
+
+          <div className="lp-comparison-grid">
+            {[
+              {
+                name: "Lucidchart / Draw.io",
+                weakness: "General-purpose diagramming with no dependency intelligence. No impact analysis, no status tracking, no AI generation.",
+                advantage: "SwayMaps is purpose-built for dependency mapping with AI generation, health scores, and impact tracing built in.",
+              },
+              {
+                name: "ServiceNow CMDB",
+                weakness: "Enterprise-only, expensive, months to deploy. Designed for IT asset management, not visual planning.",
+                advantage: "SwayMaps deploys in minutes. Visual-first approach works for any team, not just IT operations.",
+              },
+              {
+                name: "Backstage",
+                weakness: "Developer-only tool. Requires engineering resources to set up and maintain. No visual canvas.",
+                advantage: "SwayMaps gives every team a visual canvas with zero setup. No engineering resources required.",
+              },
+              {
+                name: "Miro / FigJam",
+                weakness: "Freeform whiteboards with no structure. Great for brainstorming, terrible for tracking real dependencies.",
+                advantage: "SwayMaps combines the freedom of a canvas with structured nodes, typed edges, and dependency intelligence.",
+              },
+            ].map((c, i) => (
+              <Reveal key={i}>
+                <div className="lp-comparison-card">
+                  <div className="lp-comparison-name">{c.name}</div>
+                  <div className="lp-comparison-weakness">{c.weakness}</div>
+                  <div className="lp-comparison-advantage">
+                    <span className="lp-comparison-check"><IconCheck size={10} /></span>
+                    <span>{c.advantage}</span>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="lp-cta-section lp-section">
+        <div className="lp-cta-glow" />
+        <div className="lp-container">
+          <Reveal>
+            <h2 className="lp-cta-title">
+              Stop guessing.<br />
+              <span className="lp-hero-grad">Start mapping.</span>
+            </h2>
+            <p className="lp-cta-sub">
+              Join 500+ teams who use SwayMaps to visualize dependencies, trace impact, and plan with confidence.
+            </p>
+            <div className="lp-cta-buttons">
+              <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-btn--lg">
                 Start Free — No Credit Card <IconArrowRight size={16} />
               </Link>
               <Link href="/pricing" className="lp-btn lp-btn--outline-lg">
                 View Pricing
               </Link>
             </div>
-          </RevealSection>
+          </Reveal>
         </div>
       </section>
 
-      {/* ═══ FOOTER ═══ */}
+      {/* FOOTER */}
       <footer className="lp-footer">
         <div className="lp-container">
-          <div className="lp-footer__grid">
-            <div className="lp-footer__brand">
-              <Link href="/landing" className="lp-footer__brand-logo">
-                <LogoMark />
-                <span>SwayMaps</span>
+          <div className="lp-footer-grid">
+            <div className="lp-footer-brand">
+              <Link href="/" className="lp-footer-brand-logo">
+                <span className="lp-nav-logo-icon">
+                  <Logo size={20} />
+                </span>
+                SwayMaps
               </Link>
-              <p className="lp-footer__brand-tagline">
-                The visual dependency intelligence platform for engineering teams.
+              <p className="lp-footer-brand-desc">
+                The visual planning and dependency mapping platform for every team.
               </p>
             </div>
 
             <div>
-              <h4 className="lp-footer__col-title">Product</h4>
-              <ul className="lp-footer__col-links">
+              <div className="lp-footer-col-title">Product</div>
+              <ul className="lp-footer-links">
                 <li><Link href="/features">Features</Link></li>
                 <li><Link href="/pricing">Pricing</Link></li>
                 <li><Link href="/templates-gallery">Templates</Link></li>
@@ -1059,38 +960,37 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h4 className="lp-footer__col-title">Resources</h4>
-              <ul className="lp-footer__col-links">
-                <li><Link href="/docs">Documentation</Link></li>
+              <div className="lp-footer-col-title">Resources</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/docs">Docs</Link></li>
                 <li><Link href="/blog">Blog</Link></li>
                 <li><Link href="/use-cases">Use Cases</Link></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="lp-footer__col-title">Company</h4>
-              <ul className="lp-footer__col-links">
+              <div className="lp-footer-col-title">Company</div>
+              <ul className="lp-footer-links">
                 <li><Link href="/about">About</Link></li>
                 <li><Link href="/contact">Contact</Link></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="lp-footer__col-title">Legal</h4>
-              <ul className="lp-footer__col-links">
-                <li><Link href="/legal/terms">Terms of Service</Link></li>
-                <li><Link href="/legal/privacy">Privacy Policy</Link></li>
+              <div className="lp-footer-col-title">Legal</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/legal/terms">Terms</Link></li>
+                <li><Link href="/legal/privacy">Privacy</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="lp-footer__bottom">
-            <span className="lp-footer__copyright">2026 SwayMaps. All rights reserved.</span>
-            <div className="lp-footer__socials">
-              <a href="https://twitter.com/swaymaps" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><IconTwitter /></a>
-              <a href="https://github.com/swaymaps" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><IconGitHub /></a>
-              <a href="https://linkedin.com/company/swaymaps" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><IconLinkedIn /></a>
-              <a href="https://discord.gg/swaymaps" target="_blank" rel="noopener noreferrer" aria-label="Discord"><IconDiscord /></a>
+          <div className="lp-footer-bottom">
+            <span className="lp-footer-copy">&copy; 2026 SwayMaps. All rights reserved.</span>
+            <div className="lp-footer-socials">
+              <a href="https://twitter.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconTwitter /></a>
+              <a href="https://github.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconGitHub /></a>
+              <a href="https://linkedin.com/company/swaymaps" target="_blank" rel="noopener noreferrer"><IconLinkedIn /></a>
             </div>
           </div>
         </div>
