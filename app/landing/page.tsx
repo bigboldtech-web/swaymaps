@@ -157,37 +157,43 @@ export default function LandingPage() {
     window.addEventListener("scroll", onScroll, { passive: true });
 
     /* Generate curves */
+    /* Generate structured curves that flow left-to-right like dependency paths */
     const curves: {
       x1: number; y1: number; cx1: number; cy1: number;
       cx2: number; cy2: number; x2: number; y2: number;
       speed: number; hue: number;
     }[] = [];
-    for (let i = 0; i < 12; i++) {
-      const w = canvas.width;
-      const h = canvas.height;
+    const w = canvas.width;
+    const h = canvas.height;
+    for (let i = 0; i < 10; i++) {
+      const band = (i / 10) * h;  // distribute across vertical bands
+      const yBase = band + Math.random() * (h * 0.1);
+      const yEnd = band + (Math.random() - 0.5) * (h * 0.2);
       curves.push({
-        x1: Math.random() * w * 0.3,
-        y1: Math.random() * h,
-        cx1: Math.random() * w * 0.5 + w * 0.1,
-        cy1: Math.random() * h,
-        cx2: Math.random() * w * 0.5 + w * 0.4,
-        cy2: Math.random() * h,
-        x2: Math.random() * w * 0.3 + w * 0.7,
-        y2: Math.random() * h,
-        speed: 0.3 + Math.random() * 0.7,
-        hue: 190 + Math.random() * 30,
+        x1: -w * 0.05,                           // start from left edge
+        y1: yBase,
+        cx1: w * 0.25 + Math.random() * w * 0.1, // first control — left-center
+        cy1: yBase + (Math.random() - 0.5) * 80,
+        cx2: w * 0.65 + Math.random() * w * 0.1, // second control — right-center
+        cy2: yEnd + (Math.random() - 0.5) * 80,
+        x2: w * 1.05,                             // end at right edge
+        y2: yEnd,
+        speed: 0.2 + Math.random() * 0.4,
+        hue: 195 + Math.random() * 20,            // tight cyan range
       });
     }
 
-    /* Generate nodes */
+    /* Generate node dots — spread evenly, not clustered */
     const nodes: { x: number; y: number; r: number; pulse: number; hue: number }[] = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 20; i++) {
+      const col = i % 5;
+      const row = Math.floor(i / 5);
       nodes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: 1.5 + Math.random() * 2.5,
+        x: (col + 0.5) * (w / 5) + (Math.random() - 0.5) * (w * 0.12),
+        y: (row + 0.5) * (h / 4) + (Math.random() - 0.5) * (h * 0.15),
+        r: 1.5 + Math.random() * 1.5,
         pulse: Math.random() * Math.PI * 2,
-        hue: 190 + Math.random() * 40,
+        hue: 195 + Math.random() * 20,
       });
     }
 
@@ -339,72 +345,72 @@ export default function LandingPage() {
               </div>
 
               <div className="demo-canvas">
-                {/* SVG Edges */}
-                <svg className="demo-edges" viewBox="0 0 1100 420" preserveAspectRatio="xMidYMid meet">
-                  {/* Web Client to API Gateway */}
-                  <path style={{stroke:"var(--n-api)"}} d="M 550 65 L 550 130"/>
-                  {/* API Gateway to services */}
-                  <path style={{stroke:"var(--n-api)"}} d="M 550 175 C 550 210, 200 210, 200 250"/>
-                  <path style={{stroke:"var(--n-api)"}} d="M 550 175 C 550 210, 400 210, 400 250"/>
-                  <path style={{stroke:"var(--n-system)"}} d="M 550 175 C 550 210, 650 210, 650 250"/>
-                  <path style={{stroke:"var(--n-system)"}} d="M 550 175 C 550 210, 870 210, 870 250"/>
-                  {/* Services to DBs */}
-                  <path style={{stroke:"var(--n-process)"}} d="M 200 295 C 200 330, 170 330, 170 355"/>
-                  <path style={{stroke:"var(--n-db)"}} d="M 400 295 C 400 330, 390 330, 390 355"/>
-                  <path style={{stroke:"var(--n-db)"}} d="M 650 295 C 650 330, 610 330, 610 355"/>
-                  <path style={{stroke:"var(--n-vendor)"}} d="M 870 295 C 870 330, 840 330, 840 355"/>
-                  {/* Cross connections */}
-                  <path style={{stroke:"var(--n-system)",opacity:0.3}} d="M 400 270 C 500 250, 550 250, 650 270"/>
-                  <path style={{stroke:"var(--n-vendor)",opacity:0.3}} d="M 650 295 C 700 330, 780 330, 840 355"/>
+                {/* SVG Edges — viewBox 0 0 100 100 so coordinates are percentages */}
+                <svg className="demo-edges" viewBox="0 0 100 100" preserveAspectRatio="none" style={{width:"100%",height:"100%"}}>
+                  {/* Web Client (50,13) to API Gateway (50,36) */}
+                  <path style={{stroke:"var(--n-api)"}} d="M 50 15 L 50 33"/>
+                  {/* API Gateway to services row */}
+                  <path style={{stroke:"var(--n-api)"}} d="M 50 40 C 50 50, 19 50, 19 58"/>
+                  <path style={{stroke:"var(--n-api)"}} d="M 50 40 C 50 50, 38 50, 38 58"/>
+                  <path style={{stroke:"var(--n-system)"}} d="M 50 40 C 50 50, 60 50, 60 58"/>
+                  <path style={{stroke:"var(--n-system)"}} d="M 50 40 C 50 50, 80 50, 80 58"/>
+                  {/* Services to DBs row */}
+                  <path style={{stroke:"var(--n-process)"}} d="M 19 68 C 19 76, 15 76, 15 83"/>
+                  <path style={{stroke:"var(--n-db)"}} d="M 38 68 C 38 76, 35 76, 35 83"/>
+                  <path style={{stroke:"var(--n-db)"}} d="M 60 68 C 60 76, 55 76, 55 83"/>
+                  <path style={{stroke:"var(--n-vendor)"}} d="M 80 68 C 80 76, 77 76, 77 83"/>
+                  {/* Cross connections (subtle) */}
+                  <path style={{stroke:"var(--n-system)",opacity:0.3}} d="M 38 63 C 45 60, 53 60, 60 63"/>
+                  <path style={{stroke:"var(--n-vendor)",opacity:0.3}} d="M 60 68 C 66 76, 72 76, 77 83"/>
                 </svg>
 
-                {/* Nodes — using % positions like the original HTML */}
-                <div className="dnode" style={{ top: "40px", left: "50%", transform: "translateX(-50%)" }}>
+                {/* Nodes — percentage positions matching SVG coords */}
+                <div className="dnode" style={{ top: "8%", left: "50%", transform: "translateX(-50%)" }}>
                   Web Client <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
                   <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "130px", left: "50%", transform: "translateX(-50%)" }}>
+                <div className="dnode" style={{ top: "30%", left: "50%", transform: "translateX(-50%)" }}>
                   API Gateway <span className="dnode-badge" style={{ background: "var(--n-api)" }}>API</span>
                   <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "250px", left: "14%" }}>
+                <div className="dnode" style={{ top: "57%", left: "12%" }}>
                   Auth Service <span className="dnode-badge" style={{ background: "var(--n-process)" }}>PROCESS</span>
                   <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "250px", left: "32%" }}>
+                <div className="dnode" style={{ top: "57%", left: "31%" }}>
                   User Service <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
                   <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "250px", left: "54%" }}>
+                <div className="dnode" style={{ top: "57%", left: "52%" }}>
                   Order Service <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
                   <span className="dnode-status" style={{ background: "var(--warning)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "250px", left: "74%" }}>
+                <div className="dnode" style={{ top: "57%", left: "73%" }}>
                   Notifications <span className="dnode-badge" style={{ background: "var(--n-queue)" }}>QUEUE</span>
                   <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "355px", left: "10%" }}>
+                <div className="dnode" style={{ top: "82%", left: "8%" }}>
                   PostgreSQL <span className="dnode-badge" style={{ background: "var(--n-db)" }}>DB</span>
                   <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "355px", left: "30%" }}>
+                <div className="dnode" style={{ top: "82%", left: "28%" }}>
                   Redis <span className="dnode-badge" style={{ background: "var(--n-cache)" }}>CACHE</span>
                   <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "355px", left: "50%" }}>
+                <div className="dnode" style={{ top: "82%", left: "48%" }}>
                   Orders DB <span className="dnode-badge" style={{ background: "var(--n-db)" }}>DB</span>
                   <span className="dnode-status" style={{ background: "var(--critical)" }} />
                 </div>
 
-                <div className="dnode" style={{ top: "355px", left: "72%" }}>
+                <div className="dnode" style={{ top: "82%", left: "70%" }}>
                   Kafka <span className="dnode-badge" style={{ background: "var(--n-vendor)" }}>VENDOR</span>
                   <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
