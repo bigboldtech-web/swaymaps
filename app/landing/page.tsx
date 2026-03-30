@@ -345,23 +345,23 @@ export default function LandingPage() {
               </div>
 
               <div className="demo-canvas">
-                {/* SVG Edges — viewBox 0 0 100 100 so coordinates are percentages */}
+                {/* SVG Edges — viewBox 0 0 100 100, non-scaling-stroke keeps lines thin */}
                 <svg className="demo-edges" viewBox="0 0 100 100" preserveAspectRatio="none" style={{width:"100%",height:"100%"}}>
-                  {/* Web Client (50,13) to API Gateway (50,36) */}
-                  <path style={{stroke:"var(--n-api)"}} d="M 50 15 L 50 33"/>
+                  {/* Web Client to API Gateway */}
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-api)"}} d="M 50 15 L 50 33"/>
                   {/* API Gateway to services row */}
-                  <path style={{stroke:"var(--n-api)"}} d="M 50 40 C 50 50, 19 50, 19 58"/>
-                  <path style={{stroke:"var(--n-api)"}} d="M 50 40 C 50 50, 38 50, 38 58"/>
-                  <path style={{stroke:"var(--n-system)"}} d="M 50 40 C 50 50, 60 50, 60 58"/>
-                  <path style={{stroke:"var(--n-system)"}} d="M 50 40 C 50 50, 80 50, 80 58"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-api)"}} d="M 50 40 C 50 50, 19 50, 19 58"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-api)"}} d="M 50 40 C 50 50, 38 50, 38 58"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-system)"}} d="M 50 40 C 50 50, 60 50, 60 58"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-system)"}} d="M 50 40 C 50 50, 80 50, 80 58"/>
                   {/* Services to DBs row */}
-                  <path style={{stroke:"var(--n-process)"}} d="M 19 68 C 19 76, 15 76, 15 83"/>
-                  <path style={{stroke:"var(--n-db)"}} d="M 38 68 C 38 76, 35 76, 35 83"/>
-                  <path style={{stroke:"var(--n-db)"}} d="M 60 68 C 60 76, 55 76, 55 83"/>
-                  <path style={{stroke:"var(--n-vendor)"}} d="M 80 68 C 80 76, 77 76, 77 83"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-process)"}} d="M 19 68 C 19 76, 15 76, 15 83"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-db)"}} d="M 38 68 C 38 76, 35 76, 35 83"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-db)"}} d="M 60 68 C 60 76, 55 76, 55 83"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-vendor)"}} d="M 80 68 C 80 76, 77 76, 77 83"/>
                   {/* Cross connections (subtle) */}
-                  <path style={{stroke:"var(--n-system)",opacity:0.3}} d="M 38 63 C 45 60, 53 60, 60 63"/>
-                  <path style={{stroke:"var(--n-vendor)",opacity:0.3}} d="M 60 68 C 66 76, 72 76, 77 83"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-system)",opacity:0.3}} d="M 38 63 C 45 60, 53 60, 60 63"/>
+                  <path vectorEffect="non-scaling-stroke" style={{stroke:"var(--n-vendor)",opacity:0.3}} d="M 60 68 C 66 76, 72 76, 77 83"/>
                 </svg>
 
                 {/* Nodes — percentage positions matching SVG coords */}
