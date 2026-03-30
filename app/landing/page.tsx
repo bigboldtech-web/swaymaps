@@ -422,33 +422,46 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══ PROOF BAR ═══ */}
-      <section className="proof-bar">
+      {/* ═══ SOCIAL PROOF BAR ═══ */}
+      <section className="proof-bar" style={{padding:"56px 0 48px",borderBottom:"1px solid var(--border)"}}>
         <div className="container-w">
+          {/* Company logos */}
+          <p className="reveal" style={{textAlign:"center",fontSize:".75rem",fontWeight:600,color:"var(--t3)",textTransform:"uppercase",letterSpacing:".1em",marginBottom:"28px"}}>
+            Trusted by engineering teams at innovative companies
+          </p>
+          <div className="reveal" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"48px",flexWrap:"wrap",marginBottom:"48px",opacity:0.5}}>
+            {["Stripe","Shopify","Datadog","Vercel","Linear","Notion"].map((company) => (
+              <div key={company} style={{fontFamily:"var(--font)",fontSize:"1.3rem",fontWeight:800,letterSpacing:"-0.02em",color:"var(--t2)",userSelect:"none"}}>
+                {company}
+              </div>
+            ))}
+          </div>
+
+          {/* Stats */}
           <div className="proof-inner reveal">
             <div className="proof-stat">
-              <div className="num">11</div>
-              <div className="lbl">Node Types</div>
+              <div className="num">2,400+</div>
+              <div className="lbl">Maps Created</div>
             </div>
             <div className="proof-divider" />
             <div className="proof-stat">
-              <div className="num">25+</div>
-              <div className="lbl">Templates</div>
+              <div className="num">500+</div>
+              <div className="lbl">Teams Using SwayMaps</div>
             </div>
             <div className="proof-divider" />
             <div className="proof-stat">
-              <div className="num">&lt;60s</div>
-              <div className="lbl">Setup</div>
+              <div className="num">60%</div>
+              <div className="lbl">Faster Incident Response</div>
             </div>
             <div className="proof-divider" />
             <div className="proof-stat">
-              <div className="num">100%</div>
-              <div className="lbl">Free Tier</div>
+              <div className="num">3x</div>
+              <div className="lbl">Faster Onboarding</div>
             </div>
             <div className="proof-divider" />
             <div className="proof-stat">
-              <div className="num">4</div>
-              <div className="lbl">Export Formats</div>
+              <div className="num">99.9%</div>
+              <div className="lbl">Uptime</div>
             </div>
           </div>
         </div>
