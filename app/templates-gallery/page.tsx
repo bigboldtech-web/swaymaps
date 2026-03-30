@@ -312,6 +312,34 @@ export default function TemplatesGalleryPage() {
 
   return (
     <div className="landing-root" ref={rootRef}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "SwayMaps Templates",
+        "description": "Browse 25+ templates: microservices architecture, org charts, CI/CD pipelines, compliance maps, vendor dependencies, project plans, and more.",
+        "url": "https://swaymaps.com/templates-gallery",
+        "mainEntity": {
+          "@type": "ItemList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Microservices Architecture" },
+            { "@type": "ListItem", "position": 2, "name": "Data Pipeline" },
+            { "@type": "ListItem", "position": 3, "name": "CI/CD Pipeline" },
+            { "@type": "ListItem", "position": 4, "name": "Org Chart" },
+            { "@type": "ListItem", "position": 5, "name": "Cloud Infrastructure" },
+            { "@type": "ListItem", "position": 6, "name": "Compliance Map" },
+            { "@type": "ListItem", "position": 7, "name": "Vendor Dependencies" },
+            { "@type": "ListItem", "position": 8, "name": "Incident Response" },
+            { "@type": "ListItem", "position": 9, "name": "Project Plan" }
+          ]
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
+            { "@type": "ListItem", "position": 2, "name": "Templates", "item": "https://swaymaps.com/templates-gallery" }
+          ]
+        }
+      }) }} />
       {/* ─── Background ─── */}
       <div className="map-bg">
         <div className="grid-layer" />

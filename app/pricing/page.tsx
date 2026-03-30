@@ -205,6 +205,31 @@ export default function PricingPage() {
 
   return (
     <div className="landing-root" ref={rootRef}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "SwayMaps Pricing",
+        "description": "SwayMaps pricing: Free plan with 3 maps forever. Pro at $29/mo ($19 annual) for unlimited maps. Team at $79/mo ($59 annual) for workspaces, version history, and integrations.",
+        "url": "https://swaymaps.com/pricing",
+        "mainEntity": {
+          "@type": "Product",
+          "name": "SwayMaps",
+          "description": "Visual dependency mapping and planning platform",
+          "brand": { "@type": "Brand", "name": "SwayMaps" },
+          "offers": [
+            { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD", "description": "3 maps, all node types, PNG/JSON export" },
+            { "@type": "Offer", "name": "Pro", "price": "29", "priceCurrency": "USD", "billingIncrement": "MON", "description": "Unlimited maps, AI generation, all export formats" },
+            { "@type": "Offer", "name": "Team", "price": "79", "priceCurrency": "USD", "billingIncrement": "MON", "description": "Workspaces, version history, integrations, priority support" }
+          ]
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
+            { "@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://swaymaps.com/pricing" }
+          ]
+        }
+      }) }} />
       {/* ═══ MAP BACKGROUND ═══ */}
       <div className="map-bg">
         <div className="grid-layer" />

@@ -121,6 +121,20 @@ export default function FeaturesPage() {
 
   return (
     <div className="landing-root" style={{ background: "#070b14", minHeight: "100vh" }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "SwayMaps Features",
+        "description": "Explore SwayMaps features: AI-powered map generation, real-time collaboration, version history with diff viewer, YAML diagram-as-code, 25+ templates, health dashboard, and more.",
+        "url": "https://swaymaps.com/features",
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
+            { "@type": "ListItem", "position": 2, "name": "Features", "item": "https://swaymaps.com/features" }
+          ]
+        }
+      }) }} />
       {/* ─── Background ─── */}
       <div className="map-bg">
         <div className="grid-layer" />

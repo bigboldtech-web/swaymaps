@@ -72,6 +72,27 @@ export default function AboutPage() {
 
   return (
     <div className="landing-root" ref={rootRef}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "name": "About SwayMaps",
+        "description": "SwayMaps is the visual planning and dependency mapping platform. Our mission: make complex relationships visible and accessible to every team.",
+        "url": "https://swaymaps.com/about",
+        "mainEntity": {
+          "@type": "Organization",
+          "name": "SwayMaps",
+          "url": "https://swaymaps.com",
+          "description": "The visual dependency intelligence platform. Map, understand, and manage complex relationships across your organization.",
+          "sameAs": []
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
+            { "@type": "ListItem", "position": 2, "name": "About", "item": "https://swaymaps.com/about" }
+          ]
+        }
+      }) }} />
       {/* ─── BG ─── */}
       <div className="map-bg">
         <div className="grid-layer" />

@@ -154,6 +154,20 @@ export default function ChangelogPage() {
 
   return (
     <div className="landing-root">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "SwayMaps Changelog",
+        "description": "Follow SwayMaps development: new features, improvements, and fixes. See our latest releases including AI generation, YAML DSL, version history, and more.",
+        "url": "https://swaymaps.com/changelog",
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
+            { "@type": "ListItem", "position": 2, "name": "Changelog", "item": "https://swaymaps.com/changelog" }
+          ]
+        }
+      }) }} />
       {/* ═══ BACKGROUND ═══ */}
       <div className="map-bg">
         <div className="grid-layer" />

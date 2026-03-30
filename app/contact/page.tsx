@@ -132,6 +132,20 @@ export default function ContactPage() {
 
   return (
     <div className="landing-root">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        "name": "Contact SwayMaps",
+        "description": "Get in touch with the SwayMaps team. Book a demo, ask a question, or request enterprise pricing. We respond within 24 hours.",
+        "url": "https://swaymaps.com/contact",
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
+            { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://swaymaps.com/contact" }
+          ]
+        }
+      }) }} />
       {/* ═══ BACKGROUND ═══ */}
       <div className="map-bg">
         <div className="grid-layer" />

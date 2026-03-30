@@ -232,6 +232,7 @@ function Reveal({ children, className = "" }: { children: React.ReactNode; class
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [annual, setAnnual] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -241,6 +242,127 @@ export default function LandingPage() {
 
   return (
     <div className="lp-root">
+      {/* STRUCTURED DATA */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "SoftwareApplication",
+                "name": "SwayMaps",
+                "applicationCategory": "BusinessApplication",
+                "operatingSystem": "Web",
+                "description": "The visual planning and dependency mapping platform for every team. Map systems, trace impact, align stakeholders with AI-powered visual intelligence.",
+                "url": "https://swaymaps.com",
+                "offers": [
+                  {
+                    "@type": "Offer",
+                    "name": "Free",
+                    "price": "0",
+                    "priceCurrency": "USD",
+                    "description": "3 maps, all node types, PNG & JSON export"
+                  },
+                  {
+                    "@type": "Offer",
+                    "name": "Pro",
+                    "price": "29",
+                    "priceCurrency": "USD",
+                    "billingIncrement": "P1M",
+                    "description": "Unlimited maps, AI generation, all export formats"
+                  },
+                  {
+                    "@type": "Offer",
+                    "name": "Team",
+                    "price": "79",
+                    "priceCurrency": "USD",
+                    "billingIncrement": "P1M",
+                    "description": "Everything in Pro plus workspaces, version history, integrations"
+                  }
+                ],
+                "featureList": [
+                  "AI-powered map generation from natural language",
+                  "11 node types with metadata and status indicators",
+                  "Real-time collaboration with workspaces and roles",
+                  "Version history with visual diff viewer",
+                  "Diagram as code with YAML DSL",
+                  "25+ ready-to-use templates",
+                  "Export to PNG, SVG, PDF, JSON",
+                  "Public sharing via unique links",
+                  "Slack and Microsoft Teams integration",
+                  "Health dashboard with 0-100 scoring",
+                  "Command palette for power users",
+                  "Import from Draw.io, Lucidchart, Miro"
+                ]
+              },
+              {
+                "@type": "Organization",
+                "name": "SwayMaps",
+                "url": "https://swaymaps.com",
+                "logo": "https://swaymaps.com/logo.png",
+                "sameAs": ["https://twitter.com/swaymaps", "https://github.com/swaymaps", "https://linkedin.com/company/swaymaps"]
+              },
+              {
+                "@type": "WebSite",
+                "name": "SwayMaps",
+                "url": "https://swaymaps.com",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": "https://swaymaps.com/docs?q={search_term_string}",
+                  "query-input": "required name=search_term_string"
+                }
+              },
+              {
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {
+                    "@type": "Question",
+                    "name": "What is SwayMaps?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "SwayMaps is a visual planning and dependency mapping platform that lets any team map systems, trace impact, and align stakeholders. It works for engineering, product, operations, compliance, leadership, and project management teams."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Is SwayMaps free?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes, SwayMaps offers a free forever plan with 3 maps, all 11 node types, and PNG/JSON export. Pro plans start at $19/month (billed annually) with unlimited maps and AI generation."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "What teams can use SwayMaps?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "SwayMaps is designed for every team that plans and manages dependencies: engineering teams mapping microservices, product teams mapping feature dependencies, compliance teams mapping data flows for SOC2/GDPR, operations teams tracking vendors, leadership mapping org structures, and project managers mapping milestones."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Does SwayMaps have AI features?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes, SwayMaps includes AI-powered map generation. Describe what you want to map in plain English and AI builds the first draft with nodes, edges, and relationships in seconds."
+                    }
+                  },
+                  {
+                    "@type": "Question",
+                    "name": "Can I import from other tools?",
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": "Yes, SwayMaps supports importing from Draw.io (XML), Lucidchart (CSV), and Miro (JSON). You can also export to PNG, SVG, PDF, and JSON."
+                    }
+                  }
+                ]
+              }
+            ]
+          })
+        }}
+      />
+
       {/* BACKGROUND */}
       <div className="lp-bg">
         <div className="lp-orb lp-orb--1" />
@@ -901,6 +1023,57 @@ export default function LandingPage() {
                   <div className="lp-comparison-advantage">
                     <span className="lp-comparison-check"><IconCheck size={10} /></span>
                     <span>{c.advantage}</span>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="lp-faq lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <p className="lp-eyebrow">FAQ</p>
+            <h2 className="lp-section-title">Frequently asked questions.</h2>
+          </Reveal>
+
+          <div className="lp-faq-list">
+            {[
+              {
+                q: "What is SwayMaps?",
+                a: "SwayMaps is a visual planning and dependency mapping platform that lets any team map systems, trace impact, and align stakeholders. It works for engineering, product, operations, compliance, leadership, and project management teams.",
+              },
+              {
+                q: "Is SwayMaps free?",
+                a: "Yes, SwayMaps offers a free forever plan with 3 maps, all 11 node types, and PNG/JSON export. Pro plans start at $19/month (billed annually) with unlimited maps and AI generation.",
+              },
+              {
+                q: "What teams can use SwayMaps?",
+                a: "SwayMaps is designed for every team that plans and manages dependencies: engineering teams mapping microservices, product teams mapping feature dependencies, compliance teams mapping data flows for SOC2/GDPR, operations teams tracking vendors, leadership mapping org structures, and project managers mapping milestones.",
+              },
+              {
+                q: "Does SwayMaps have AI features?",
+                a: "Yes, SwayMaps includes AI-powered map generation. Describe what you want to map in plain English and AI builds the first draft with nodes, edges, and relationships in seconds.",
+              },
+              {
+                q: "Can I import from other tools?",
+                a: "Yes, SwayMaps supports importing from Draw.io (XML), Lucidchart (CSV), and Miro (JSON). You can also export to PNG, SVG, PDF, and JSON.",
+              },
+            ].map((item, i) => (
+              <Reveal key={i}>
+                <div className={`lp-faq-item ${openFaq === i ? "is-open" : ""}`}>
+                  <button
+                    className="lp-faq-question"
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    aria-expanded={openFaq === i}
+                  >
+                    <span>{item.q}</span>
+                    <span className="lp-faq-icon">{openFaq === i ? "\u2212" : "+"}</span>
+                  </button>
+                  <div className="lp-faq-answer-wrapper" style={{ maxHeight: openFaq === i ? "300px" : "0px" }}>
+                    <p className="lp-faq-answer">{item.a}</p>
                   </div>
                 </div>
               </Reveal>

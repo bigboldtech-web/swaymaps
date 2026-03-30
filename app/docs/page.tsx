@@ -53,6 +53,20 @@ export default function DocsPage() {
 
   return (
     <div className="landing-root" ref={rootRef}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "SwayMaps Documentation",
+        "description": "Learn SwayMaps: getting started guide, node types reference, AI generation guide, YAML DSL documentation, collaboration setup, import/export guides, and API reference.",
+        "url": "https://swaymaps.com/docs",
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
+            { "@type": "ListItem", "position": 2, "name": "Documentation", "item": "https://swaymaps.com/docs" }
+          ]
+        }
+      }) }} />
       {/* ─── BG ─── */}
       <div className="map-bg">
         <div className="grid-layer" />

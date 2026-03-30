@@ -12,22 +12,31 @@ export const metadata: Metadata = {
     template: "%s | SwayMaps",
   },
   description:
-    "Map people, systems, processes, and dependencies in a visual canvas. Collaborate in real-time, brainstorm with AI, and export production-ready diagrams.",
+    "The visual planning and dependency mapping platform for every team. Map systems, trace impact, align stakeholders. AI-powered, real-time collaboration, 25+ templates.",
   metadataBase: new URL("https://swaymaps.com"),
   openGraph: {
     title: "SwayMaps — Visual Dependency Intelligence Platform",
     description:
-      "Map people, systems, processes, and dependencies in a visual canvas. Collaborate in real-time, brainstorm with AI, and export production-ready diagrams.",
+      "The visual planning and dependency mapping platform for every team. Map systems, trace impact, align stakeholders.",
     url: "https://swaymaps.com",
     siteName: "SwayMaps",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "https://swaymaps.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "SwayMaps — Visual Dependency Mapping Platform",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "SwayMaps — Visual Dependency Intelligence Platform",
     description:
-      "Map people, systems, processes, and dependencies in a visual canvas.",
+      "Visual planning and dependency mapping for every team.",
+    images: ["https://swaymaps.com/og-image.png"],
   },
   robots: {
     index: true,
@@ -35,6 +44,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/favicon.ico",
+  },
+  manifest: "/manifest.json",
+  other: {
+    "theme-color": "#070b14",
   },
 };
 
@@ -46,6 +59,24 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "SwayMaps",
+              "url": "https://swaymaps.com",
+              "logo": "https://swaymaps.com/logo.png",
+              "description": "The visual planning and dependency mapping platform for every team.",
+              "sameAs": [
+                "https://twitter.com/swaymaps",
+                "https://github.com/swaymaps",
+                "https://linkedin.com/company/swaymaps"
+              ],
+            }),
+          }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

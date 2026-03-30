@@ -101,6 +101,25 @@ export default function BlogPage() {
 
   return (
     <div className="landing-root" ref={rootRef}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "SwayMaps Blog",
+        "description": "Read about dependency mapping best practices, visual planning strategies, compliance automation, engineering productivity, and SwayMaps product updates.",
+        "url": "https://swaymaps.com/blog",
+        "publisher": {
+          "@type": "Organization",
+          "name": "SwayMaps",
+          "url": "https://swaymaps.com"
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
+            { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://swaymaps.com/blog" }
+          ]
+        }
+      }) }} />
       {/* ─── BG ─── */}
       <div className="map-bg">
         <div className="grid-layer" />
