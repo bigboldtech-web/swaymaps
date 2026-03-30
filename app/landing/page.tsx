@@ -377,13 +377,18 @@ export default function LandingPage() {
             <span className="lp-nav-logo-icon">
               <Logo size={20} />
             </span>
-            SwayMaps
+            <span style={{display:"flex",flexDirection:"column",lineHeight:1.1}}>
+              <span>SwayMaps</span>
+              <span style={{fontSize:".55rem",fontWeight:500,color:"var(--t3)",letterSpacing:".04em"}}>Shows The Way</span>
+            </span>
           </Link>
 
           <ul className="lp-nav-links">
             <li><Link href="/features">Features</Link></li>
             <li><Link href="/use-cases">Use Cases</Link></li>
             <li><Link href="/pricing">Pricing</Link></li>
+            <li><Link href="/templates-gallery">Templates</Link></li>
+            <li><Link href="/blog">Blog</Link></li>
             <li><Link href="/docs">Docs</Link></li>
           </ul>
 
