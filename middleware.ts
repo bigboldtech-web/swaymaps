@@ -14,6 +14,15 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/embed") ||
     pathname.startsWith("/invite") ||
     pathname.startsWith("/legal") ||
+    pathname.startsWith("/features") ||
+    pathname.startsWith("/use-cases") ||
+    pathname.startsWith("/pricing") ||
+    pathname.startsWith("/templates-gallery") ||
+    pathname.startsWith("/docs") ||
+    pathname.startsWith("/blog") ||
+    pathname.startsWith("/about") ||
+    pathname.startsWith("/contact") ||
+    pathname.startsWith("/changelog") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon");
 
