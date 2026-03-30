@@ -1,555 +1,527 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../landing/landing.css";
 
-/* ─── USE CASE DATA ─── */
-
-const useCases = [
-  {
-    id: "cto",
-    badge: "CTO / VP Engineering",
-    badgeColor: "var(--n-system)",
-    title: "System & Microservice Dependency Mapping",
-    description:
-      "Map every service, database, and API in your stack. See the blast radius of any change before you deploy. A single outage at a Fortune 500 costs $100K-$1M/hour -- SwayMaps prevents cascading failures.",
-    bullets: [
-      "Visualize service-to-service dependencies in real time",
-      "Simulate blast radius before shipping changes",
-      "Keep architecture docs always up to date",
-      "Reduce incident response time from hours to minutes",
-    ],
-    nodes: [
-      { label: "API Gateway", badge: "API", color: "var(--n-api)", status: "var(--healthy)" },
-      { label: "Auth Service", badge: "SERVICE", color: "var(--n-system)", status: "var(--healthy)" },
-      { label: "PostgreSQL", badge: "DATABASE", color: "var(--n-db)", status: "var(--healthy)" },
-    ],
-    edges: [
-      { from: 0, to: 1 },
-      { from: 1, to: 2 },
-    ],
-  },
-  {
-    id: "em",
-    badge: "Engineering Managers",
-    badgeColor: "var(--n-process)",
-    title: "Change Impact Analysis",
-    description:
-      "Before any deployment, see exactly which systems and teams are affected. Color-code risk levels. Reduces failed deployments by 60%+ and eliminates 'we didn't know X depended on Y' incidents.",
-    bullets: [
-      "See affected systems before every release",
-      "Color-code nodes by risk level and priority",
-      "Tag systems with team ownership",
-      "Track dependency changes over time with version history",
-    ],
-    nodes: [
-      { label: "Payment API", badge: "API", color: "var(--n-api)", status: "var(--warning)" },
-      { label: "Order Service", badge: "SERVICE", color: "var(--n-system)", status: "var(--healthy)" },
-      { label: "Billing DB", badge: "DATABASE", color: "var(--n-db)", status: "var(--warning)" },
-    ],
-    edges: [
-      { from: 0, to: 1 },
-      { from: 0, to: 2 },
-    ],
-  },
-  {
-    id: "platform",
-    badge: "Platform Teams",
-    badgeColor: "var(--n-cloud)",
-    title: "Full Infrastructure Mapping",
-    description:
-      "Map every service, database, API, cache, and queue -- queryable, tagged, and always current. Import from existing tools and keep your service catalog visual.",
-    bullets: [
-      "Full inventory of all infrastructure components",
-      "Tag and filter by team priority or compliance scope",
-      "Import from Draw.io Lucidchart and Miro",
-      "Define infrastructure as code with YAML DSL",
-    ],
-    nodes: [
-      { label: "AWS ECS", badge: "CLOUD", color: "var(--n-cloud)", status: "var(--healthy)" },
-      { label: "Load Balancer", badge: "SYSTEM", color: "var(--n-system)", status: "var(--healthy)" },
-      { label: "RDS", badge: "DATABASE", color: "var(--n-db)", status: "var(--healthy)" },
-      { label: "ElastiCache", badge: "CACHE", color: "var(--n-cache)", status: "var(--healthy)" },
-    ],
-    edges: [
-      { from: 0, to: 1 },
-      { from: 1, to: 2 },
-      { from: 1, to: 3 },
-    ],
-  },
-  {
-    id: "ciso",
-    badge: "CISO / Compliance",
-    badgeColor: "var(--n-db)",
-    title: "Data Flow & Compliance Mapping",
-    description:
-      "Trace where PII flows across every system boundary. Visual proof for SOC2, GDPR, HIPAA auditors, ready in minutes not weeks.",
-    bullets: [
-      "Map PII flow across every system boundary",
-      "Tag nodes with compliance scopes and data classifications",
-      "Generate audit-ready exports as PDF or JSON",
-      "Version history provides audit trail of changes",
-    ],
-    nodes: [
-      { label: "User API", badge: "PII", color: "var(--n-person)", status: "var(--warning)" },
-      { label: "Auth Gateway", badge: "SOC2", color: "var(--n-system)", status: "var(--healthy)" },
-      { label: "Encrypted Store", badge: "ENCRYPT", color: "var(--n-process)", status: "var(--healthy)" },
-      { label: "Analytics", badge: "PII-FREE", color: "var(--n-api)", status: "var(--healthy)" },
-    ],
-    edges: [
-      { from: 0, to: 1 },
-      { from: 1, to: 2 },
-      { from: 1, to: 3 },
-    ],
-  },
-  {
-    id: "hr",
-    badge: "HR / People Ops",
-    badgeColor: "var(--n-team)",
-    title: "Organizational Knowledge Maps",
-    description:
-      "Onboard new hires in weeks not months. Map tribal knowledge, team ownership, and institutional dependencies visually. When people leave, their knowledge stays.",
-    bullets: [
-      "Visual org and knowledge dependency maps",
-      "Cut onboarding time from 3 months to 2 weeks",
-      "Preserve institutional knowledge when people leave",
-      "Share read-only links with stakeholders",
-    ],
-    nodes: [
-      { label: "CTO", badge: "PERSON", color: "var(--n-person)", status: "var(--healthy)" },
-      { label: "Platform Team", badge: "TEAM", color: "var(--n-team)", status: "var(--healthy)" },
-      { label: "Product Team", badge: "TEAM", color: "var(--n-team)", status: "var(--healthy)" },
-    ],
-    edges: [
-      { from: 0, to: 1 },
-      { from: 0, to: 2 },
-    ],
-  },
-  {
-    id: "procurement",
-    badge: "Procurement / Risk",
-    badgeColor: "var(--n-vendor)",
-    title: "Vendor & Supply Chain Dependency Mapping",
-    description:
-      "Map all third-party dependencies. When a vendor has an outage or breach, instantly see your exposure. SolarWinds and Log4j taught everyone they don't know their dependency graph.",
-    bullets: [
-      "Map all third-party vendor dependencies",
-      "Instantly see exposure during vendor incidents",
-      "Track vendor SLA and contract dependencies",
-      "Color-code vendors by risk level",
-    ],
-    nodes: [
-      { label: "Stripe", badge: "VENDOR", color: "var(--n-vendor)", status: "var(--healthy)" },
-      { label: "AWS", badge: "VENDOR", color: "var(--n-vendor)", status: "var(--warning)" },
-      { label: "Datadog", badge: "VENDOR", color: "var(--n-vendor)", status: "var(--healthy)" },
-    ],
-    edges: [],
-  },
-];
-
-/* ─── LOGO ─── */
-
-function LogoMark() {
+/* ---- SVG ICONS ---- */
+function IconArrowRight({ size = 16 }: { size?: number }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <circle cx="6" cy="6" r="2.5" fill="white" opacity="0.9" />
-      <circle cx="18" cy="6" r="2.5" fill="white" opacity="0.9" />
-      <circle cx="12" cy="18" r="2.5" fill="white" opacity="0.9" />
-      <line x1="8" y1="7" x2="16" y2="7" stroke="white" strokeWidth="1.2" opacity="0.5" />
-      <line x1="7" y1="8" x2="11" y2="16" stroke="white" strokeWidth="1.2" opacity="0.5" />
-      <line x1="17" y1="8" x2="13" y2="16" stroke="white" strokeWidth="1.2" opacity="0.5" />
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 8h9M8.5 4l4 4-4 4" />
     </svg>
   );
 }
 
-/* ─── USE CASE VISUAL COMPONENT ─── */
-
-function UseCaseVisual({
-  nodes,
-  edges,
-}: {
-  nodes: { label: string; badge: string; color: string; status: string }[];
-  edges: { from: number; to: number }[];
-}) {
+function IconCheck({ size = 10 }: { size?: number }) {
   return (
-    <div className="uc-visual">
-      <div className="uc-vn">
-        {nodes.map((node, i) => (
-          <div key={i} className="ucn">
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 3,
-                background: node.color,
-                flexShrink: 0,
-              }}
-            />
-            <span>{node.label}</span>
-            <span
-              className="badge"
-              style={{ background: node.color }}
-            >
-              {node.badge}
-            </span>
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: node.status,
-                marginLeft: 4,
-                flexShrink: 0,
-              }}
-            />
-          </div>
-        ))}
-        {edges.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-              marginTop: 8,
-              paddingTop: 12,
-              borderTop: "1px solid var(--border)",
-            }}
-          >
-            {edges.map((edge, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  fontSize: "0.72rem",
-                  color: "var(--t3)",
-                  fontFamily: "var(--mono)",
-                }}
-              >
-                <span style={{ color: nodes[edge.from].color, fontWeight: 600 }}>
-                  {nodes[edge.from].label}
-                </span>
-                <svg width="20" height="8" viewBox="0 0 20 8" fill="none">
-                  <line
-                    x1="0"
-                    y1="4"
-                    x2="16"
-                    y2="4"
-                    stroke="var(--t3)"
-                    strokeWidth="1"
-                    strokeDasharray="3 2"
-                  />
-                  <polygon points="16,1 20,4 16,7" fill="var(--t3)" />
-                </svg>
-                <span style={{ color: nodes[edge.to].color, fontWeight: 600 }}>
-                  {nodes[edge.to].label}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 6.5l3 3 5-6" />
+    </svg>
   );
 }
 
-/* ─── USE CASE SECTION ─── */
-
-function UseCaseSection({
-  uc,
-  index,
-}: {
-  uc: (typeof useCases)[number];
-  index: number;
-}) {
-  const reversed = index % 2 === 1;
-  const bgClass = index % 2 === 0 ? "" : "uc-section-alt";
-
+function IconTwitter() {
   return (
-    <div
-      className={`uc-section ${bgClass}`}
-      style={{
-        background: index % 2 === 0 ? "var(--bg)" : "var(--bg2)",
-        padding: "100px 0",
-        borderTop: index > 0 ? "1px solid var(--border)" : "none",
-      }}
-    >
-      <div className="container">
-        <div
-          className="reveal"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 56,
-            alignItems: "center",
-          }}
-        >
-          <div style={{ order: reversed ? 2 : 1 }}>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "5px 14px",
-                borderRadius: 100,
-                background: `color-mix(in srgb, ${uc.badgeColor} 12%, transparent)`,
-                border: `1px solid color-mix(in srgb, ${uc.badgeColor} 20%, transparent)`,
-                fontSize: "0.76rem",
-                fontWeight: 600,
-                color: uc.badgeColor,
-                marginBottom: 20,
-              }}
-            >
-              <span
-                style={{
-                  width: 7,
-                  height: 7,
-                  borderRadius: "50%",
-                  background: uc.badgeColor,
-                }}
-              />
-              {uc.badge}
-            </div>
-            <h3
-              style={{
-                fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
-                fontWeight: 800,
-                letterSpacing: "-0.02em",
-                lineHeight: 1.15,
-                marginBottom: 16,
-                color: "var(--t1)",
-              }}
-            >
-              {uc.title}
-            </h3>
-            <p
-              style={{
-                fontSize: "0.95rem",
-                color: "var(--t2)",
-                lineHeight: 1.75,
-                marginBottom: 28,
-                maxWidth: 500,
-              }}
-            >
-              {uc.description}
-            </p>
-            <ul className="uc-checklist">
-              {uc.bullets.map((b, i) => (
-                <li key={i}>{b}</li>
-              ))}
-            </ul>
-          </div>
-          <div style={{ order: reversed ? 1 : 2 }}>
-            <UseCaseVisual nodes={uc.nodes} edges={uc.edges} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
   );
 }
 
-/* ─── PAGE ─── */
+function IconGitHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
 
-export default function UseCasesPage() {
-  const rootRef = useRef<HTMLDivElement>(null);
+function IconLinkedIn() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
 
-  /* scroll reveal */
+function Logo({ size = 24 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" width={size} height={size}>
+      <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+      <circle cx="28" cy="10" r="3.5" fill="white" />
+      <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6" />
+      <circle cx="12" cy="30" r="3.5" fill="white" />
+    </svg>
+  );
+}
+
+/* ---- SCROLL REVEAL ---- */
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    const els = root.querySelectorAll(".reveal");
-    const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("vis");
-            obs.unobserve(e.target);
-          }
-        });
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("is-visible");
+          io.unobserve(el);
+        }
       },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
-    els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
+  return ref;
+}
 
-  /* nav scroll */
+function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useReveal();
+  return (
+    <div ref={ref} className={`lp-reveal ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+/* ---- MINI MAP COMPONENT ---- */
+interface MiniNode {
+  label: string;
+  type: string;
+  color: string;
+  x: number;
+  y: number;
+  tags?: string[];
+}
+
+interface MiniEdge {
+  from: number;
+  to: number;
+}
+
+function MiniMap({ nodes, edges }: { nodes: MiniNode[]; edges: MiniEdge[] }) {
+  return (
+    <div style={{
+      background: "var(--bg2)",
+      border: "1px solid var(--border)",
+      borderRadius: 14,
+      position: "relative",
+      height: 280,
+      overflow: "hidden",
+    }}>
+      {/* Grid background */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        backgroundImage: "linear-gradient(rgba(26,35,64,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(26,35,64,0.25) 1px, transparent 1px)",
+        backgroundSize: "30px 30px",
+      }} />
+      {/* Edges SVG */}
+      <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 1 }} viewBox="0 0 100 100" preserveAspectRatio="none">
+        {edges.map((e, i) => {
+          const fromNode = nodes[e.from];
+          const toNode = nodes[e.to];
+          if (!fromNode || !toNode) return null;
+          const mx = (fromNode.x + toNode.x) / 2;
+          const my = (fromNode.y + toNode.y) / 2;
+          return (
+            <path
+              key={i}
+              d={`M${fromNode.x},${fromNode.y} Q${mx},${fromNode.y} ${toNode.x},${toNode.y}`}
+              fill="none"
+              stroke="var(--border2)"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
+            />
+          );
+        })}
+      </svg>
+      {/* Nodes */}
+      {nodes.map((n, i) => (
+        <div key={i} style={{
+          position: "absolute",
+          left: `${n.x}%`,
+          top: `${n.y}%`,
+          transform: "translate(-50%, -50%)",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "8px 14px",
+          background: "var(--bg3)",
+          border: "1px solid var(--border)",
+          borderRadius: 8,
+          fontSize: 11,
+          fontWeight: 600,
+          color: "var(--t1)",
+          whiteSpace: "nowrap",
+          zIndex: 2,
+        }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: n.color, flexShrink: 0, boxShadow: `0 0 6px ${n.color}40` }} />
+          {n.label}
+          {n.tags && n.tags.map((tag) => (
+            <span key={tag} style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 8,
+              fontWeight: 700,
+              padding: "1px 5px",
+              borderRadius: 3,
+              background: "rgba(0,194,255,0.1)",
+              border: "1px solid rgba(0,194,255,0.2)",
+              color: "var(--accent)",
+              textTransform: "uppercase",
+              letterSpacing: 0.5,
+            }}>{tag}</span>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---- USE CASE DATA ---- */
+const useCases = [
+  {
+    eyebrow: "ENGINEERING TEAMS",
+    title: "Map microservices, APIs, and infrastructure.",
+    desc: "See the blast radius of any change before you deploy. Turn tribal knowledge into a living, visual system of record.",
+    bullets: [
+      "Visualize blast radius before shipping changes",
+      "Cut incident response time from hours to minutes",
+      "Keep architecture docs always up to date",
+    ],
+    nodes: [
+      { label: "API Gateway", type: "API", color: "var(--node-api)", x: 50, y: 15 },
+      { label: "Auth Service", type: "PROCESS", color: "var(--node-process)", x: 25, y: 42 },
+      { label: "User DB", type: "DATABASE", color: "var(--node-db)", x: 75, y: 42 },
+      { label: "Redis", type: "CACHE", color: "var(--node-cache)", x: 15, y: 72 },
+      { label: "Notification Queue", type: "QUEUE", color: "var(--node-queue)", x: 50, y: 72 },
+      { label: "Monitoring", type: "CLOUD", color: "var(--node-cloud)", x: 82, y: 72 },
+    ],
+    edges: [
+      { from: 0, to: 1 },
+      { from: 0, to: 2 },
+      { from: 1, to: 3 },
+      { from: 1, to: 4 },
+      { from: 2, to: 5 },
+      { from: 4, to: 5 },
+    ],
+  },
+  {
+    eyebrow: "PRODUCT TEAMS",
+    title: "Plan features, dependencies, and roadmaps.",
+    desc: "Map every feature's dependencies before committing to a timeline. Align engineering, design, and stakeholders around a shared visual plan.",
+    bullets: [
+      "Map feature dependencies before committing to timelines",
+      "Track cross-team dependencies in real time",
+      "Align roadmap priorities with visual context",
+    ],
+    nodes: [
+      { label: "Feature Launch", type: "SYSTEM", color: "var(--node-system)", x: 50, y: 15 },
+      { label: "User Research", type: "PERSON", color: "var(--node-person)", x: 20, y: 42 },
+      { label: "Design Sprint", type: "PROCESS", color: "var(--node-process)", x: 50, y: 42 },
+      { label: "A/B Testing", type: "GENERIC", color: "#14b8a6", x: 80, y: 42 },
+      { label: "Analytics", type: "DATABASE", color: "var(--node-db)", x: 50, y: 75 },
+    ],
+    edges: [
+      { from: 0, to: 1 },
+      { from: 0, to: 2 },
+      { from: 0, to: 3 },
+      { from: 2, to: 4 },
+      { from: 3, to: 4 },
+    ],
+  },
+  {
+    eyebrow: "OPERATIONS TEAMS",
+    title: "Track vendors, contracts, and supply chains.",
+    desc: "Map every vendor relationship and service dependency. Know exactly who is affected when a third-party goes down.",
+    bullets: [
+      "Map vendor risk and single points of failure",
+      "Track SLA compliance across all providers",
+      "Speed up incident response with dependency context",
+    ],
+    nodes: [
+      { label: "AWS", type: "CLOUD", color: "var(--node-cloud)", x: 50, y: 15 },
+      { label: "Stripe", type: "VENDOR", color: "var(--node-vendor)", x: 20, y: 42 },
+      { label: "Datadog", type: "VENDOR", color: "var(--node-vendor)", x: 50, y: 42 },
+      { label: "PagerDuty", type: "SYSTEM", color: "var(--node-system)", x: 80, y: 42 },
+      { label: "Internal API", type: "API", color: "var(--node-api)", x: 50, y: 75 },
+    ],
+    edges: [
+      { from: 0, to: 1 },
+      { from: 0, to: 2 },
+      { from: 0, to: 3 },
+      { from: 1, to: 4 },
+      { from: 2, to: 4 },
+      { from: 3, to: 4 },
+    ],
+  },
+  {
+    eyebrow: "COMPLIANCE TEAMS",
+    title: "Map data flows for SOC2, GDPR, HIPAA.",
+    desc: "Trace every path PII takes through your stack. Generate audit-ready documentation and demonstrate compliance with visual evidence.",
+    bullets: [
+      "Trace PII flows across every service and database",
+      "Generate audit-ready compliance documentation",
+      "Tag nodes with compliance frameworks (SOC2, GDPR, HIPAA)",
+    ],
+    nodes: [
+      { label: "User Data", type: "PERSON", color: "var(--node-person)", x: 15, y: 20, tags: ["PII"] },
+      { label: "API Layer", type: "API", color: "var(--node-api)", x: 42, y: 20 },
+      { label: "Encrypted DB", type: "DATABASE", color: "var(--node-db)", x: 75, y: 20, tags: ["SOC2"] },
+      { label: "Audit Log", type: "PROCESS", color: "var(--node-process)", x: 30, y: 65 },
+      { label: "Analytics", type: "SYSTEM", color: "var(--node-system)", x: 70, y: 65, tags: ["SOC2"] },
+    ],
+    edges: [
+      { from: 0, to: 1 },
+      { from: 1, to: 2 },
+      { from: 1, to: 3 },
+      { from: 2, to: 4 },
+      { from: 3, to: 4 },
+    ],
+  },
+  {
+    eyebrow: "LEADERSHIP",
+    title: "Visualize org structure and strategic initiatives.",
+    desc: "Give executives a clear, visual view of how teams, initiatives, and dependencies connect. Make decisions with full context.",
+    bullets: [
+      "See the full org structure at a glance",
+      "Track strategic initiatives and their dependencies",
+      "Align stakeholders around a shared source of truth",
+    ],
+    nodes: [
+      { label: "CEO", type: "PERSON", color: "var(--node-person)", x: 50, y: 15 },
+      { label: "Engineering", type: "TEAM", color: "var(--node-team)", x: 25, y: 42 },
+      { label: "Product", type: "TEAM", color: "var(--node-team)", x: 75, y: 42 },
+      { label: "Q2 OKRs", type: "GENERIC", color: "#14b8a6", x: 30, y: 75 },
+      { label: "Hiring Plan", type: "PROCESS", color: "var(--node-process)", x: 70, y: 75 },
+    ],
+    edges: [
+      { from: 0, to: 1 },
+      { from: 0, to: 2 },
+      { from: 1, to: 3 },
+      { from: 2, to: 3 },
+      { from: 2, to: 4 },
+      { from: 1, to: 4 },
+    ],
+  },
+  {
+    eyebrow: "PROJECT MANAGEMENT",
+    title: "Map project dependencies and milestones.",
+    desc: "Stop managing dependencies in spreadsheets. Visualize every milestone, blocker, and critical path on a single canvas.",
+    bullets: [
+      "Map every dependency between milestones",
+      "Identify critical paths and bottlenecks visually",
+      "Track risk across workstreams in real time",
+    ],
+    nodes: [
+      { label: "Sprint Planning", type: "PROCESS", color: "var(--node-process)", x: 50, y: 15 },
+      { label: "Design Review", type: "PERSON", color: "var(--node-person)", x: 20, y: 42 },
+      { label: "Backend Dev", type: "SYSTEM", color: "var(--node-system)", x: 50, y: 42 },
+      { label: "QA Testing", type: "PROCESS", color: "var(--node-process)", x: 80, y: 42 },
+      { label: "Launch", type: "GENERIC", color: "#14b8a6", x: 50, y: 78 },
+    ],
+    edges: [
+      { from: 0, to: 1 },
+      { from: 0, to: 2 },
+      { from: 0, to: 3 },
+      { from: 1, to: 4 },
+      { from: 2, to: 4 },
+      { from: 3, to: 4 },
+    ],
+  },
+];
+
+/* ============================================================
+   USE CASES PAGE
+   ============================================================ */
+export default function UseCasesPage() {
+  const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
-    const nav = document.querySelector(".landing-nav");
-    if (!nav) return;
-    const onScroll = () => {
-      if (window.scrollY > 40) nav.classList.add("scrolled");
-      else nav.classList.remove("scrolled");
-    };
+    const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <div className="landing-root" ref={rootRef}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "SwayMaps Use Cases",
-        "description": "See how engineering, product, operations, compliance, leadership, and project management teams use SwayMaps to map dependencies and plan visually.",
-        "url": "https://swaymaps.com/use-cases",
-        "breadcrumb": {
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
-            { "@type": "ListItem", "position": 2, "name": "Use Cases", "item": "https://swaymaps.com/use-cases" }
-          ]
-        }
-      }) }} />
-      {/* ── BG ── */}
-      <div className="map-bg">
-        <div className="grid-layer" />
-        <div className="scan" />
-        <div className="orb a" />
-        <div className="orb b" />
-        <div className="orb c" />
+    <div className="lp-root">
+      {/* STRUCTURED DATA */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Use Cases — SwayMaps",
+            "description": "See how engineering, product, operations, compliance, leadership, and project management teams use SwayMaps to visualize dependencies and plan with confidence.",
+            "url": "https://swaymaps.com/use-cases",
+            "isPartOf": { "@type": "WebSite", "name": "SwayMaps", "url": "https://swaymaps.com" },
+          }),
+        }}
+      />
+
+      {/* BACKGROUND */}
+      <div className="lp-bg">
+        <div className="lp-orb lp-orb--1" />
+        <div className="lp-orb lp-orb--2" />
+        <div className="lp-orb lp-orb--3" />
       </div>
 
-      {/* ── NAV ── */}
-      <nav className="landing-nav">
-        <div className="nav-inner">
-          <Link href="/landing" className="logo">
-            <div className="logo-mark">
-              <LogoMark />
-            </div>
-            <span className="logo-text">SwayMaps</span>
+      {/* NAVBAR */}
+      <nav className={`lp-nav ${scrolled ? "is-scrolled" : ""}`}>
+        <div className="lp-nav-inner">
+          <Link href="/" className="lp-nav-logo">
+            <span className="lp-nav-logo-icon"><Logo size={20} /></span>
+            SwayMaps
           </Link>
-          <div className="nav-links">
-            <Link href="/features">Features</Link>
-            <Link href="/use-cases">Use Cases</Link>
-            <Link href="/pricing">Pricing</Link>
-            <Link href="/templates-gallery">Templates</Link>
-            <Link href="/docs">Docs</Link>
-            <Link href="/blog">Blog</Link>
-          </div>
-          <div className="nav-actions">
-            <Link href="/auth/signin" className="btn btn-ghost">
-              Sign In
-            </Link>
-            <Link href="/auth/signup" className="btn btn-primary">
-              Start Free &rarr;
+          <ul className="lp-nav-links">
+            <li><Link href="/features">Features</Link></li>
+            <li><Link href="/use-cases">Use Cases</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
+            <li><Link href="/docs">Docs</Link></li>
+          </ul>
+          <div className="lp-nav-ctas">
+            <Link href="/auth/signin" className="lp-btn lp-btn--ghost">Sign In</Link>
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary">
+              Get Started <IconArrowRight size={14} />
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <section className="hero" style={{ paddingBottom: 60 }}>
-        <div className="container" style={{ textAlign: "center" }}>
-          <div className="eyebrow" style={{ justifyContent: "center" }}>
-            Use Cases
+      {/* ====================== HERO ====================== */}
+      <section className="lp-hero">
+        <div className="lp-container">
+          <div className="lp-hero-badge">
+            <span className="lp-hero-badge-dot" />
+            Built for every team
           </div>
           <h1>
-            Built for teams that can&rsquo;t afford{" "}
-            <span className="grad">to guess.</span>
+            One platform.<br />
+            <span className="lp-hero-grad">Every dependency.</span>
           </h1>
-          <p className="hero-sub">
-            From engineering to compliance, SwayMaps gives every team visual
-            clarity over their dependencies.
+          <p className="lp-hero-sub">
+            From microservice architectures to org charts, from compliance audits to project milestones — SwayMaps adapts to how your team thinks and plans.
           </p>
-        </div>
-      </section>
-
-      {/* ── USE CASE SECTIONS ── */}
-      {useCases.map((uc, i) => (
-        <UseCaseSection key={uc.id} uc={uc} index={i} />
-      ))}
-
-      {/* ── FINAL CTA ── */}
-      <section className="final-cta">
-        <div className="container">
-          <div className="reveal">
-            <h2>
-              See what depends on what —{" "}
-              <span
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%)",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                before it breaks.
-              </span>
-            </h2>
-            <p>
-              Map dependencies visually. Understand blast radius instantly. Ship
-              with confidence.
-            </p>
-            <div className="fca">
-              <Link href="/auth/signup" className="btn btn-primary btn-lg">
-                Start Free
-              </Link>
-              <a
-                href="mailto:hello@swaymaps.com"
-                className="btn btn-outline btn-lg"
-              >
-                Book a Demo
-              </a>
-            </div>
+          <div className="lp-hero-ctas">
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-btn--lg">
+              Start Free — No Credit Card <IconArrowRight size={16} />
+            </Link>
+            <Link href="/features" className="lp-btn lp-btn--outline-lg">
+              Explore Features
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="landing-footer">
-        <div className="container-w">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <Link href="/landing" className="logo" style={{ marginBottom: 12 }}>
-                <div className="logo-mark">
-                  <LogoMark />
+      {/* ====================== USE CASES ====================== */}
+      {useCases.map((uc, i) => {
+        const isReversed = i % 2 === 1;
+        return (
+          <section key={uc.eyebrow} className="lp-features lp-section">
+            <div className="lp-container">
+              <Reveal>
+                <div className={`lp-feature-row ${isReversed ? "lp-feature-row--reverse" : ""}`}>
+                  <div className="lp-feature-text">
+                    <p className="lp-eyebrow">{uc.eyebrow}</p>
+                    <h3 className="lp-feature-title">{uc.title}</h3>
+                    <p className="lp-feature-desc">{uc.desc}</p>
+                    <ul className="lp-feature-bullets">
+                      {uc.bullets.map((b) => (
+                        <li key={b} className="lp-feature-bullet">
+                          <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="lp-feature-visual">
+                    <MiniMap nodes={uc.nodes} edges={uc.edges} />
+                  </div>
                 </div>
-                <span className="logo-text">SwayMaps</span>
+              </Reveal>
+            </div>
+          </section>
+        );
+      })}
+
+      {/* ====================== CTA ====================== */}
+      <section className="lp-cta-section lp-section">
+        <div className="lp-cta-glow" />
+        <div className="lp-container">
+          <Reveal>
+            <h2 className="lp-cta-title">
+              See what depends on what<br />
+              <span className="lp-hero-grad">— for your team.</span>
+            </h2>
+            <p className="lp-cta-sub">
+              Join 500+ teams who use SwayMaps to visualize dependencies, trace impact, and plan with confidence.
+            </p>
+            <div className="lp-cta-buttons">
+              <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-btn--lg">
+                Start Free — No Credit Card <IconArrowRight size={16} />
               </Link>
-              <p>
-                The visual dependency intelligence platform for engineering
-                teams.
+              <Link href="/pricing" className="lp-btn lp-btn--outline-lg">
+                View Pricing
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ====================== FOOTER ====================== */}
+      <footer className="lp-footer">
+        <div className="lp-container">
+          <div className="lp-footer-grid">
+            <div className="lp-footer-brand">
+              <Link href="/" className="lp-footer-brand-logo">
+                <span className="lp-nav-logo-icon"><Logo size={20} /></span>
+                SwayMaps
+              </Link>
+              <p className="lp-footer-brand-desc">
+                The visual planning and dependency mapping platform for every team.
               </p>
             </div>
-            <div className="footer-col">
-              <h4>Product</h4>
-              <Link href="/features">Features</Link>
-              <Link href="/pricing">Pricing</Link>
-              <Link href="/use-cases">Use Cases</Link>
-              <Link href="/templates-gallery">Templates</Link>
+            <div>
+              <div className="lp-footer-col-title">Product</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/features">Features</Link></li>
+                <li><Link href="/pricing">Pricing</Link></li>
+                <li><Link href="/templates-gallery">Templates</Link></li>
+                <li><Link href="/changelog">Changelog</Link></li>
+              </ul>
             </div>
-            <div className="footer-col">
-              <h4>Resources</h4>
-              <Link href="/docs">Documentation</Link>
-              <Link href="/changelog">Changelog</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/docs">API Reference</Link>
+            <div>
+              <div className="lp-footer-col-title">Resources</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/docs">Docs</Link></li>
+                <li><Link href="/blog">Blog</Link></li>
+                <li><Link href="/use-cases">Use Cases</Link></li>
+              </ul>
             </div>
-            <div className="footer-col">
-              <h4>Company</h4>
-              <Link href="/about">About</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/contact">Contact</Link>
-              <a href="mailto:support@swaymaps.com">Support</a>
+            <div>
+              <div className="lp-footer-col-title">Company</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/about">About</Link></li>
+                <li><Link href="/contact">Contact</Link></li>
+              </ul>
             </div>
-            <div className="footer-col">
-              <h4>Legal</h4>
-              <Link href="/legal/terms">Terms of Service</Link>
-              <Link href="/legal/privacy">Privacy Policy</Link>
-              <Link href="/legal/privacy">Cookie Policy</Link>
-              <Link href="/legal/privacy">GDPR</Link>
+            <div>
+              <div className="lp-footer-col-title">Legal</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/legal/terms">Terms</Link></li>
+                <li><Link href="/legal/privacy">Privacy</Link></li>
+              </ul>
             </div>
           </div>
-          <div className="footer-bottom">
-            <span>&copy; 2026 SwayMaps. All rights reserved.</span>
-            <div className="footer-bottom-links">
-              <Link href="/legal/privacy">Privacy</Link>
-              <Link href="/legal/terms">Terms</Link>
-              <a href="mailto:security@swaymaps.com">Security</a>
+          <div className="lp-footer-bottom">
+            <span className="lp-footer-copy">&copy; 2026 SwayMaps. All rights reserved.</span>
+            <div className="lp-footer-socials">
+              <a href="https://twitter.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconTwitter /></a>
+              <a href="https://github.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconGitHub /></a>
+              <a href="https://linkedin.com/company/swaymaps" target="_blank" rel="noopener noreferrer"><IconLinkedIn /></a>
             </div>
           </div>
         </div>

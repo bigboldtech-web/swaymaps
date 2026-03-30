@@ -4,23 +4,82 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import "../landing/landing.css";
 
-/* ─── SCROLL REVEAL HOOK ─── */
+/* ---- SVG ICONS ---- */
+function IconArrowRight({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 8h9M8.5 4l4 4-4 4" />
+    </svg>
+  );
+}
+
+function IconTwitter() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function IconGitHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
+
+function IconLinkedIn() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
+
+/* ---- LOGO ---- */
+function Logo({ size = 24 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" width={size} height={size}>
+      <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+      <circle cx="28" cy="10" r="3.5" fill="white" />
+      <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6" />
+      <circle cx="12" cy="30" r="3.5" fill="white" />
+    </svg>
+  );
+}
+
+/* ---- SCROLL REVEAL ---- */
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("vis"); }),
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("is-visible");
+          io.unobserve(el);
+        }
+      },
       { threshold: 0.1 }
     );
-    el.querySelectorAll(".reveal").forEach((c) => obs.observe(c));
-    return () => obs.disconnect();
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
   return ref;
 }
 
-/* ─── DATA ─── */
+function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useReveal();
+  return (
+    <div ref={ref} className={`lp-reveal ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+/* ---- DATA ---- */
 const guides = [
   { icon: "01", title: "Getting Started", desc: "Create your first map in 60 seconds", color: "rgba(0,194,255,0.12)", textColor: "var(--accent)" },
   { icon: "NT", title: "Node Types & Metadata", desc: "All 11 node types and their properties", color: "rgba(139,92,246,0.12)", textColor: "#8b5cf6" },
@@ -40,10 +99,9 @@ const popularArticles = [
   { title: "Writing your first YAML DSL map definition", category: "YAML DSL", categoryColor: "#22c55e" },
 ];
 
-/* ─── COMPONENT ─── */
+/* ---- COMPONENT ---- */
 export default function DocsPage() {
   const [scrolled, setScrolled] = useState(false);
-  const rootRef = useReveal();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -52,7 +110,7 @@ export default function DocsPage() {
   }, []);
 
   return (
-    <div className="landing-root" ref={rootRef}>
+    <div className="lp-root">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "WebPage",
@@ -67,332 +125,354 @@ export default function DocsPage() {
           ]
         }
       }) }} />
-      {/* ─── BG ─── */}
-      <div className="map-bg">
-        <div className="grid-layer" />
-        <div className="scan" />
-        <div className="orb a" />
-        <div className="orb b" />
+
+      {/* BACKGROUND */}
+      <div className="lp-bg">
+        <div className="lp-orb lp-orb--1" />
+        <div className="lp-orb lp-orb--2" />
+        <div className="lp-orb lp-orb--3" />
       </div>
 
-      {/* ─── NAV ─── */}
-      <nav className={`landing-nav${scrolled ? " scrolled" : ""}`}>
-        <div className="nav-inner">
-          <Link href="/landing" className="logo">
-            <div className="logo-mark">
-              <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M4 18 C8 18 8 6 12 6 C16 6 16 18 20 18" />
-              </svg>
-            </div>
-            <span className="logo-text">SwayMaps</span>
+      {/* NAVBAR */}
+      <nav className={`lp-nav ${scrolled ? "is-scrolled" : ""}`}>
+        <div className="lp-nav-inner">
+          <Link href="/" className="lp-nav-logo">
+            <span className="lp-nav-logo-icon">
+              <Logo size={20} />
+            </span>
+            SwayMaps
           </Link>
-          <div className="nav-links">
-            <Link href="/features">Features</Link>
-            <Link href="/use-cases">Use Cases</Link>
-            <Link href="/pricing">Pricing</Link>
-            <Link href="/templates-gallery">Templates</Link>
-            <Link href="/docs">Docs</Link>
-            <Link href="/blog">Blog</Link>
-          </div>
-          <div className="nav-actions">
-            <Link href="/auth/signin" className="btn btn-ghost">Sign In</Link>
-            <Link href="/auth/signup" className="btn btn-primary">Start Free &rarr;</Link>
+
+          <ul className="lp-nav-links">
+            <li><Link href="/features">Features</Link></li>
+            <li><Link href="/use-cases">Use Cases</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
+            <li><Link href="/docs">Docs</Link></li>
+          </ul>
+
+          <div className="lp-nav-ctas">
+            <Link href="/auth/signin" className="lp-btn lp-btn--ghost">Sign In</Link>
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary">
+              Get Started <IconArrowRight size={14} />
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* ─── HERO ─── */}
-      <section className="hero" style={{ paddingBottom: 40 }}>
-        <div className="container">
-          <div className="eyebrow">Documentation</div>
-          <h1 style={{ fontSize: "clamp(2.6rem,5vw,3.8rem)" }}>Learn SwayMaps</h1>
-          <p className="hero-sub">
-            Everything you need to get started and become a power user.
-          </p>
+      {/* HERO */}
+      <section className="lp-section" style={{ paddingBottom: 40 }}>
+        <div className="lp-container" style={{ textAlign: "center" }}>
+          <Reveal>
+            <div className="lp-eyebrow">Documentation</div>
+            <h1 className="lp-section-title" style={{ fontSize: "clamp(2.6rem,5vw,3.8rem)" }}>
+              Learn SwayMaps
+            </h1>
+            <p className="lp-section-subtitle" style={{ margin: "0 auto", maxWidth: 560 }}>
+              Everything you need to get started and become a power user.
+            </p>
 
-          {/* ─── SEARCH BAR ─── */}
-          <div className="reveal" style={{ maxWidth: 560, margin: "36px auto 0" }}>
+            {/* SEARCH BAR */}
+            <div style={{ maxWidth: 560, margin: "36px auto 0" }}>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                background: "var(--bg3)",
+                border: "1px solid var(--border)",
+                borderRadius: 12,
+                padding: "14px 20px",
+              }}>
+                <svg width="20" height="20" fill="none" stroke="var(--t3)" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search documentation..."
+                  readOnly
+                  style={{
+                    flex: 1,
+                    background: "transparent",
+                    border: "none",
+                    outline: "none",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.95rem",
+                    color: "var(--t1)",
+                    caretColor: "var(--accent)",
+                  }}
+                />
+                <span style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.72rem",
+                  color: "var(--t3)",
+                  padding: "3px 8px",
+                  background: "var(--bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 5,
+                  fontWeight: 600,
+                }}>/</span>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* QUICK START GUIDES */}
+      <section style={{ paddingTop: 40, paddingBottom: 100, position: "relative", zIndex: 1 }}>
+        <div className="lp-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <div className="lp-eyebrow">Quick Start</div>
+              <h2 className="lp-section-title" style={{ fontSize: 36 }}>Jump right in</h2>
+              <p className="lp-section-subtitle" style={{ margin: "0 auto" }}>
+                Eight guides to take you from zero to power user.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal>
             <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: 16,
+            }}>
+              {guides.map((g, i) => (
+                <a
+                  key={i}
+                  href="/docs"
+                  style={{
+                    display: "block",
+                    background: "var(--bg3)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 14,
+                    padding: "28px 24px",
+                    textDecoration: "none",
+                    transition: "all 0.25s var(--ease)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--border2)";
+                    (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(0,0,0,0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
+                    (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
+                    (e.currentTarget as HTMLElement).style.boxShadow = "none";
+                  }}
+                >
+                  <div style={{
+                    width: 46,
+                    height: 46,
+                    borderRadius: 11,
+                    background: g.color,
+                    color: g.textColor,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 800,
+                    fontSize: "0.85rem",
+                    fontFamily: "var(--font-mono)",
+                    marginBottom: 18,
+                  }}>
+                    {g.icon}
+                  </div>
+                  <h3 style={{
+                    fontSize: "1rem",
+                    fontWeight: 700,
+                    color: "var(--t1)",
+                    marginBottom: 6,
+                  }}>{g.title}</h3>
+                  <p style={{
+                    fontSize: "0.84rem",
+                    color: "var(--t2)",
+                    lineHeight: 1.6,
+                    marginBottom: 16,
+                  }}>{g.desc}</p>
+                  <span style={{
+                    fontSize: "0.82rem",
+                    fontWeight: 600,
+                    color: "var(--accent)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}>
+                    Read guide &rarr;
+                  </span>
+                </a>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* POPULAR ARTICLES */}
+      <section style={{ paddingTop: 0, paddingBottom: 100, position: "relative", zIndex: 1 }}>
+        <div className="lp-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <div className="lp-eyebrow">Popular</div>
+              <h2 className="lp-section-title" style={{ fontSize: 36 }}>Frequently read articles</h2>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div style={{
+              maxWidth: 720,
+              margin: "0 auto",
               background: "var(--bg3)",
               border: "1px solid var(--border)",
-              borderRadius: 12,
-              padding: "14px 20px",
-              transition: "border-color var(--ease)",
+              borderRadius: 14,
+              overflow: "hidden",
             }}>
-              <svg width="20" height="20" fill="none" stroke="var(--t3)" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round">
-                <circle cx="11" cy="11" r="8" />
-                <path d="M21 21l-4.35-4.35" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search documentation..."
-                readOnly
-                style={{
-                  flex: 1,
-                  background: "transparent",
-                  border: "none",
-                  outline: "none",
-                  fontFamily: "var(--font)",
-                  fontSize: "0.95rem",
-                  color: "var(--t1)",
-                  caretColor: "var(--accent)",
-                }}
-              />
-              <span style={{
-                fontFamily: "var(--mono)",
-                fontSize: "0.72rem",
-                color: "var(--t3)",
-                padding: "3px 8px",
-                background: "var(--bg)",
-                border: "1px solid var(--border)",
-                borderRadius: 5,
-                fontWeight: 600,
-              }}>/</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── QUICK START GUIDES ─── */}
-      <section style={{ paddingTop: 40, paddingBottom: 100 }}>
-        <div className="container">
-          <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
-            <div className="eyebrow">Quick Start</div>
-            <h2 className="stitle">Jump right in</h2>
-            <p className="sdesc" style={{ margin: "0 auto" }}>
-              Eight guides to take you from zero to power user.
-            </p>
-          </div>
-
-          <div className="reveal" style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-            gap: 16,
-          }}>
-            {guides.map((g, i) => (
-              <a
-                key={i}
-                href="/docs"
-                style={{
-                  display: "block",
-                  background: "var(--bg3)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 14,
-                  padding: "28px 24px",
-                  textDecoration: "none",
-                  transition: "all var(--ease)",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border2)";
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
-                  (e.currentTarget as HTMLElement).style.boxShadow = "0 12px 40px rgba(0,0,0,0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                  (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                }}
-              >
-                <div style={{
-                  width: 46,
-                  height: 46,
-                  borderRadius: 11,
-                  background: g.color,
-                  color: g.textColor,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: "0.85rem",
-                  fontFamily: "var(--mono)",
-                  marginBottom: 18,
-                }}>
-                  {g.icon}
-                </div>
-                <h3 style={{
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  color: "var(--t1)",
-                  marginBottom: 6,
-                }}>{g.title}</h3>
-                <p style={{
-                  fontSize: "0.84rem",
-                  color: "var(--t2)",
-                  lineHeight: 1.6,
-                  marginBottom: 16,
-                }}>{g.desc}</p>
-                <span style={{
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  color: "var(--accent)",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}>
-                  Read guide <span style={{ transition: "transform var(--ease)" }}>&rarr;</span>
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── POPULAR ARTICLES ─── */}
-      <section style={{ paddingTop: 0, paddingBottom: 100 }}>
-        <div className="container">
-          <div className="reveal" style={{ textAlign: "center", marginBottom: 48 }}>
-            <div className="eyebrow">Popular</div>
-            <h2 className="stitle">Frequently read articles</h2>
-          </div>
-
-          <div className="reveal" style={{
-            maxWidth: 720,
-            margin: "0 auto",
-            background: "var(--bg3)",
-            border: "1px solid var(--border)",
-            borderRadius: 14,
-            overflow: "hidden",
-          }}>
-            {popularArticles.map((a, i) => (
-              <a
-                key={i}
-                href="/docs"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 16,
-                  padding: "18px 24px",
-                  borderBottom: i < popularArticles.length - 1 ? "1px solid var(--border)" : "none",
-                  textDecoration: "none",
-                  transition: "background var(--ease)",
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--bg5)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1, minWidth: 0 }}>
-                  <span style={{
-                    padding: "3px 10px",
-                    borderRadius: 6,
-                    fontSize: "0.68rem",
-                    fontWeight: 700,
-                    textTransform: "uppercase" as const,
-                    letterSpacing: "0.04em",
-                    background: `${a.categoryColor}15`,
-                    color: a.categoryColor,
-                    whiteSpace: "nowrap" as const,
-                    flexShrink: 0,
-                  }}>
-                    {a.category}
-                  </span>
-                  <span style={{
-                    fontSize: "0.88rem",
-                    fontWeight: 600,
-                    color: "var(--t1)",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap" as const,
-                  }}>
-                    {a.title}
-                  </span>
-                </div>
-                <svg width="16" height="16" fill="none" stroke="var(--t3)" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                  <path strokeLinecap="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── CTA ─── */}
-      <section style={{ paddingTop: 0, paddingBottom: 120 }}>
-        <div className="container reveal" style={{ textAlign: "center" }}>
-          <div style={{
-            background: "var(--bg3)",
-            border: "1px solid var(--border)",
-            borderRadius: 16,
-            padding: "56px 40px",
-            maxWidth: 640,
-            margin: "0 auto",
-          }}>
-            <h2 style={{
-              fontSize: "1.6rem",
-              fontWeight: 800,
-              letterSpacing: "-0.02em",
-              color: "var(--t1)",
-              marginBottom: 12,
-            }}>
-              Can&apos;t find what you need?
-            </h2>
-            <p style={{
-              fontSize: "0.95rem",
-              color: "var(--t2)",
-              lineHeight: 1.7,
-              marginBottom: 28,
-            }}>
-              Our team is here to help. Reach out and we&apos;ll get back to you within 24 hours.
-            </p>
-            <a href="mailto:support@swaymaps.com" className="btn btn-primary btn-lg">
-              Contact Support
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── FOOTER ─── */}
-      <footer className="landing-footer">
-        <div className="container-w">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <Link href="/landing" className="logo" style={{ marginBottom: 12 }}>
-                <div className="logo-mark" style={{ width: 28, height: 28, borderRadius: 7 }}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" style={{ width: 18, height: 18 }}>
-                    <path d="M4 18 C8 18 8 6 12 6 C16 6 16 18 20 18" />
+              {popularArticles.map((a, i) => (
+                <a
+                  key={i}
+                  href="/docs"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 16,
+                    padding: "18px 24px",
+                    borderBottom: i < popularArticles.length - 1 ? "1px solid var(--border)" : "none",
+                    textDecoration: "none",
+                    transition: "background 0.2s var(--ease)",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--bg4)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1, minWidth: 0 }}>
+                    <span style={{
+                      padding: "3px 10px",
+                      borderRadius: 6,
+                      fontSize: "0.68rem",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.04em",
+                      background: `${a.categoryColor}15`,
+                      color: a.categoryColor,
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
+                    }}>
+                      {a.category}
+                    </span>
+                    <span style={{
+                      fontSize: "0.88rem",
+                      fontWeight: 600,
+                      color: "var(--t1)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}>
+                      {a.title}
+                    </span>
+                  </div>
+                  <svg width="16" height="16" fill="none" stroke="var(--t3)" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                    <path strokeLinecap="round" d="M9 5l7 7-7 7" />
                   </svg>
-                </div>
-                <span className="logo-text" style={{ fontSize: "1.1rem" }}>SwayMaps</span>
+                </a>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section style={{ paddingTop: 0, paddingBottom: 120, position: "relative", zIndex: 1 }}>
+        <div className="lp-container">
+          <Reveal>
+            <div style={{
+              textAlign: "center",
+              background: "var(--bg3)",
+              border: "1px solid var(--border)",
+              borderRadius: 16,
+              padding: "56px 40px",
+              maxWidth: 640,
+              margin: "0 auto",
+            }}>
+              <h2 style={{
+                fontSize: "1.6rem",
+                fontWeight: 800,
+                letterSpacing: "-0.02em",
+                color: "var(--t1)",
+                marginBottom: 12,
+              }}>
+                Can&apos;t find what you need?
+              </h2>
+              <p style={{
+                fontSize: "0.95rem",
+                color: "var(--t2)",
+                lineHeight: 1.7,
+                marginBottom: 28,
+              }}>
+                Our team is here to help. Reach out and we&apos;ll get back to you within 24 hours.
+              </p>
+              <a href="mailto:support@swaymaps.com" className="lp-btn lp-btn--primary lp-btn--lg">
+                Contact Support
+              </a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="lp-footer">
+        <div className="lp-container">
+          <div className="lp-footer-grid">
+            <div className="lp-footer-brand">
+              <Link href="/" className="lp-footer-brand-logo">
+                <span className="lp-nav-logo-icon">
+                  <Logo size={20} />
+                </span>
+                SwayMaps
               </Link>
-              <p>Visual dependency mapping for engineering teams.</p>
+              <p className="lp-footer-brand-desc">
+                The visual planning and dependency mapping platform for every team.
+              </p>
             </div>
-            <div className="footer-col">
-              <h4>Product</h4>
-              <Link href="/features">Features</Link>
-              <Link href="/pricing">Pricing</Link>
-              <Link href="/use-cases">Use Cases</Link>
-              <Link href="/templates-gallery">Templates</Link>
+
+            <div>
+              <div className="lp-footer-col-title">Product</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/features">Features</Link></li>
+                <li><Link href="/pricing">Pricing</Link></li>
+                <li><Link href="/templates-gallery">Templates</Link></li>
+                <li><Link href="/changelog">Changelog</Link></li>
+              </ul>
             </div>
-            <div className="footer-col">
-              <h4>Resources</h4>
-              <Link href="/docs">Documentation</Link>
-              <Link href="/changelog">Changelog</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/docs">API Reference</Link>
+
+            <div>
+              <div className="lp-footer-col-title">Resources</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/docs">Docs</Link></li>
+                <li><Link href="/blog">Blog</Link></li>
+                <li><Link href="/use-cases">Use Cases</Link></li>
+              </ul>
             </div>
-            <div className="footer-col">
-              <h4>Company</h4>
-              <Link href="/about">About</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/contact">Contact</Link>
-              <a href="mailto:support@swaymaps.com">Support</a>
+
+            <div>
+              <div className="lp-footer-col-title">Company</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/about">About</Link></li>
+                <li><Link href="/contact">Contact</Link></li>
+              </ul>
             </div>
-            <div className="footer-col">
-              <h4>Legal</h4>
-              <Link href="/legal/terms">Terms of Service</Link>
-              <Link href="/legal/privacy">Privacy Policy</Link>
-              <Link href="/legal/privacy">Cookie Policy</Link>
-              <Link href="/legal/privacy">GDPR</Link>
+
+            <div>
+              <div className="lp-footer-col-title">Legal</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/legal/terms">Terms</Link></li>
+                <li><Link href="/legal/privacy">Privacy</Link></li>
+              </ul>
             </div>
           </div>
-          <div className="footer-bottom">
-            <span>&copy; 2026 SwayMaps. All rights reserved.</span>
-            <div className="footer-bottom-links">
-              <Link href="/legal/privacy">Privacy</Link>
-              <Link href="/legal/terms">Terms</Link>
+
+          <div className="lp-footer-bottom">
+            <span className="lp-footer-copy">&copy; 2026 SwayMaps. All rights reserved.</span>
+            <div className="lp-footer-socials">
+              <a href="https://twitter.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconTwitter /></a>
+              <a href="https://github.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconGitHub /></a>
+              <a href="https://linkedin.com/company/swaymaps" target="_blank" rel="noopener noreferrer"><IconLinkedIn /></a>
             </div>
           </div>
         </div>

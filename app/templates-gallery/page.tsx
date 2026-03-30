@@ -2,11 +2,83 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { SwayMapsIcon } from "../../components/SwayMapsLogo";
 import "../landing/landing.css";
 
-/* ─── TYPES ─── */
+/* ---- SVG ICONS ---- */
+function IconArrowRight({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 8h9M8.5 4l4 4-4 4" />
+    </svg>
+  );
+}
 
+function Logo({ size = 24 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" width={size} height={size}>
+      <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+      <circle cx="28" cy="10" r="3.5" fill="white" />
+      <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6" />
+      <circle cx="12" cy="30" r="3.5" fill="white" />
+    </svg>
+  );
+}
+
+function IconTwitter() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function IconGitHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
+
+function IconLinkedIn() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
+
+/* ---- SCROLL REVEAL ---- */
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("is-visible");
+          io.unobserve(el);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return ref;
+}
+
+function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useReveal();
+  return (
+    <div ref={ref} className={`lp-reveal ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+/* ---- TYPES ---- */
 type Category = "all" | "architecture" | "devops" | "compliance" | "organization" | "data-flow" | "vendor";
 
 interface Template {
@@ -16,10 +88,10 @@ interface Template {
   nodes: number;
   edges: number;
   dots: { x: number; y: number; color: string }[];
+  lines: [number, number][];
 }
 
-/* ─── CATEGORY CONFIG ─── */
-
+/* ---- CATEGORY CONFIG ---- */
 const categoryColors: Record<Exclude<Category, "all">, string> = {
   architecture: "#3b82f6",
   devops: "#22c55e",
@@ -39,263 +111,142 @@ const categoryLabels: Record<Category, string> = {
   vendor: "Vendor",
 };
 
-/* ─── DOT LAYOUTS ─── */
-/* Each template gets a unique arrangement of colored dots to suggest a map preview */
-
-function makeDots(positions: [number, number][], colors: string[]): { x: number; y: number; color: string }[] {
-  return positions.map((p, i) => ({ x: p[0], y: p[1], color: colors[i % colors.length] }));
-}
-
-/* ─── TEMPLATES DATA ─── */
-
+/* ---- TEMPLATE DATA ---- */
 const templates: Template[] = [
   {
     name: "Microservices Architecture",
-    description: "Map service dependencies, databases, and APIs",
-    category: "architecture",
-    nodes: 12,
-    edges: 16,
-    dots: makeDots([[30, 20], [70, 20], [20, 55], [50, 55], [80, 55]], ["#3b82f6", "#3b82f6", "#8b5cf6", "#06b6d4", "#22c55e"]),
+    description: "Map service dependencies across your distributed system",
+    category: "architecture", nodes: 12, edges: 16,
+    dots: [{ x: 30, y: 40, color: "#3b82f6" }, { x: 70, y: 30, color: "#06b6d4" }, { x: 50, y: 70, color: "#8b5cf6" }, { x: 20, y: 75, color: "#3b82f6" }, { x: 80, y: 65, color: "#22c55e" }],
+    lines: [[0, 1], [0, 2], [2, 3], [1, 4]],
   },
   {
     name: "Monolith to Microservices",
-    description: "Plan your migration path step by step",
-    category: "architecture",
-    nodes: 15,
-    edges: 20,
-    dots: makeDots([[20, 40], [45, 20], [45, 60], [70, 30], [70, 50], [70, 70]], ["#ef4444", "#3b82f6", "#3b82f6", "#22c55e", "#22c55e", "#22c55e"]),
+    description: "Plan your migration from monolith to distributed services",
+    category: "architecture", nodes: 15, edges: 20,
+    dots: [{ x: 50, y: 25, color: "#ef4444" }, { x: 25, y: 60, color: "#3b82f6" }, { x: 50, y: 60, color: "#3b82f6" }, { x: 75, y: 60, color: "#3b82f6" }, { x: 50, y: 85, color: "#22c55e" }],
+    lines: [[0, 1], [0, 2], [0, 3], [2, 4]],
   },
   {
     name: "CI/CD Pipeline",
-    description: "Visualize your build, test, and deploy pipeline",
-    category: "devops",
-    nodes: 8,
-    edges: 10,
-    dots: makeDots([[15, 45], [38, 45], [62, 45], [85, 45]], ["#22c55e", "#06b6d4", "#f59e0b", "#3b82f6"]),
+    description: "Visualize your build, test, and deployment workflow",
+    category: "devops", nodes: 8, edges: 10,
+    dots: [{ x: 15, y: 50, color: "#22c55e" }, { x: 35, y: 50, color: "#22c55e" }, { x: 55, y: 50, color: "#f59e0b" }, { x: 75, y: 50, color: "#3b82f6" }, { x: 90, y: 50, color: "#8b5cf6" }],
+    lines: [[0, 1], [1, 2], [2, 3], [3, 4]],
   },
   {
     name: "Data Flow Diagram",
     description: "Trace how data moves through your systems",
-    category: "data-flow",
-    nodes: 10,
-    edges: 12,
-    dots: makeDots([[50, 15], [25, 45], [75, 45], [50, 75]], ["#06b6d4", "#3b82f6", "#8b5cf6", "#06b6d4"]),
+    category: "data-flow", nodes: 10, edges: 12,
+    dots: [{ x: 20, y: 30, color: "#06b6d4" }, { x: 50, y: 30, color: "#06b6d4" }, { x: 80, y: 30, color: "#8b5cf6" }, { x: 35, y: 70, color: "#06b6d4" }, { x: 65, y: 70, color: "#22c55e" }],
+    lines: [[0, 1], [1, 2], [0, 3], [3, 4], [1, 4]],
   },
   {
     name: "SOC2 Compliance Map",
-    description: "Map controls and audit requirements",
-    category: "compliance",
-    nodes: 14,
-    edges: 18,
-    dots: makeDots([[50, 15], [20, 40], [50, 40], [80, 40], [35, 70], [65, 70]], ["#8b5cf6", "#3b82f6", "#8b5cf6", "#3b82f6", "#22c55e", "#22c55e"]),
+    description: "Map controls and evidence for SOC2 audit readiness",
+    category: "compliance", nodes: 14, edges: 18,
+    dots: [{ x: 50, y: 20, color: "#8b5cf6" }, { x: 25, y: 50, color: "#8b5cf6" }, { x: 75, y: 50, color: "#8b5cf6" }, { x: 15, y: 80, color: "#22c55e" }, { x: 85, y: 80, color: "#f59e0b" }],
+    lines: [[0, 1], [0, 2], [1, 3], [2, 4]],
   },
   {
     name: "GDPR Data Flow",
-    description: "Track PII across system boundaries",
-    category: "compliance",
-    nodes: 11,
-    edges: 14,
-    dots: makeDots([[20, 30], [50, 15], [80, 30], [35, 60], [65, 60]], ["#8b5cf6", "#ef4444", "#8b5cf6", "#06b6d4", "#06b6d4"]),
+    description: "Track personal data processing across your organization",
+    category: "compliance", nodes: 11, edges: 14,
+    dots: [{ x: 50, y: 25, color: "#8b5cf6" }, { x: 20, y: 55, color: "#ec4899" }, { x: 50, y: 55, color: "#3b82f6" }, { x: 80, y: 55, color: "#06b6d4" }, { x: 50, y: 85, color: "#22c55e" }],
+    lines: [[0, 1], [0, 2], [0, 3], [1, 4], [3, 4]],
   },
   {
     name: "HIPAA System Map",
-    description: "Healthcare data flow and access controls",
-    category: "compliance",
-    nodes: 13,
-    edges: 16,
-    dots: makeDots([[50, 15], [25, 40], [75, 40], [15, 70], [50, 70], [85, 70]], ["#8b5cf6", "#3b82f6", "#3b82f6", "#22c55e", "#ef4444", "#22c55e"]),
+    description: "Visualize PHI data flows and access controls",
+    category: "compliance", nodes: 13, edges: 16,
+    dots: [{ x: 50, y: 20, color: "#8b5cf6" }, { x: 30, y: 50, color: "#ef4444" }, { x: 70, y: 50, color: "#3b82f6" }, { x: 20, y: 80, color: "#22c55e" }, { x: 80, y: 80, color: "#f59e0b" }],
+    lines: [[0, 1], [0, 2], [1, 3], [2, 4]],
   },
   {
     name: "Organization Chart",
-    description: "Map team structure and reporting lines",
-    category: "organization",
-    nodes: 9,
-    edges: 8,
-    dots: makeDots([[50, 15], [30, 45], [70, 45], [20, 75], [50, 75], [80, 75]], ["#f97316", "#f97316", "#f97316", "#ec4899", "#ec4899", "#ec4899"]),
+    description: "Map team structure, reporting lines, and responsibilities",
+    category: "organization", nodes: 9, edges: 8,
+    dots: [{ x: 50, y: 20, color: "#f97316" }, { x: 30, y: 50, color: "#f97316" }, { x: 70, y: 50, color: "#f97316" }, { x: 20, y: 80, color: "#ec4899" }, { x: 80, y: 80, color: "#ec4899" }],
+    lines: [[0, 1], [0, 2], [1, 3], [2, 4]],
   },
   {
     name: "Team Knowledge Map",
-    description: "Capture tribal knowledge and expertise areas",
-    category: "organization",
-    nodes: 12,
-    edges: 15,
-    dots: makeDots([[50, 20], [20, 50], [50, 50], [80, 50], [35, 75]], ["#f97316", "#ec4899", "#3b82f6", "#22c55e", "#f59e0b"]),
+    description: "Identify expertise distribution and knowledge gaps",
+    category: "organization", nodes: 12, edges: 15,
+    dots: [{ x: 50, y: 35, color: "#f97316" }, { x: 25, y: 55, color: "#ec4899" }, { x: 75, y: 55, color: "#ec4899" }, { x: 35, y: 80, color: "#3b82f6" }, { x: 65, y: 80, color: "#22c55e" }],
+    lines: [[0, 1], [0, 2], [1, 3], [2, 4], [1, 2]],
   },
   {
     name: "Vendor Dependency Map",
-    description: "Track all third-party service dependencies",
-    category: "vendor",
-    nodes: 10,
-    edges: 12,
-    dots: makeDots([[50, 20], [20, 50], [40, 50], [60, 50], [80, 50]], ["#3b82f6", "#f59e0b", "#f59e0b", "#f59e0b", "#f59e0b"]),
+    description: "Track third-party vendors and their service dependencies",
+    category: "vendor", nodes: 10, edges: 12,
+    dots: [{ x: 50, y: 30, color: "#f59e0b" }, { x: 20, y: 60, color: "#f59e0b" }, { x: 50, y: 60, color: "#3b82f6" }, { x: 80, y: 60, color: "#f59e0b" }, { x: 50, y: 85, color: "#ef4444" }],
+    lines: [[0, 1], [0, 2], [0, 3], [2, 4]],
   },
   {
     name: "Supply Chain Risk Map",
-    description: "Visualize vendor risk and exposure",
-    category: "vendor",
-    nodes: 11,
-    edges: 14,
-    dots: makeDots([[50, 15], [25, 40], [75, 40], [15, 70], [50, 70], [85, 70]], ["#f59e0b", "#ef4444", "#22c55e", "#ef4444", "#f59e0b", "#22c55e"]),
+    description: "Assess risk across your supply chain dependencies",
+    category: "vendor", nodes: 11, edges: 14,
+    dots: [{ x: 50, y: 20, color: "#f59e0b" }, { x: 25, y: 45, color: "#ef4444" }, { x: 75, y: 45, color: "#22c55e" }, { x: 30, y: 75, color: "#f59e0b" }, { x: 70, y: 75, color: "#f59e0b" }],
+    lines: [[0, 1], [0, 2], [1, 3], [2, 4], [3, 4]],
   },
   {
     name: "API Gateway Architecture",
-    description: "Map API routes, middleware, and services",
-    category: "architecture",
-    nodes: 10,
-    edges: 14,
-    dots: makeDots([[50, 15], [50, 40], [20, 70], [50, 70], [80, 70]], ["#06b6d4", "#3b82f6", "#8b5cf6", "#22c55e", "#f97316"]),
+    description: "Map API routes, gateways, and backend services",
+    category: "architecture", nodes: 10, edges: 14,
+    dots: [{ x: 15, y: 50, color: "#ec4899" }, { x: 40, y: 50, color: "#3b82f6" }, { x: 65, y: 30, color: "#06b6d4" }, { x: 65, y: 70, color: "#06b6d4" }, { x: 85, y: 50, color: "#8b5cf6" }],
+    lines: [[0, 1], [1, 2], [1, 3], [2, 4], [3, 4]],
   },
   {
     name: "Event-Driven Architecture",
-    description: "Queues, topics, and event handlers",
-    category: "architecture",
-    nodes: 12,
-    edges: 16,
-    dots: makeDots([[20, 25], [50, 25], [80, 25], [35, 60], [65, 60]], ["#3b82f6", "#2563eb", "#3b82f6", "#22c55e", "#22c55e"]),
+    description: "Visualize event producers, consumers, and message flows",
+    category: "architecture", nodes: 12, edges: 16,
+    dots: [{ x: 20, y: 35, color: "#3b82f6" }, { x: 20, y: 65, color: "#3b82f6" }, { x: 50, y: 50, color: "#2563eb" }, { x: 80, y: 35, color: "#22c55e" }, { x: 80, y: 65, color: "#22c55e" }],
+    lines: [[0, 2], [1, 2], [2, 3], [2, 4]],
   },
   {
     name: "Database Schema Dependencies",
-    description: "Visualize table relationships and data flow",
-    category: "data-flow",
-    nodes: 8,
-    edges: 12,
-    dots: makeDots([[25, 25], [75, 25], [25, 65], [75, 65]], ["#f59e0b", "#f59e0b", "#8b5cf6", "#8b5cf6"]),
+    description: "Map table relationships, foreign keys, and data models",
+    category: "data-flow", nodes: 8, edges: 12,
+    dots: [{ x: 30, y: 30, color: "#8b5cf6" }, { x: 70, y: 30, color: "#8b5cf6" }, { x: 30, y: 70, color: "#06b6d4" }, { x: 70, y: 70, color: "#06b6d4" }, { x: 50, y: 50, color: "#8b5cf6" }],
+    lines: [[0, 4], [1, 4], [2, 4], [3, 4], [0, 1]],
   },
   {
     name: "Cloud Infrastructure Map",
-    description: "AWS, GCP, or Azure resource dependencies",
-    category: "devops",
-    nodes: 14,
-    edges: 18,
-    dots: makeDots([[50, 10], [20, 35], [50, 35], [80, 35], [30, 65], [70, 65]], ["#6366f1", "#3b82f6", "#06b6d4", "#3b82f6", "#22c55e", "#f59e0b"]),
+    description: "Map VPCs, subnets, load balancers, and cloud resources",
+    category: "devops", nodes: 14, edges: 18,
+    dots: [{ x: 50, y: 20, color: "#6366f1" }, { x: 25, y: 45, color: "#3b82f6" }, { x: 75, y: 45, color: "#3b82f6" }, { x: 30, y: 75, color: "#22c55e" }, { x: 70, y: 75, color: "#22c55e" }],
+    lines: [[0, 1], [0, 2], [1, 3], [2, 4], [1, 2]],
   },
   {
     name: "Incident Response Runbook",
     description: "Map escalation paths and response procedures",
-    category: "devops",
-    nodes: 9,
-    edges: 11,
-    dots: makeDots([[50, 15], [30, 45], [70, 45], [50, 75]], ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6"]),
+    category: "devops", nodes: 9, edges: 11,
+    dots: [{ x: 50, y: 20, color: "#ef4444" }, { x: 30, y: 50, color: "#f59e0b" }, { x: 70, y: 50, color: "#22c55e" }, { x: 25, y: 80, color: "#3b82f6" }, { x: 75, y: 80, color: "#8b5cf6" }],
+    lines: [[0, 1], [0, 2], [1, 3], [2, 4]],
   },
   {
     name: "Onboarding Knowledge Graph",
-    description: "Everything a new hire needs to know",
-    category: "organization",
-    nodes: 11,
-    edges: 13,
-    dots: makeDots([[50, 15], [20, 40], [80, 40], [30, 70], [70, 70]], ["#f97316", "#ec4899", "#3b82f6", "#22c55e", "#8b5cf6"]),
+    description: "Guide new hires through systems, tools, and processes",
+    category: "organization", nodes: 11, edges: 13,
+    dots: [{ x: 50, y: 20, color: "#f97316" }, { x: 25, y: 50, color: "#ec4899" }, { x: 50, y: 50, color: "#3b82f6" }, { x: 75, y: 50, color: "#22c55e" }, { x: 50, y: 80, color: "#f97316" }],
+    lines: [[0, 1], [0, 2], [0, 3], [1, 4], [2, 4], [3, 4]],
   },
   {
     name: "Third-Party Integration Map",
-    description: "Map all external API integrations",
-    category: "vendor",
-    nodes: 10,
-    edges: 14,
-    dots: makeDots([[50, 20], [20, 45], [80, 45], [30, 75], [50, 75], [70, 75]], ["#3b82f6", "#f59e0b", "#f59e0b", "#06b6d4", "#06b6d4", "#06b6d4"]),
+    description: "Track external APIs, webhooks, and integration points",
+    category: "vendor", nodes: 10, edges: 14,
+    dots: [{ x: 50, y: 50, color: "#3b82f6" }, { x: 20, y: 25, color: "#f59e0b" }, { x: 80, y: 25, color: "#f59e0b" }, { x: 20, y: 75, color: "#f59e0b" }, { x: 80, y: 75, color: "#f59e0b" }],
+    lines: [[0, 1], [0, 2], [0, 3], [0, 4]],
   },
 ];
 
-/* ─── SCROLL REVEAL HOOK ─── */
-
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("vis");
-          }
-        });
-      },
-      { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
-    );
-
-    const revealEls = el.querySelectorAll(".reveal");
-    revealEls.forEach((r) => observer.observe(r));
-
-    return () => {
-      revealEls.forEach((r) => observer.unobserve(r));
-    };
-  }, []);
-
-  return ref;
-}
-
-/* ─── TEMPLATE CARD PREVIEW ─── */
-
-function CardPreview({ dots }: { dots: Template["dots"] }) {
-  return (
-    <div
-      style={{
-        background: "var(--bg5)",
-        borderRadius: "10px 10px 0 0",
-        height: 140,
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Subtle grid dots */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)",
-          backgroundSize: "20px 20px",
-        }}
-      />
-      {/* Connection lines between dots */}
-      <svg
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        {dots.length >= 2 &&
-          dots.slice(1).map((dot, i) => (
-            <line
-              key={i}
-              x1={`${dots[i].x}%`}
-              y1={`${dots[i].y}%`}
-              x2={`${dot.x}%`}
-              y2={`${dot.y}%`}
-              stroke="rgba(0,194,255,0.12)"
-              strokeWidth="0.6"
-              strokeDasharray="3 3"
-            />
-          ))}
-      </svg>
-      {/* Node dots */}
-      {dots.map((dot, i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            left: `${dot.x}%`,
-            top: `${dot.y}%`,
-            transform: "translate(-50%, -50%)",
-            width: 10,
-            height: 10,
-            borderRadius: "50%",
-            background: dot.color,
-            boxShadow: `0 0 10px ${dot.color}44`,
-            border: "1.5px solid rgba(255,255,255,0.1)",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/* ─── MAIN PAGE ─── */
-
+/* ============================================================
+   TEMPLATES GALLERY PAGE
+   ============================================================ */
 export default function TemplatesGalleryPage() {
-  const [activeFilter, setActiveFilter] = useState<Category>("all");
   const [scrolled, setScrolled] = useState(false);
-  const rootRef = useScrollReveal();
+  const [filter, setFilter] = useState<Category>("all");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -303,353 +254,301 @@ export default function TemplatesGalleryPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const filtered =
-    activeFilter === "all"
-      ? templates
-      : templates.filter((t) => t.category === activeFilter);
-
-  const categories: Category[] = ["all", "architecture", "devops", "compliance", "organization", "data-flow", "vendor"];
+  const filtered = filter === "all" ? templates : templates.filter((t) => t.category === filter);
 
   return (
-    <div className="landing-root" ref={rootRef}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        "name": "SwayMaps Templates",
-        "description": "Browse 25+ templates: microservices architecture, org charts, CI/CD pipelines, compliance maps, vendor dependencies, project plans, and more.",
-        "url": "https://swaymaps.com/templates-gallery",
-        "mainEntity": {
-          "@type": "ItemList",
-          "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Microservices Architecture" },
-            { "@type": "ListItem", "position": 2, "name": "Data Pipeline" },
-            { "@type": "ListItem", "position": 3, "name": "CI/CD Pipeline" },
-            { "@type": "ListItem", "position": 4, "name": "Org Chart" },
-            { "@type": "ListItem", "position": 5, "name": "Cloud Infrastructure" },
-            { "@type": "ListItem", "position": 6, "name": "Compliance Map" },
-            { "@type": "ListItem", "position": 7, "name": "Vendor Dependencies" },
-            { "@type": "ListItem", "position": 8, "name": "Incident Response" },
-            { "@type": "ListItem", "position": 9, "name": "Project Plan" }
-          ]
-        },
-        "breadcrumb": {
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
-            { "@type": "ListItem", "position": 2, "name": "Templates", "item": "https://swaymaps.com/templates-gallery" }
-          ]
-        }
-      }) }} />
-      {/* ─── Background ─── */}
-      <div className="map-bg">
-        <div className="grid-layer" />
-        <div className="scan" />
-        <div className="orb a" />
-        <div className="orb b" />
-        <div className="orb c" />
+    <div className="lp-root">
+      {/* BACKGROUND */}
+      <div className="lp-bg">
+        <div className="lp-orb lp-orb--1" />
+        <div className="lp-orb lp-orb--2" />
+        <div className="lp-orb lp-orb--3" />
       </div>
 
-      {/* ═══ NAV ═══ */}
-      <nav className={`landing-nav${scrolled ? " scrolled" : ""}`}>
-        <div className="nav-inner">
-          <Link href="/landing" className="logo">
-            <SwayMapsIcon size={34} />
+      {/* NAVBAR */}
+      <nav className={`lp-nav ${scrolled ? "is-scrolled" : ""}`}>
+        <div className="lp-nav-inner">
+          <Link href="/" className="lp-nav-logo">
+            <span className="lp-nav-logo-icon"><Logo size={20} /></span>
+            SwayMaps
           </Link>
-
-          <div className="nav-links">
-            <Link href="/features">Features</Link>
-            <Link href="/use-cases">Use Cases</Link>
-            <Link href="/pricing">Pricing</Link>
-            <Link href="/templates-gallery">Templates</Link>
-            <Link href="/docs">Docs</Link>
-            <Link href="/blog">Blog</Link>
-          </div>
-
-          <div className="nav-actions">
-            <Link href="/auth/signin" className="btn btn-ghost">Sign In</Link>
-            <Link href="/auth/signup" className="btn btn-primary">Start Free &rarr;</Link>
+          <ul className="lp-nav-links">
+            <li><Link href="/features">Features</Link></li>
+            <li><Link href="/use-cases">Use Cases</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
+            <li><Link href="/docs">Docs</Link></li>
+          </ul>
+          <div className="lp-nav-ctas">
+            <Link href="/auth/signin" className="lp-btn lp-btn--ghost">Sign In</Link>
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary">
+              Get Started <IconArrowRight size={14} />
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* ═══ HERO ═══ */}
-      <section className="hero" style={{ paddingBottom: 40 }}>
-        <div className="container" style={{ textAlign: "center" }}>
-          <div className="hero-badge">
-            <span className="pulse-dot" />
-            Templates
-          </div>
-          <h1>
-            Start mapping in seconds,<br />
-            <span className="grad">not hours.</span>
+      {/* HERO */}
+      <section className="lp-hero" style={{ paddingBottom: 60 }}>
+        <div className="lp-container">
+          <div className="lp-eyebrow" style={{ textAlign: "center" }}>TEMPLATES</div>
+          <h1 style={{ fontSize: 56, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.1, marginBottom: 16 }}>
+            Start mapping in seconds,<br />not hours.
           </h1>
-          <p className="hero-sub">
-            25+ proven templates for every use case. One-click clone to your workspace.
+          <p className="lp-hero-sub">
+            25+ ready-to-use templates for architecture, compliance, DevOps, and more. Pick one, customize it, ship faster.
           </p>
-          <div className="hero-actions">
-            <Link href="/auth/signup" className="btn btn-primary btn-lg">Start Free</Link>
-            <a href="#templates" className="btn btn-outline btn-lg">Browse Templates</a>
-          </div>
         </div>
       </section>
 
-      {/* ═══ FILTER BAR ═══ */}
-      <section id="templates" style={{ padding: "40px 0 20px" }}>
-        <div className="container reveal">
-          <div className="tpl-filters">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveFilter(cat)}
-                style={{
-                  padding: "8px 20px",
-                  borderRadius: 100,
-                  background: activeFilter === cat ? "var(--accent)" : "transparent",
-                  border: `1px solid ${activeFilter === cat ? "var(--accent)" : "var(--border)"}`,
-                  color: activeFilter === cat ? "#070b14" : "var(--t2)",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  fontFamily: "var(--font)",
-                  transition: "all var(--ease)",
-                }}
-                onMouseEnter={(e) => {
-                  if (activeFilter !== cat) {
-                    (e.target as HTMLElement).style.borderColor = "var(--border2)";
-                    (e.target as HTMLElement).style.color = "var(--t1)";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeFilter !== cat) {
-                    (e.target as HTMLElement).style.borderColor = "var(--border)";
-                    (e.target as HTMLElement).style.color = "var(--t2)";
-                  }
-                }}
-              >
-                {categoryLabels[cat]}
-              </button>
-            ))}
-          </div>
+      {/* FILTER BAR */}
+      <section style={{ position: "relative", zIndex: 1 }}>
+        <div className="lp-container" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap", marginBottom: 48 }}>
+          {(Object.keys(categoryLabels) as Category[]).map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              style={{
+                padding: "8px 18px",
+                borderRadius: 100,
+                border: filter === cat ? "1px solid var(--accent)" : "1px solid var(--border)",
+                background: filter === cat ? "rgba(0,194,255,0.1)" : "var(--bg3)",
+                color: filter === cat ? "var(--accent)" : "var(--t2)",
+                fontFamily: "var(--font-body)",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              {categoryLabels[cat]}
+            </button>
+          ))}
         </div>
       </section>
 
-      {/* ═══ TEMPLATE GRID ═══ */}
-      <section style={{ padding: "40px 0 120px" }}>
-        <div className="container">
-          <div className="tpl-grid">
-            {filtered.map((template, idx) => (
-              <TemplateCard
-                key={template.name}
-                template={template}
-                delay={idx % 6}
-              />
+      {/* TEMPLATE GRID */}
+      <section style={{ position: "relative", zIndex: 1, paddingBottom: 120 }}>
+        <div className="lp-container">
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 20,
+          }}>
+            {filtered.map((t, i) => (
+              <Reveal key={t.name}>
+                <div
+                  style={{
+                    background: "var(--bg3)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 14,
+                    overflow: "hidden",
+                    transition: "border-color 0.3s, transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.borderColor = "var(--border2)";
+                    e.currentTarget.style.boxShadow = "0 12px 40px rgba(0,0,0,0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.borderColor = "var(--border)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  {/* Preview area */}
+                  <div style={{
+                    height: 180,
+                    background: "var(--bg4)",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}>
+                    {/* Grid background */}
+                    <div style={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundImage: "linear-gradient(rgba(26,35,64,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(26,35,64,0.25) 1px, transparent 1px)",
+                      backgroundSize: "20px 20px",
+                    }} />
+                    {/* SVG lines */}
+                    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", zIndex: 1 }}>
+                      {t.lines.map(([from, to], li) => (
+                        <line
+                          key={li}
+                          x1={`${t.dots[from].x}%`}
+                          y1={`${t.dots[from].y}%`}
+                          x2={`${t.dots[to].x}%`}
+                          y2={`${t.dots[to].y}%`}
+                          stroke="var(--border2)"
+                          strokeWidth="1.5"
+                          opacity="0.6"
+                        />
+                      ))}
+                    </svg>
+                    {/* Dots */}
+                    {t.dots.map((d, di) => (
+                      <div
+                        key={di}
+                        style={{
+                          position: "absolute",
+                          left: `${d.x}%`,
+                          top: `${d.y}%`,
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          background: d.color,
+                          transform: "translate(-50%, -50%)",
+                          zIndex: 2,
+                          boxShadow: `0 0 8px ${d.color}44`,
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Card body */}
+                  <div style={{ padding: "20px 24px 24px" }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "var(--t1)", marginBottom: 4 }}>
+                      {t.name}
+                    </div>
+                    <div style={{
+                      fontSize: 13,
+                      color: "var(--t2)",
+                      lineHeight: 1.5,
+                      marginBottom: 16,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}>
+                      {t.description}
+                    </div>
+
+                    {/* Bottom row */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: 11,
+                          color: "var(--t3)",
+                          fontWeight: 500,
+                        }}>
+                          {t.nodes} nodes &middot; {t.edges} edges
+                        </span>
+                        <span style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: "3px 10px",
+                          borderRadius: 6,
+                          background: `${categoryColors[t.category]}15`,
+                          color: categoryColors[t.category],
+                          border: `1px solid ${categoryColors[t.category]}30`,
+                          textTransform: "capitalize",
+                        }}>
+                          {t.category === "data-flow" ? "Data Flow" : t.category}
+                        </span>
+                      </div>
+                      <Link
+                        href="/auth/signup"
+                        className="lp-btn lp-btn--ghost"
+                        style={{ padding: "6px 14px", fontSize: 12 }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Use Template
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
             ))}
           </div>
 
+          {/* Empty state */}
           {filtered.length === 0 && (
             <div style={{ textAlign: "center", padding: "80px 0", color: "var(--t3)" }}>
-              <p style={{ fontSize: "1.1rem", fontWeight: 600 }}>No templates in this category yet.</p>
-              <p style={{ fontSize: "0.9rem", marginTop: 8 }}>Check back soon or request one below.</p>
+              <p style={{ fontSize: 16, marginBottom: 8 }}>No templates in this category yet.</p>
+              <p style={{ fontSize: 14 }}>Check back soon or start from scratch.</p>
             </div>
           )}
         </div>
       </section>
 
-      {/* ═══ CTA SECTION ═══ */}
-      <section style={{ padding: "100px 0 120px", borderTop: "1px solid var(--border)", background: "var(--bg2)" }}>
-        <div className="container reveal" style={{ textAlign: "center" }}>
-          <p className="eyebrow">Custom Maps</p>
-          <h2 className="stitle">
-            Don&rsquo;t see what you need?<br />
-            Build your own in 60 seconds.
-          </h2>
-          <p className="sdesc" style={{ margin: "16px auto 40px", maxWidth: 500 }}>
-            Start from a blank canvas with AI-powered generation. Describe your system and watch it come to life.
-          </p>
-          <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link href="/auth/signup" className="btn btn-primary btn-lg">Start Free</Link>
-            <a href="mailto:hello@swaymaps.com" className="btn btn-outline btn-lg">Request a Template</a>
-          </div>
+      {/* CTA */}
+      <section className="lp-cta-section">
+        <div className="lp-cta-glow" />
+        <div className="lp-container">
+          <Reveal>
+            <h2 className="lp-cta-title">
+              Don&apos;t see what you need?<br />Build your own.
+            </h2>
+            <p className="lp-cta-sub">
+              Start from a blank canvas or let AI generate a map from your description.
+            </p>
+            <div className="lp-cta-buttons">
+              <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-btn--lg">
+                Start Free <IconArrowRight size={16} />
+              </Link>
+              <Link href="/features" className="lp-btn lp-btn--outline-lg">
+                See All Features
+              </Link>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* ═══ FOOTER ═══ */}
-      <footer className="landing-footer">
-        <div className="container-w">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <Link href="/landing" className="logo" style={{ marginBottom: 12, display: "inline-flex" }}>
-                <SwayMapsIcon size={28} />
+      {/* FOOTER */}
+      <footer className="lp-footer">
+        <div className="lp-container">
+          <div className="lp-footer-grid">
+            <div className="lp-footer-brand">
+              <Link href="/" className="lp-footer-brand-logo">
+                <span className="lp-nav-logo-icon"><Logo size={20} /></span>
+                SwayMaps
               </Link>
-              <p>Visual dependency mapping for engineering teams.</p>
+              <p className="lp-footer-brand-desc">
+                The visual planning and dependency mapping platform for every team.
+              </p>
             </div>
-
-            <div className="footer-col">
-              <h4>Product</h4>
-              <Link href="/features">Features</Link>
-              <Link href="/pricing">Pricing</Link>
-              <Link href="/use-cases">Use Cases</Link>
-              <Link href="/templates-gallery">Templates</Link>
+            <div>
+              <div className="lp-footer-col-title">Product</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/features">Features</Link></li>
+                <li><Link href="/pricing">Pricing</Link></li>
+                <li><Link href="/templates-gallery">Templates</Link></li>
+                <li><Link href="/changelog">Changelog</Link></li>
+              </ul>
             </div>
-
-            <div className="footer-col">
-              <h4>Resources</h4>
-              <Link href="/docs">Documentation</Link>
-              <Link href="/changelog">Changelog</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/docs">API Reference</Link>
+            <div>
+              <div className="lp-footer-col-title">Resources</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/docs">Docs</Link></li>
+                <li><Link href="/blog">Blog</Link></li>
+                <li><Link href="/use-cases">Use Cases</Link></li>
+              </ul>
             </div>
-
-            <div className="footer-col">
-              <h4>Company</h4>
-              <Link href="/about">About</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/contact">Contact</Link>
-              <a href="mailto:support@swaymaps.com">Support</a>
+            <div>
+              <div className="lp-footer-col-title">Company</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/about">About</Link></li>
+                <li><Link href="/contact">Contact</Link></li>
+              </ul>
             </div>
-
-            <div className="footer-col">
-              <h4>Legal</h4>
-              <Link href="/legal/terms">Terms of Service</Link>
-              <Link href="/legal/privacy">Privacy Policy</Link>
-              <Link href="/legal/privacy">Cookie Policy</Link>
-              <Link href="/legal/privacy">GDPR</Link>
+            <div>
+              <div className="lp-footer-col-title">Legal</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/legal/terms">Terms</Link></li>
+                <li><Link href="/legal/privacy">Privacy</Link></li>
+              </ul>
             </div>
           </div>
-
-          <div className="footer-bottom">
-            <span>&copy; 2026 SwayMaps. All rights reserved.</span>
-            <div className="footer-bottom-links">
-              <Link href="/legal/privacy">Privacy</Link>
-              <Link href="/legal/terms">Terms</Link>
+          <div className="lp-footer-bottom">
+            <span className="lp-footer-copy">&copy; 2026 SwayMaps. All rights reserved.</span>
+            <div className="lp-footer-socials">
+              <a href="https://twitter.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconTwitter /></a>
+              <a href="https://github.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconGitHub /></a>
+              <a href="https://linkedin.com/company/swaymaps" target="_blank" rel="noopener noreferrer"><IconLinkedIn /></a>
             </div>
           </div>
         </div>
       </footer>
-    </div>
-  );
-}
-
-/* ─── TEMPLATE CARD COMPONENT ─── */
-
-function TemplateCard({ template, delay }: { template: Template; delay: number }) {
-  const [hovered, setHovered] = useState(false);
-  const catColor = categoryColors[template.category];
-
-  return (
-    <div
-      className={`reveal rd${Math.min(delay + 1, 4)}`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: "var(--bg3)",
-        border: `1px solid ${hovered ? "var(--border2)" : "var(--border)"}`,
-        borderRadius: "var(--r)",
-        overflow: "hidden",
-        transition: "all var(--ease)",
-        transform: hovered ? "translateY(-4px)" : "translateY(0)",
-        boxShadow: hovered
-          ? "0 12px 40px rgba(0,0,0,0.3), 0 0 20px rgba(0,194,255,0.05)"
-          : "0 4px 16px rgba(0,0,0,0.15)",
-        cursor: "default",
-      }}
-    >
-      {/* Preview area */}
-      <CardPreview dots={template.dots} />
-
-      {/* Content */}
-      <div style={{ padding: "16px 20px 20px" }}>
-        <h3
-          style={{
-            fontSize: "0.95rem",
-            fontWeight: 700,
-            color: "var(--t1)",
-            marginBottom: 4,
-          }}
-        >
-          {template.name}
-        </h3>
-        <p
-          style={{
-            fontSize: "0.82rem",
-            color: "var(--t2)",
-            lineHeight: 1.5,
-            marginBottom: 16,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {template.description}
-        </p>
-
-        {/* Bottom row */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 14,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "var(--mono)",
-              fontSize: "0.72rem",
-              color: "var(--t3)",
-              fontWeight: 500,
-            }}
-          >
-            {template.nodes} nodes &middot; {template.edges} edges
-          </span>
-          <span
-            style={{
-              padding: "3px 10px",
-              borderRadius: 100,
-              fontSize: "0.65rem",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-              color: catColor,
-              background: `${catColor}18`,
-              border: `1px solid ${catColor}30`,
-            }}
-          >
-            {categoryLabels[template.category]}
-          </span>
-        </div>
-
-        <Link
-          href="/auth/signup"
-          style={{
-            display: "block",
-            width: "100%",
-            padding: "9px 0",
-            textAlign: "center",
-            borderRadius: "var(--rs)",
-            background: "transparent",
-            border: "1px solid var(--border2)",
-            color: "var(--t1)",
-            fontSize: "0.82rem",
-            fontWeight: 600,
-            textDecoration: "none",
-            fontFamily: "var(--font)",
-            transition: "all var(--ease)",
-          }}
-          onMouseEnter={(e) => {
-            (e.target as HTMLElement).style.background = "rgba(0,194,255,0.08)";
-            (e.target as HTMLElement).style.borderColor = "rgba(0,194,255,0.3)";
-            (e.target as HTMLElement).style.color = "var(--accent)";
-          }}
-          onMouseLeave={(e) => {
-            (e.target as HTMLElement).style.background = "transparent";
-            (e.target as HTMLElement).style.borderColor = "var(--border2)";
-            (e.target as HTMLElement).style.color = "var(--t1)";
-          }}
-        >
-          Use Template
-        </Link>
-      </div>
     </div>
   );
 }

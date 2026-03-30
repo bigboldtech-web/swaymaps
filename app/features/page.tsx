@@ -1,1462 +1,1022 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
-import { SwayMapsIcon } from "../../components/SwayMapsLogo";
+import { useState, useEffect, useRef } from "react";
 import "../landing/landing.css";
 
-/* ─── FEATURE DATA ─── */
+/* ---- SVG ICONS ---- */
+function IconArrowRight({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 8h9M8.5 4l4 4-4 4" />
+    </svg>
+  );
+}
 
-const nodeTypes = [
-  { label: "Person", color: "#ec4899", abbr: "P" },
-  { label: "System", color: "#3b82f6", abbr: "SY" },
-  { label: "API", color: "#06b6d4", abbr: "AP" },
-  { label: "Database", color: "#8b5cf6", abbr: "DB" },
-  { label: "Queue", color: "#2563eb", abbr: "Q" },
-  { label: "Cache", color: "#ef4444", abbr: "CA" },
-  { label: "Process", color: "#22c55e", abbr: "PR" },
-  { label: "Generic", color: "#14b8a6", abbr: "GN" },
-  { label: "Cloud", color: "#6366f1", abbr: "CL" },
-  { label: "Vendor", color: "#f59e0b", abbr: "VN" },
-  { label: "Team", color: "#f97316", abbr: "TM" },
-];
+function IconCheck({ size = 10 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 6.5l3 3 5-6" />
+    </svg>
+  );
+}
 
-const templateCards = [
-  { name: "Microservices Architecture", category: "Engineering", color: "#3b82f6" },
-  { name: "Data Pipeline", category: "Data", color: "#8b5cf6" },
-  { name: "CI/CD Pipeline", category: "DevOps", color: "#22c55e" },
-  { name: "Org Chart", category: "Organization", color: "#f97316" },
-  { name: "Cloud Infrastructure", category: "Platform", color: "#6366f1" },
-  { name: "Incident Response", category: "SRE", color: "#ef4444" },
-];
+function IconSpark() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.4l-6.4 4.8L8 14 2 9.2h7.6z" />
+    </svg>
+  );
+}
 
-const yamlCode = [
-  { type: "c", text: "# SwayMaps Diagram-as-Code" },
-  { type: "k", text: "name" },
-  { type: "v", text: ': "Payment System"' },
-  { type: "k", text: "nodes" },
-  { type: "plain", text: ":" },
-  { type: "k", text: "  - id" },
-  { type: "v", text: ': "api-gateway"' },
-  { type: "k", text: "    type" },
-  { type: "v", text: ": system" },
-  { type: "k", text: "    label" },
-  { type: "v", text: ': "API Gateway"' },
-  { type: "k", text: "  - id" },
-  { type: "v", text: ': "payment-svc"' },
-  { type: "k", text: "    type" },
-  { type: "v", text: ": process" },
-  { type: "k", text: "    label" },
-  { type: "v", text: ': "Payment Service"' },
-  { type: "k", text: "  - id" },
-  { type: "v", text: ': "stripe"' },
-  { type: "k", text: "    type" },
-  { type: "v", text: ": vendor" },
-  { type: "k", text: "edges" },
-  { type: "plain", text: ":" },
-  { type: "k", text: "  - from" },
-  { type: "v", text: ": api-gateway" },
-  { type: "k", text: "    to" },
-  { type: "v", text: ": payment-svc" },
-];
+function IconTwitter() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
 
-const roles = [
-  { role: "Owner", desc: "Full control, billing, danger zone", color: "#ef4444" },
-  { role: "Admin", desc: "Manage members, edit all maps", color: "#f59e0b" },
-  { role: "Editor", desc: "Create and edit maps", color: "#3b82f6" },
-  { role: "Viewer", desc: "Read-only access to shared maps", color: "#22c55e" },
-];
+function IconGitHub() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
 
-const versionEntries = [
-  { label: "Added Stripe webhook handler", time: "2 min ago", color: "#22c55e", tag: "+3 nodes" },
-  { label: "Refactored auth flow", time: "1 hour ago", color: "#3b82f6", tag: "+1 -2 edges" },
-  { label: "Initial architecture draft", time: "3 hours ago", color: "#8b5cf6", tag: "12 nodes" },
-  { label: "Map created from template", time: "Yesterday", color: "#06b6d4", tag: "Template" },
-];
+function IconLinkedIn() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
 
-const importSources = [
-  { name: "Draw.io", abbr: "DI" },
-  { name: "Lucidchart", abbr: "LC" },
-  { name: "Miro", abbr: "MI" },
-  { name: "JSON", abbr: "{}" },
-];
+function Logo({ size = 24 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" width={size} height={size}>
+      <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+      <circle cx="28" cy="10" r="3.5" fill="white" />
+      <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6" />
+      <circle cx="12" cy="30" r="3.5" fill="white" />
+    </svg>
+  );
+}
 
-const exportFormats = [
-  { name: "PNG", color: "#22c55e" },
-  { name: "SVG", color: "#3b82f6" },
-  { name: "PDF", color: "#ef4444" },
-  { name: "JSON", color: "#f59e0b" },
-];
-
-const shortcuts = [
-  { keys: ["Cmd", "K"], action: "Open command palette" },
-  { keys: ["Cmd", "S"], action: "Save map" },
-  { keys: ["Cmd", "Z"], action: "Undo last action" },
-  { keys: ["Cmd", "D"], action: "Duplicate selection" },
-  { keys: ["Cmd", "E"], action: "Export map" },
-  { keys: ["Del"], action: "Delete selected" },
-];
-
-/* ─── FEATURES PAGE ─── */
-
-export default function FeaturesPage() {
-  /* Scroll reveal */
+/* ---- SCROLL REVEAL ---- */
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const els = document.querySelectorAll(".reveal");
-    if (!els.length) return;
+    const el = ref.current;
+    if (!el) return;
     const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add("vis");
-            io.unobserve(e.target);
-          }
-        });
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("is-visible");
+          io.unobserve(el);
+        }
       },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
-    els.forEach((el) => io.observe(el));
+    io.observe(el);
     return () => io.disconnect();
   }, []);
-
-  return (
-    <div className="landing-root" style={{ background: "#070b14", minHeight: "100vh" }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "SwayMaps Features",
-        "description": "Explore SwayMaps features: AI-powered map generation, real-time collaboration, version history with diff viewer, YAML diagram-as-code, 25+ templates, health dashboard, and more.",
-        "url": "https://swaymaps.com/features",
-        "breadcrumb": {
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://swaymaps.com" },
-            { "@type": "ListItem", "position": 2, "name": "Features", "item": "https://swaymaps.com/features" }
-          ]
-        }
-      }) }} />
-      {/* ─── Background ─── */}
-      <div className="map-bg">
-        <div className="grid-layer" />
-        <div className="scan" />
-        <div className="orb a" />
-        <div className="orb b" />
-        <div className="orb c" />
-      </div>
-
-      {/* ─── NAV ─── */}
-      <nav className="landing-nav">
-        <div className="nav-inner">
-          <Link href="/landing" className="logo">
-            <SwayMapsIcon size={34} />
-          </Link>
-
-          <div className="nav-links">
-            <Link href="/features">Features</Link>
-            <Link href="/use-cases">Use Cases</Link>
-            <Link href="/pricing">Pricing</Link>
-            <Link href="/templates-gallery">Templates</Link>
-            <Link href="/docs">Docs</Link>
-            <Link href="/blog">Blog</Link>
-          </div>
-
-          <div className="nav-actions">
-            <Link href="/auth/signin" className="btn btn-ghost">Sign In</Link>
-            <Link href="/auth/signup" className="btn btn-primary">Start Free &rarr;</Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* ─── HERO ─── */}
-      <section className="hero" style={{ paddingTop: 160, paddingBottom: 80 }}>
-        <div className="container" style={{ textAlign: "center" }}>
-          <div className="eyebrow" style={{ justifyContent: "center", marginBottom: 20 }}>Features</div>
-          <h1 style={{
-            fontSize: "clamp(2.8rem, 5.5vw, 4.4rem)",
-            fontWeight: 900,
-            letterSpacing: "-0.035em",
-            lineHeight: 1.08,
-            marginBottom: 20,
-          }}>
-            Everything you need to{" "}
-            <span className="grad">map your world</span>.
-          </h1>
-          <p className="hero-sub" style={{ maxWidth: 620, margin: "0 auto" }}>
-            From AI-powered generation to diagram-as-code, SwayMaps gives your team
-            the tools to visualize, understand, and manage every dependency.
-          </p>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════
-          FEATURE SECTIONS — alternating layout
-          ═══════════════════════════════════════════ */}
-
-      {/* ─── 1. Visual Canvas ─── */}
-      <FeatureSection
-        index={1}
-        eyebrow="Visual Canvas"
-        title="11 node types. Infinite clarity."
-        description="Every dependency has a type. Person, System, Database, API, Queue, Cache, Process, Cloud, Vendor, Team, and Generic. Drag them onto an infinite canvas, connect them, and see your architecture come alive."
-        bullets={[
-          "Color-coded node badges for instant visual identification",
-          "Drag-and-drop placement with snap-to-grid alignment",
-          "Live status indicators (healthy, warning, critical) on every node",
-          "Smooth animated edges with customizable routing",
-        ]}
-        align="left"
-        visual={<NodeTypesVisual />}
-      />
-
-      {/* ─── 2. AI Generation ─── */}
-      <FeatureSection
-        index={2}
-        eyebrow="AI Generation"
-        title="Describe it. We build it."
-        description="Type a plain-English description of your system and let AI generate the first draft of your dependency map. Refine from there -- not from scratch."
-        bullets={[
-          "Natural language to dependency map in seconds",
-          "AI brainstorm mode for exploring architecture ideas",
-          "Smart node type detection from your description",
-          "Edit, extend, and refine AI-generated maps freely",
-        ]}
-        align="right"
-        visual={<AIGenerationVisual />}
-      />
-
-      {/* ─── 3. Templates Library ─── */}
-      <FeatureSection
-        index={3}
-        eyebrow="Templates Library"
-        title="Start from proven blueprints."
-        description="Choose from 25+ professionally designed templates covering microservices, data pipelines, org charts, CI/CD workflows, and more. Customize everything."
-        bullets={[
-          "25+ templates across engineering, platform, and ops categories",
-          "One-click instantiation with full customization",
-          "Community-contributed templates coming soon",
-          "Save your own maps as reusable templates",
-        ]}
-        align="left"
-        visual={<TemplatesVisual />}
-      />
-
-      {/* ─── 4. Diagram as Code ─── */}
-      <FeatureSection
-        index={4}
-        eyebrow="Diagram as Code"
-        title="Define maps in YAML. Version in Git."
-        description="Write your dependency maps as structured YAML. Check them into version control, review in PRs, and generate visuals automatically."
-        bullets={[
-          "Clean YAML DSL for defining nodes, edges, and metadata",
-          "Bi-directional sync between code and visual canvas",
-          "Git-friendly format for code review workflows",
-          "Import existing YAML definitions instantly",
-        ]}
-        align="right"
-        visual={<YAMLVisual />}
-      />
-
-      {/* ─── 5. Collaboration ─── */}
-      <FeatureSection
-        index={5}
-        eyebrow="Collaboration"
-        title="Your whole team, one workspace."
-        description="Create workspaces, invite teammates, assign roles, and collaborate on maps together. Share read-only links with stakeholders in one click."
-        bullets={[
-          "Workspace-based organization with granular role permissions",
-          "Owner, Admin, Editor, and Viewer roles",
-          "Public sharing via unique read-only links",
-          "Workspace invites with email notifications",
-        ]}
-        align="left"
-        visual={<CollaborationVisual />}
-      />
-
-      {/* ─── 6. Version History ─── */}
-      <FeatureSection
-        index={6}
-        eyebrow="Version History"
-        title="Every change. Always recoverable."
-        description="SwayMaps automatically snapshots your map on every save. Browse the timeline, compare versions side-by-side with the diff viewer, and restore any previous state."
-        bullets={[
-          "Automatic snapshots on every save",
-          "Visual diff viewer to compare any two versions",
-          "One-click restore to any previous snapshot",
-          "Full change history with timestamps and authors",
-        ]}
-        align="right"
-        visual={<VersionHistoryVisual />}
-      />
-
-      {/* ─── 7. Health Dashboard ─── */}
-      <FeatureSection
-        index={7}
-        eyebrow="Health Dashboard"
-        title="Know the health of your system at a glance."
-        description="Get a computed health score for your entire dependency map. SwayMaps detects orphaned nodes, circular dependencies, single points of failure, and more."
-        bullets={[
-          "Aggregate health score from 0 to 100",
-          "Automatic detection of orphaned and disconnected nodes",
-          "Circular dependency warnings",
-          "Single point of failure identification",
-        ]}
-        align="left"
-        visual={<HealthDashboardVisual />}
-      />
-
-      {/* ─── 8. Import & Export ─── */}
-      <FeatureSection
-        index={8}
-        eyebrow="Import & Export"
-        title="Bring your maps in. Take them anywhere."
-        description="Import from Draw.io, Lucidchart, Miro, or raw JSON. Export to PNG, SVG, PDF, or JSON for embedding in wikis, docs, and presentations."
-        bullets={[
-          "Import from popular diagramming tools",
-          "Export to PNG, SVG, PDF, and JSON formats",
-          "Embed exported maps in Notion, Confluence, or any wiki",
-          "Bulk export for backup and migration",
-        ]}
-        align="right"
-        visual={<ImportExportVisual />}
-      />
-
-      {/* ─── 9. Integrations ─── */}
-      <FeatureSection
-        index={9}
-        eyebrow="Integrations"
-        title="Stay connected to your workflow."
-        description="Get notified in Slack or Microsoft Teams when maps change. Set up webhooks to trigger automations. Keep your team in the loop without context-switching."
-        bullets={[
-          "Slack and Microsoft Teams notifications",
-          "Webhook support for custom integrations",
-          "Change alerts when critical dependencies are modified",
-          "API access for programmatic map management",
-        ]}
-        align="left"
-        visual={<IntegrationsVisual />}
-      />
-
-      {/* ─── 10. Power User Features ─── */}
-      <FeatureSection
-        index={10}
-        eyebrow="Power User Features"
-        title="Built for speed. Designed for pros."
-        description="Open the command palette with Cmd+K to search nodes, run actions, and navigate your maps instantly. Every action has a keyboard shortcut."
-        bullets={[
-          "Command palette for instant search and actions",
-          "Full keyboard shortcut coverage",
-          "Bulk operations on selected nodes and edges",
-          "Customizable canvas settings and preferences",
-        ]}
-        align="right"
-        visual={<PowerUserVisual />}
-      />
-
-      {/* ─── FINAL CTA ─── */}
-      <section className="final-cta reveal">
-        <div className="container" style={{ textAlign: "center" }}>
-          <h2 style={{ lineHeight: 1.1 }}>
-            Ready to map your{" "}
-            <span className="grad">dependencies</span>?
-          </h2>
-          <p className="sdesc" style={{ margin: "20px auto 40px", maxWidth: 500 }}>
-            Join engineering teams who use SwayMaps to visualize, understand, and
-            manage every dependency in their stack.
-          </p>
-          <div className="fca">
-            <Link href="/auth/signup" className="btn btn-primary btn-lg">
-              Start Free
-            </Link>
-            <Link href="/pricing" className="btn btn-outline btn-lg">
-              See Pricing
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── FOOTER ─── */}
-      <footer style={{ borderTop: "1px solid #1a2340", padding: "64px 0 40px" }}>
-        <div className="container-w">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <Link href="/landing" style={{ display: "inline-flex", marginBottom: 12 }}>
-                <SwayMapsIcon size={28} />
-              </Link>
-              <p>
-                Visual dependency mapping for engineering teams.
-              </p>
-            </div>
-            {[
-              {
-                title: "Product",
-                links: [
-                  { label: "Features", href: "/features" },
-                  { label: "Pricing", href: "/pricing" },
-                  { label: "Use Cases", href: "/use-cases" },
-                  { label: "Templates", href: "/templates-gallery" },
-                ],
-              },
-              {
-                title: "Resources",
-                links: [
-                  { label: "Documentation", href: "/docs" },
-                  { label: "Changelog", href: "/changelog" },
-                  { label: "Blog", href: "/blog" },
-                  { label: "API Reference", href: "/docs" },
-                ],
-              },
-              {
-                title: "Company",
-                links: [
-                  { label: "About", href: "/about" },
-                  { label: "Blog", href: "/blog" },
-                  { label: "Contact", href: "/contact" },
-                  { label: "Support", href: "mailto:support@swaymaps.com" },
-                ],
-              },
-              {
-                title: "Legal",
-                links: [
-                  { label: "Terms of Service", href: "/legal/terms" },
-                  { label: "Privacy Policy", href: "/legal/privacy" },
-                  { label: "Cookie Policy", href: "/legal/privacy" },
-                  { label: "GDPR", href: "/legal/privacy" },
-                ],
-              },
-            ].map((col) => (
-              <div className="footer-col" key={col.title}>
-                <h4>{col.title}</h4>
-                {col.links.map((link) => (
-                  link.href.startsWith("/") ? (
-                    <Link key={link.label} href={link.href}>{link.label}</Link>
-                  ) : (
-                    <a key={link.label} href={link.href}>{link.label}</a>
-                  )
-                ))}
-              </div>
-            ))}
-          </div>
-          <div className="footer-bottom">
-            <span>&copy; 2026 SwayMaps. All rights reserved.</span>
-            <div className="footer-bottom-links">
-              <Link href="/legal/privacy">Privacy</Link>
-              <Link href="/legal/terms">Terms</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+  return ref;
 }
 
-/* ═══════════════════════════════════════════
-   FEATURE SECTION COMPONENT
-   ═══════════════════════════════════════════ */
-
-interface FeatureSectionProps {
-  index: number;
-  eyebrow: string;
-  title: string;
-  description: string;
-  bullets: string[];
-  align: "left" | "right";
-  visual: React.ReactNode;
-}
-
-function FeatureSection({ index, eyebrow, title, description, bullets, align, visual }: FeatureSectionProps) {
-  const isTextLeft = align === "left";
-
+function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useReveal();
   return (
-    <section style={{ padding: "100px 0" }} className="reveal">
-      <div className="container-w">
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 64,
-          alignItems: "center",
-        }}>
-          {/* Text side */}
-          <div style={{ order: isTextLeft ? 1 : 2 }}>
-            <div className="eyebrow" style={{ marginBottom: 12 }}>
-              {String(index).padStart(2, "0")} / {eyebrow}
-            </div>
-            <h2 style={{
-              fontSize: "clamp(1.8rem, 3vw, 2.4rem)",
-              fontWeight: 800,
-              letterSpacing: "-0.025em",
-              lineHeight: 1.15,
-              marginBottom: 16,
-              color: "#e4e9f4",
-            }}>
-              {title}
-            </h2>
-            <p style={{
-              fontSize: "1rem",
-              color: "#8091b3",
-              lineHeight: 1.7,
-              marginBottom: 28,
-              maxWidth: 480,
-            }}>
-              {description}
-            </p>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              {bullets.map((b, i) => (
-                <li key={i} style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 10,
-                  padding: "7px 0",
-                  fontSize: "0.88rem",
-                  color: "#8091b3",
-                }}>
-                  <span style={{
-                    flexShrink: 0,
-                    width: 20,
-                    height: 20,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "rgba(0,194,255,0.08)",
-                    color: "#00c2ff",
-                    borderRadius: 5,
-                    fontSize: "0.65rem",
-                    fontWeight: 700,
-                    marginTop: 2,
-                  }}>
-                    &#x2713;
-                  </span>
-                  {b}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Visual side */}
-          <div style={{ order: isTextLeft ? 2 : 1 }}>
-            {visual}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════
-   VISUAL COMPONENTS
-   ═══════════════════════════════════════════ */
-
-/* ─── Shared card wrapper ─── */
-function VisualCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{
-      background: "#0f1629",
-      border: "1px solid #1a2340",
-      borderRadius: 14,
-      padding: 28,
-      boxShadow: "0 20px 60px -10px rgba(0,0,0,0.4)",
-    }}>
+    <div ref={ref} className={`lp-reveal ${className}`}>
       {children}
     </div>
   );
 }
 
-/* ─── 1. Node Types Grid ─── */
-function NodeTypesVisual() {
-  return (
-    <VisualCard>
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: 10,
-      }}>
-        {nodeTypes.map((n) => (
-          <div key={n.label} style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "10px 14px",
-            background: "#0b1120",
-            border: "1px solid #1a2340",
-            borderRadius: 8,
-            transition: "border-color 0.25s",
-          }}>
-            <span style={{
-              padding: "3px 8px",
-              borderRadius: 4,
-              fontSize: "0.62rem",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-              color: "white",
-              background: n.color,
-              flexShrink: 0,
-            }}>
-              {n.abbr}
-            </span>
-            <span style={{ fontSize: "0.8rem", fontWeight: 600, color: "#e4e9f4" }}>
-              {n.label}
-            </span>
-            <span style={{
-              width: 7,
-              height: 7,
-              borderRadius: "50%",
-              background: "#22c55e",
-              marginLeft: "auto",
-              flexShrink: 0,
-            }} />
-          </div>
-        ))}
-      </div>
-      {/* Status legend */}
-      <div style={{
-        display: "flex",
-        gap: 20,
-        marginTop: 16,
-        paddingTop: 14,
-        borderTop: "1px solid #1a2340",
-      }}>
-        {[
-          { label: "Healthy", color: "#22c55e" },
-          { label: "Warning", color: "#f59e0b" },
-          { label: "Critical", color: "#ef4444" },
-        ].map((s) => (
-          <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "0.72rem", color: "#4a5a7a" }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.color }} />
-            {s.label}
-          </div>
-        ))}
-      </div>
-    </VisualCard>
-  );
-}
+/* ---- DATA ---- */
+const nodeTypes = [
+  { name: "Person", color: "#ec4899", desc: "Stakeholders, users, team members" },
+  { name: "System", color: "#3b82f6", desc: "Applications, services, platforms" },
+  { name: "API", color: "#06b6d4", desc: "REST endpoints, GraphQL, gRPC" },
+  { name: "Database", color: "#8b5cf6", desc: "PostgreSQL, MongoDB, Redis stores" },
+  { name: "Queue", color: "#2563eb", desc: "Kafka, RabbitMQ, SQS topics" },
+  { name: "Cache", color: "#ef4444", desc: "Redis, Memcached, CDN layers" },
+  { name: "Process", color: "#22c55e", desc: "Workflows, pipelines, CI/CD steps" },
+  { name: "Generic", color: "#14b8a6", desc: "Anything else — fully flexible" },
+  { name: "Cloud", color: "#6366f1", desc: "AWS, GCP, Azure resources" },
+  { name: "Vendor", color: "#f59e0b", desc: "Stripe, Datadog, third-party SaaS" },
+  { name: "Team", color: "#f97316", desc: "Departments, squads, working groups" },
+];
 
-/* ─── 2. AI Generation ─── */
-function AIGenerationVisual() {
-  return (
-    <VisualCard>
-      {/* Prompt */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "12px 14px",
-        background: "#0b1120",
-        border: "1px solid #253060",
-        borderRadius: 8,
-        marginBottom: 18,
-      }}>
-        <span style={{
-          fontSize: "0.78rem",
-          fontWeight: 800,
-          color: "#a78bfa",
-          flexShrink: 0,
-          width: 28,
-          height: 28,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "rgba(167,139,250,0.12)",
-          borderRadius: 6,
-        }}>AI</span>
-        <span style={{
-          fontSize: "0.8rem",
-          color: "#8091b3",
-          fontStyle: "italic",
-          flex: 1,
-        }}>
-          &quot;Map a payment system with Stripe, webhooks, and a PostgreSQL database&quot;
-        </span>
-      </div>
-      {/* Arrow */}
-      <div style={{
-        textAlign: "center",
-        color: "#4a5a7a",
-        fontSize: "0.75rem",
-        marginBottom: 14,
-        fontFamily: "var(--mono)",
-      }}>
-        generating...
-      </div>
-      {/* Generated nodes */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {[
-          { label: "API Gateway", color: "#3b82f6", type: "SY" },
-          { label: "Payment Service", color: "#22c55e", type: "PR" },
-          { label: "Stripe API", color: "#f59e0b", type: "VN" },
-          { label: "Webhook Handler", color: "#06b6d4", type: "AP" },
-          { label: "PostgreSQL", color: "#8b5cf6", type: "DB" },
-          { label: "Event Queue", color: "#2563eb", type: "Q" },
-        ].map((n) => (
-          <div key={n.label} style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "6px 12px",
-            background: "#0b1120",
-            border: "1px solid #1a2340",
-            borderRadius: 7,
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            color: "#e4e9f4",
-          }}>
-            <span style={{
-              width: 8,
-              height: 8,
-              borderRadius: 3,
-              background: n.color,
-              flexShrink: 0,
-            }} />
-            {n.label}
-            <span style={{
-              fontSize: "0.58rem",
-              fontWeight: 700,
-              color: "#4a5a7a",
-              fontFamily: "var(--mono)",
-              textTransform: "uppercase",
-            }}>{n.type}</span>
-          </div>
-        ))}
-      </div>
-    </VisualCard>
-  );
-}
+const templateCards = [
+  { name: "Microservices", category: "Engineering", color: "#3b82f6" },
+  { name: "Org Chart", category: "Leadership", color: "#f97316" },
+  { name: "CI/CD Pipeline", category: "DevOps", color: "#22c55e" },
+  { name: "Data Flow", category: "Data", color: "#8b5cf6" },
+  { name: "Compliance Map", category: "Security", color: "#ef4444" },
+  { name: "Vendor Dependencies", category: "Operations", color: "#f59e0b" },
+];
 
-/* ─── 3. Templates ─── */
-function TemplatesVisual() {
-  return (
-    <VisualCard>
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 10,
-      }}>
-        {templateCards.map((t) => (
-          <div key={t.name} style={{
-            padding: "16px 14px",
-            background: "#0b1120",
-            border: "1px solid #1a2340",
-            borderRadius: 10,
-            transition: "border-color 0.25s",
-          }}>
-            {/* Fake mini-map preview */}
-            <div style={{
-              height: 48,
-              borderRadius: 6,
-              marginBottom: 10,
-              background: `linear-gradient(135deg, ${t.color}10, ${t.color}05)`,
-              border: `1px solid ${t.color}20`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 4,
-            }}>
-              {[0, 1, 2].map((i) => (
-                <span key={i} style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: 2,
-                  background: t.color,
-                  opacity: 0.4 + i * 0.2,
-                }} />
-              ))}
-            </div>
-            <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#e4e9f4", marginBottom: 4 }}>
-              {t.name}
-            </div>
-            <span style={{
-              display: "inline-block",
-              padding: "2px 8px",
-              borderRadius: 4,
-              fontSize: "0.6rem",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              background: `${t.color}18`,
-              color: t.color,
-              letterSpacing: "0.04em",
-            }}>
-              {t.category}
-            </span>
-          </div>
-        ))}
-      </div>
-    </VisualCard>
-  );
-}
+/* ============================================================
+   FEATURES PAGE
+   ============================================================ */
+export default function FeaturesPage() {
+  const [scrolled, setScrolled] = useState(false);
 
-/* ─── 4. YAML Code ─── */
-function YAMLVisual() {
-  return (
-    <div className="code-block" style={{ boxShadow: "0 20px 60px -10px rgba(0,0,0,0.4)" }}>
-      <div className="code-header">
-        <span style={{
-          width: 28,
-          height: 28,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "rgba(0,194,255,0.1)",
-          color: "#00c2ff",
-          borderRadius: 6,
-          fontSize: "0.72rem",
-          fontWeight: 800,
-        }}>{"{}"}</span>
-        <span>payment-system.yaml</span>
-      </div>
-      <div className="code-body" style={{ padding: 20, lineHeight: 1.9 }}>
-        {yamlCode.map((line, i) => {
-          if (line.type === "c") return <div key={i}><span className="c">{line.text}</span></div>;
-          if (line.type === "k") {
-            const parts = line.text.split(":");
-            if (parts.length > 1) {
-              return (
-                <div key={i}>
-                  <span className="k">{parts[0]}</span>
-                  <span className="v">:{parts.slice(1).join(":")}</span>
-                </div>
-              );
-            }
-            return <div key={i}><span className="k">{line.text}</span></div>;
-          }
-          if (line.type === "v") {
-            return <div key={i}><span className="v">{line.text}</span></div>;
-          }
-          return <div key={i}>{line.text}</div>;
-        })}
-      </div>
-    </div>
-  );
-}
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-/* ─── 5. Collaboration ─── */
-function CollaborationVisual() {
   return (
-    <VisualCard>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {roles.map((r, i) => (
-          <div key={r.role} style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 14,
-            padding: "14px 16px",
-            background: "#0b1120",
-            border: "1px solid #1a2340",
-            borderRadius: 10,
-          }}>
-            <span style={{
-              width: 36,
-              height: 36,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: `${r.color}15`,
-              color: r.color,
-              borderRadius: 8,
-              fontSize: "0.72rem",
-              fontWeight: 800,
-              flexShrink: 0,
-              fontFamily: "var(--mono)",
-            }}>
-              {r.role[0]}{r.role[1]}
-            </span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#e4e9f4" }}>{r.role}</div>
-              <div style={{ fontSize: "0.72rem", color: "#4a5a7a" }}>{r.desc}</div>
-            </div>
-            {i < roles.length - 1 && (
-              <span style={{
-                fontSize: "0.65rem",
-                color: "#4a5a7a",
-                fontFamily: "var(--mono)",
-                padding: "2px 6px",
-                border: "1px solid #1a2340",
-                borderRadius: 4,
-              }}>&#x2193;</span>
-            )}
-          </div>
-        ))}
-      </div>
-      {/* Share link */}
-      <div style={{
-        marginTop: 16,
-        display: "flex",
-        alignItems: "center",
-        background: "#0b1120",
-        border: "1px solid #1a2340",
-        borderRadius: 8,
-        overflow: "hidden",
-      }}>
-        <span style={{
-          flex: 1,
-          padding: "8px 12px",
-          fontFamily: "var(--mono)",
-          fontSize: "0.7rem",
-          color: "#4a5a7a",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}>
-          swaymaps.com/share/a1b2c3d4-e5f6-7890
-        </span>
-        <span style={{
-          padding: "8px 14px",
-          background: "#00c2ff",
-          color: "#070b14",
-          fontSize: "0.68rem",
-          fontWeight: 700,
-        }}>Copy</span>
-      </div>
-    </VisualCard>
-  );
-}
+    <div className="lp-root">
+      {/* STRUCTURED DATA */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Features — SwayMaps",
+            "description": "Explore every feature of SwayMaps: 11 node types, AI generation, real-time collaboration, version history, diagram as code, templates, import/export, health dashboard, integrations, and command palette.",
+            "url": "https://swaymaps.com/features",
+            "isPartOf": { "@type": "WebSite", "name": "SwayMaps", "url": "https://swaymaps.com" },
+          }),
+        }}
+      />
 
-/* ─── 6. Version History ─── */
-function VersionHistoryVisual() {
-  return (
-    <VisualCard>
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-        {versionEntries.map((v, i) => (
-          <div key={i} style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 14,
-            padding: "14px 0",
-            borderBottom: i < versionEntries.length - 1 ? "1px solid #1a2340" : "none",
-            position: "relative",
-          }}>
-            {/* Timeline dot + line */}
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              width: 20,
-              flexShrink: 0,
-            }}>
-              <span style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: v.color,
-                boxShadow: `0 0 8px ${v.color}40`,
-                zIndex: 1,
-              }} />
-              {i < versionEntries.length - 1 && (
-                <span style={{
-                  width: 1,
-                  flex: 1,
-                  background: "#1a2340",
-                  position: "absolute",
-                  top: 28,
-                  bottom: 0,
-                  left: 10,
-                }} />
-              )}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#e4e9f4" }}>
-                {v.label}
-              </div>
-            </div>
-            <span style={{
-              padding: "3px 8px",
-              borderRadius: 4,
-              fontSize: "0.62rem",
-              fontWeight: 700,
-              background: `${v.color}15`,
-              color: v.color,
-              fontFamily: "var(--mono)",
-              flexShrink: 0,
-            }}>
-              {v.tag}
-            </span>
-            <span style={{
-              fontSize: "0.7rem",
-              color: "#4a5a7a",
-              fontFamily: "var(--mono)",
-              flexShrink: 0,
-              minWidth: 80,
-              textAlign: "right",
-            }}>
-              {v.time}
-            </span>
-          </div>
-        ))}
+      {/* BACKGROUND */}
+      <div className="lp-bg">
+        <div className="lp-orb lp-orb--1" />
+        <div className="lp-orb lp-orb--2" />
+        <div className="lp-orb lp-orb--3" />
       </div>
-      {/* Diff preview */}
-      <div style={{
-        marginTop: 16,
-        padding: 14,
-        background: "#0b1120",
-        border: "1px solid #1a2340",
-        borderRadius: 8,
-      }}>
-        <div style={{
-          fontSize: "0.68rem",
-          fontWeight: 700,
-          color: "#4a5a7a",
-          textTransform: "uppercase",
-          letterSpacing: "0.06em",
-          marginBottom: 8,
-          fontFamily: "var(--mono)",
-        }}>Diff Viewer</div>
-        <div style={{ fontFamily: "var(--mono)", fontSize: "0.72rem", lineHeight: 1.8 }}>
-          <div style={{ color: "#22c55e" }}>+ node: Stripe Webhook Handler (API)</div>
-          <div style={{ color: "#22c55e" }}>+ node: Event Processor (Process)</div>
-          <div style={{ color: "#ef4444" }}>- edge: Gateway → Legacy Handler</div>
-          <div style={{ color: "#22c55e" }}>+ edge: Gateway → Webhook Handler</div>
-        </div>
-      </div>
-    </VisualCard>
-  );
-}
 
-/* ─── 7. Health Dashboard ─── */
-function HealthDashboardVisual() {
-  return (
-    <VisualCard>
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 32,
-      }}>
-        {/* Score circle */}
-        <div style={{
-          width: 120,
-          height: 120,
-          borderRadius: "50%",
-          background: "conic-gradient(#22c55e 0deg, #22c55e 313deg, #1a2340 313deg)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-        }}>
-          <div style={{
-            width: 96,
-            height: 96,
-            borderRadius: "50%",
-            background: "#0f1629",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}>
-            <span style={{ fontSize: "1.8rem", fontWeight: 900, color: "#22c55e", lineHeight: 1 }}>87</span>
-            <span style={{ fontSize: "0.65rem", color: "#4a5a7a", fontWeight: 600, fontFamily: "var(--mono)" }}>/100</span>
+      {/* NAVBAR */}
+      <nav className={`lp-nav ${scrolled ? "is-scrolled" : ""}`}>
+        <div className="lp-nav-inner">
+          <Link href="/" className="lp-nav-logo">
+            <span className="lp-nav-logo-icon"><Logo size={20} /></span>
+            SwayMaps
+          </Link>
+          <ul className="lp-nav-links">
+            <li><Link href="/features">Features</Link></li>
+            <li><Link href="/use-cases">Use Cases</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
+            <li><Link href="/docs">Docs</Link></li>
+          </ul>
+          <div className="lp-nav-ctas">
+            <Link href="/auth/signin" className="lp-btn lp-btn--ghost">Sign In</Link>
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary">
+              Get Started <IconArrowRight size={14} />
+            </Link>
           </div>
         </div>
+      </nav>
 
-        {/* Status breakdown */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
-          {[
-            { label: "Healthy Nodes", count: 14, total: 16, color: "#22c55e" },
-            { label: "Warnings", count: 2, total: 16, color: "#f59e0b" },
-            { label: "Critical", count: 0, total: 16, color: "#ef4444" },
-          ].map((s) => (
-            <div key={s.label}>
-              <div style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                marginBottom: 4,
-              }}>
-                <span style={{ color: "#8091b3" }}>{s.label}</span>
-                <span style={{ color: s.color, fontFamily: "var(--mono)" }}>{s.count}/{s.total}</span>
-              </div>
-              <div style={{
-                height: 4,
-                borderRadius: 2,
-                background: "#1a2340",
-                overflow: "hidden",
-              }}>
+      {/* ====================== HERO ====================== */}
+      <section className="lp-hero">
+        <div className="lp-container">
+          <div className="lp-hero-badge">
+            <span className="lp-hero-badge-dot" />
+            10 powerful features, one platform
+          </div>
+          <h1>
+            Everything you need to<br />
+            <span className="lp-hero-grad">map your world.</span>
+          </h1>
+          <p className="lp-hero-sub">
+            From AI-powered generation to real-time collaboration, SwayMaps gives every team the tools to visualize dependencies, trace impact, and plan with confidence.
+          </p>
+          <div className="lp-hero-ctas">
+            <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-btn--lg">
+              Start Free — No Credit Card <IconArrowRight size={16} />
+            </Link>
+            <Link href="/use-cases" className="lp-btn lp-btn--outline-lg">
+              See Use Cases
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ====================== F1: VISUAL CANVAS & NODE TYPES ====================== */}
+      <section className="lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <p className="lp-eyebrow">VISUAL CANVAS</p>
+            <h2 className="lp-section-title">11 node types for any domain.</h2>
+            <p className="lp-section-subtitle">
+              An infinite canvas that feels as natural as a whiteboard but with the structure of a database. Every element carries metadata, status, and color-coded context.
+            </p>
+          </Reveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12, marginTop: 48 }}>
+            {nodeTypes.map((n) => (
+              <Reveal key={n.name}>
                 <div style={{
+                  background: "var(--bg2)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 12,
+                  padding: "20px 18px",
+                  transition: "border-color 0.3s, transform 0.3s var(--ease)",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                    <span style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      background: n.color,
+                      flexShrink: 0,
+                      boxShadow: `0 0 8px ${n.color}40`,
+                    }} />
+                    <span style={{ fontSize: 15, fontWeight: 700, color: "var(--t1)" }}>{n.name}</span>
+                  </div>
+                  <span style={{ fontSize: 13, color: "var(--t2)", lineHeight: 1.5 }}>{n.desc}</span>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ====================== F2: AI GENERATION ====================== */}
+      <section className="lp-features lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div className="lp-feature-row">
+              <div className="lp-feature-text">
+                <p className="lp-eyebrow">AI GENERATION</p>
+                <h3 className="lp-feature-title">Describe it. AI maps it.</h3>
+                <p className="lp-feature-desc">
+                  Tell SwayMaps what you want to map in plain English. AI generates nodes, edges, and relationships in seconds. Works for any domain.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Natural language to dependency map
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    AI suggests connections automatically
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Edit and refine the generated map
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  <div className="lp-fv-prompt">
+                    <span className="lp-fv-prompt-icon"><IconSpark /></span>
+                    <span className="lp-fv-prompt-text">&quot;Map our e-commerce checkout flow&quot;</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div className="lp-fv-generated">
+                      {[
+                        { name: "Cart Service", color: "var(--node-system)" },
+                        { name: "Payment API", color: "var(--node-api)" },
+                        { name: "Stripe", color: "var(--node-vendor)" },
+                        { name: "Inventory DB", color: "var(--node-db)" },
+                        { name: "Email Notifications", color: "var(--node-process)" },
+                        { name: "Order Queue", color: "var(--node-queue)" },
+                      ].map((n) => (
+                        <span key={n.name} className="lp-fv-gen-node">
+                          <span className="lp-fv-gen-dot" style={{ background: n.color }} />
+                          {n.name}
+                        </span>
+                      ))}
+                    </div>
+                    {/* Mini edges */}
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {[
+                        "Cart Service → Payment API",
+                        "Payment API → Stripe",
+                        "Cart Service → Inventory DB",
+                        "Payment API → Order Queue",
+                        "Order Queue → Email Notifications",
+                      ].map((e) => (
+                        <span key={e} style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: 10,
+                          color: "var(--t3)",
+                          background: "var(--bg4)",
+                          border: "1px solid var(--border)",
+                          borderRadius: 4,
+                          padding: "2px 8px",
+                        }}>{e}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ====================== F3: REAL-TIME COLLABORATION ====================== */}
+      <section className="lp-features lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div className="lp-feature-row lp-feature-row--reverse">
+              <div className="lp-feature-text">
+                <p className="lp-eyebrow">COLLABORATION</p>
+                <h3 className="lp-feature-title">Plan together, in real time.</h3>
+                <p className="lp-feature-desc">
+                  Invite your entire team. Assign roles, leave comments on any node, share read-only links with stakeholders.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    4 workspace roles with granular permissions
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Inline threaded comments on any node
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    One-click public sharing links
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  {/* Roles */}
+                  <div className="lp-fv-roles">
+                    {[
+                      { name: "Sarah Chen", initials: "SC", role: "Owner", perms: "Full access, billing, delete workspace", color: "var(--node-person)" },
+                      { name: "Alex Rivera", initials: "AR", role: "Admin", perms: "Manage members, edit all maps", color: "var(--node-system)" },
+                      { name: "Jordan Lee", initials: "JL", role: "Editor", perms: "Create and edit maps", color: "var(--node-process)" },
+                      { name: "Morgan Wu", initials: "MW", role: "Viewer", perms: "View maps, add comments", color: "var(--node-cloud)" },
+                    ].map((r) => (
+                      <div key={r.name} className="lp-fv-role">
+                        <div className="lp-fv-role-left">
+                          <div className="lp-fv-role-avatar" style={{ background: r.color }}>{r.initials}</div>
+                          <div>
+                            <span className="lp-fv-role-name">{r.name}</span>
+                            <div style={{ fontSize: 11, color: "var(--t3)", marginTop: 2 }}>{r.perms}</div>
+                          </div>
+                        </div>
+                        <span className="lp-fv-role-badge">{r.role}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Comment demo */}
+                  <div style={{
+                    background: "var(--bg3)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 8,
+                    padding: "12px 14px",
+                    marginTop: 12,
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: "var(--node-person)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "white" }}>SC</div>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "var(--t1)" }}>Sarah Chen</span>
+                      <span style={{ fontSize: 10, color: "var(--t3)", fontFamily: "var(--font-mono)" }}>2 min ago</span>
+                    </div>
+                    <p style={{ fontSize: 13, color: "var(--t2)", lineHeight: 1.5 }}>
+                      Can we add a fallback cache layer between the API Gateway and Auth Service? This will help with latency during peak traffic.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ====================== F4: VERSION HISTORY & DIFF ====================== */}
+      <section className="lp-features lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div className="lp-feature-row">
+              <div className="lp-feature-text">
+                <p className="lp-eyebrow">VERSION HISTORY</p>
+                <h3 className="lp-feature-title">Every change, tracked.</h3>
+                <p className="lp-feature-desc">
+                  SwayMaps auto-saves version snapshots. Compare any two versions with the built-in diff viewer. Restore previous states with one click.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Auto-save snapshots on every edit
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Visual diff viewer shows what changed
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    One-click restore to any version
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  <div className="lp-fv-timeline">
+                    {[
+                      { label: "Added Redis Cache layer", time: "2 min ago", changes: [{ type: "add", text: "+1 node" }, { type: "add", text: "+2 edges" }] },
+                      { label: "Updated Payment API status to warning", time: "12 min ago", changes: [{ type: "mod", text: "1 modified" }] },
+                      { label: "Connected Order Queue to Email Service", time: "28 min ago", changes: [{ type: "add", text: "+1 edge" }] },
+                      { label: "Removed legacy Auth v1 endpoint", time: "1 hour ago", changes: [{ type: "del", text: "-1 node" }, { type: "del", text: "-3 edges" }] },
+                      { label: "Initial checkout flow created", time: "3 hours ago", changes: [{ type: "add", text: "+6 nodes" }, { type: "add", text: "+8 edges" }] },
+                    ].map((v, i) => (
+                      <div key={i} className="lp-fv-version">
+                        <div className="lp-fv-version-info">
+                          <div className="lp-fv-version-label">{v.label}</div>
+                          <div className="lp-fv-version-meta">{v.time}</div>
+                          <div className="lp-fv-version-changes">
+                            {v.changes.map((c, ci) => (
+                              <span key={ci} className={`lp-fv-change lp-fv-change--${c.type}`}>{c.text}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Diff summary */}
+                  <div style={{
+                    marginTop: 16,
+                    padding: "14px 16px",
+                    background: "var(--bg3)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 10,
+                  }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "var(--t1)", marginBottom: 10, fontFamily: "var(--font-mono)" }}>Diff: v3 vs v5 (current)</div>
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", padding: "3px 10px", borderRadius: 4, color: "var(--status-healthy)", background: "rgba(34,197,94,0.1)" }}>+3 nodes added</span>
+                      <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", padding: "3px 10px", borderRadius: 4, color: "var(--status-warning)", background: "rgba(245,158,11,0.1)" }}>2 edges modified</span>
+                      <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", padding: "3px 10px", borderRadius: 4, color: "var(--status-critical)", background: "rgba(239,68,68,0.1)" }}>-1 node removed</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ====================== F5: DIAGRAM AS CODE ====================== */}
+      <section className="lp-features lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div className="lp-feature-row lp-feature-row--reverse">
+              <div className="lp-feature-text">
+                <p className="lp-eyebrow">DIAGRAM AS CODE</p>
+                <h3 className="lp-feature-title">Define maps in YAML.</h3>
+                <p className="lp-feature-desc">
+                  Write dependency maps as code. Version-control in Git, generate from CI/CD, review in pull requests. The YAML DSL is simple, expressive, and fully bi-directional.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Simple YAML DSL for any map
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Bi-directional: edit code or canvas
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Version-control maps in Git
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box" style={{ padding: 0, overflow: "hidden" }}>
+                  {/* Code block */}
+                  <div style={{
+                    padding: "20px 22px",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 12,
+                    lineHeight: 1.8,
+                    borderBottom: "1px solid var(--border)",
+                    background: "var(--bg)",
+                    overflow: "auto",
+                  }}>
+                    <div><span style={{ color: "var(--accent)" }}>nodes</span><span style={{ color: "var(--t3)" }}>:</span></div>
+                    <div style={{ paddingLeft: 16 }}><span style={{ color: "var(--t3)" }}>-</span> <span style={{ color: "var(--node-vendor)" }}>name</span><span style={{ color: "var(--t3)" }}>:</span> <span style={{ color: "var(--status-healthy)" }}>API Gateway</span></div>
+                    <div style={{ paddingLeft: 24 }}><span style={{ color: "var(--node-vendor)" }}>type</span><span style={{ color: "var(--t3)" }}>:</span> <span style={{ color: "var(--status-healthy)" }}>api</span></div>
+                    <div style={{ paddingLeft: 24 }}><span style={{ color: "var(--node-vendor)" }}>status</span><span style={{ color: "var(--t3)" }}>:</span> <span style={{ color: "var(--status-healthy)" }}>healthy</span></div>
+                    <div style={{ paddingLeft: 16 }}><span style={{ color: "var(--t3)" }}>-</span> <span style={{ color: "var(--node-vendor)" }}>name</span><span style={{ color: "var(--t3)" }}>:</span> <span style={{ color: "var(--status-healthy)" }}>Auth Service</span></div>
+                    <div style={{ paddingLeft: 24 }}><span style={{ color: "var(--node-vendor)" }}>type</span><span style={{ color: "var(--t3)" }}>:</span> <span style={{ color: "var(--status-healthy)" }}>process</span></div>
+                    <div style={{ paddingLeft: 16 }}><span style={{ color: "var(--t3)" }}>-</span> <span style={{ color: "var(--node-vendor)" }}>name</span><span style={{ color: "var(--t3)" }}>:</span> <span style={{ color: "var(--status-healthy)" }}>User DB</span></div>
+                    <div style={{ paddingLeft: 24 }}><span style={{ color: "var(--node-vendor)" }}>type</span><span style={{ color: "var(--t3)" }}>:</span> <span style={{ color: "var(--status-healthy)" }}>database</span></div>
+                    <div style={{ marginTop: 8 }}><span style={{ color: "var(--accent)" }}>edges</span><span style={{ color: "var(--t3)" }}>:</span></div>
+                    <div style={{ paddingLeft: 16 }}><span style={{ color: "var(--t3)" }}>-</span> <span style={{ color: "var(--status-healthy)" }}>API Gateway → Auth Service</span></div>
+                    <div style={{ paddingLeft: 16 }}><span style={{ color: "var(--t3)" }}>-</span> <span style={{ color: "var(--status-healthy)" }}>Auth Service → User DB</span></div>
+                  </div>
+                  {/* Visual result */}
+                  <div style={{ position: "relative", height: 140, background: "var(--bg2)" }}>
+                    <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} viewBox="0 0 400 140" preserveAspectRatio="xMidYMid meet">
+                      <line x1="100" y1="70" x2="200" y2="70" stroke="var(--border2)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                      <line x1="200" y1="70" x2="310" y2="70" stroke="var(--border2)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                      {/* Arrowheads */}
+                      <polygon points="195,66 205,70 195,74" fill="var(--border2)" />
+                      <polygon points="305,66 315,70 305,74" fill="var(--border2)" />
+                    </svg>
+                    <div style={{ position: "absolute", left: 30, top: 50, display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "var(--t1)" }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--node-api)" }} />API Gateway
+                    </div>
+                    <div style={{ position: "absolute", left: 165, top: 50, display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "var(--t1)" }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--node-process)" }} />Auth Service
+                    </div>
+                    <div style={{ position: "absolute", left: 310, top: 50, display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", background: "var(--bg3)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "var(--t1)" }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--node-db)" }} />User DB
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ====================== F6: TEMPLATES ====================== */}
+      <section className="lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div style={{ textAlign: "center" }}>
+              <p className="lp-eyebrow">TEMPLATES</p>
+              <h2 className="lp-section-title">Start from proven blueprints.</h2>
+              <p className="lp-section-subtitle" style={{ margin: "0 auto" }}>
+                25+ templates for every team and use case. Pick one, customize it, and ship faster.
+              </p>
+            </div>
+          </Reveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginTop: 48 }}>
+            {templateCards.map((t) => (
+              <Reveal key={t.name}>
+                <div style={{
+                  background: "var(--bg2)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 14,
+                  padding: 24,
+                  transition: "border-color 0.3s, transform 0.3s var(--ease)",
+                }}>
+                  <div style={{
+                    height: 100,
+                    borderRadius: 10,
+                    background: `linear-gradient(135deg, ${t.color}15, ${t.color}05)`,
+                    border: `1px solid ${t.color}25`,
+                    marginBottom: 16,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {[0, 1, 2].map((i) => (
+                        <span key={i} style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 8,
+                          background: "var(--bg3)",
+                          border: "1px solid var(--border)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}>
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: t.color }} />
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <span className="lp-chip" style={{ marginBottom: 8, display: "inline-block" }}>{t.category}</span>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--t1)" }}>{t.name}</div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ====================== F7: IMPORT & EXPORT ====================== */}
+      <section className="lp-features lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div className="lp-feature-row">
+              <div className="lp-feature-text">
+                <p className="lp-eyebrow">IMPORT & EXPORT</p>
+                <h3 className="lp-feature-title">Bring your maps. Take them anywhere.</h3>
+                <p className="lp-feature-desc">
+                  Import from the tools you already use. Export to any format for presentations, documentation, or version control.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Import from Draw.io, Lucidchart, Miro
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Export to PNG, SVG, PDF, JSON
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Lossless round-trip with JSON format
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--t3)", fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>Import From</div>
+                  <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+                    {["Draw.io (XML)", "Lucidchart (CSV)", "Miro (JSON)"].map((s) => (
+                      <span key={s} style={{
+                        padding: "10px 16px",
+                        background: "var(--bg3)",
+                        border: "1px solid var(--border)",
+                        borderRadius: 10,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "var(--t1)",
+                        flex: 1,
+                        textAlign: "center",
+                      }}>{s}</span>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--t3)", fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>Export As</div>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    {[
+                      { name: "PNG", color: "var(--node-system)" },
+                      { name: "SVG", color: "var(--node-process)" },
+                      { name: "PDF", color: "var(--node-person)" },
+                      { name: "JSON", color: "var(--node-vendor)" },
+                    ].map((f) => (
+                      <span key={f.name} style={{
+                        padding: "10px 20px",
+                        background: "var(--bg3)",
+                        border: "1px solid var(--border)",
+                        borderRadius: 10,
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: f.color,
+                        flex: 1,
+                        textAlign: "center",
+                        fontFamily: "var(--font-mono)",
+                      }}>{f.name}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ====================== F8: HEALTH DASHBOARD ====================== */}
+      <section className="lp-features lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div className="lp-feature-row lp-feature-row--reverse">
+              <div className="lp-feature-text">
+                <p className="lp-eyebrow">HEALTH DASHBOARD</p>
+                <h3 className="lp-feature-title">Detect issues at a glance.</h3>
+                <p className="lp-feature-desc">
+                  Every map gets a 0-100 health score. SwayMaps automatically detects orphan nodes, circular dependencies, missing owners, and more.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Automatic 0-100 health scoring
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Detect orphan nodes and circular deps
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Actionable issue list with severity
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div className="lp-fv-box">
+                  {/* Health score arc */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 20 }}>
+                    <div style={{ position: "relative", width: 100, height: 100, flexShrink: 0 }}>
+                      <svg viewBox="0 0 100 100" width="100" height="100">
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" strokeWidth="6" />
+                        <circle cx="50" cy="50" r="42" fill="none" stroke="var(--status-healthy)" strokeWidth="6"
+                          strokeDasharray={`${87 * 2.64} ${(100 - 87) * 2.64}`}
+                          strokeDashoffset="66"
+                          strokeLinecap="round"
+                          style={{ transition: "stroke-dasharray 1s var(--ease)" }}
+                        />
+                      </svg>
+                      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ fontSize: 28, fontWeight: 800, color: "var(--t1)", lineHeight: 1 }}>87</span>
+                        <span style={{ fontSize: 10, color: "var(--t3)", fontFamily: "var(--font-mono)" }}>/100</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--t1)", marginBottom: 4 }}>Good Health</div>
+                      <div style={{ fontSize: 13, color: "var(--t2)" }}>4 issues found across 18 nodes</div>
+                    </div>
+                  </div>
+                  {/* Issue list */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {[
+                      { text: "2 orphan nodes with no connections", severity: "warning", color: "var(--status-warning)" },
+                      { text: "1 circular dependency detected", severity: "critical", color: "var(--status-critical)" },
+                      { text: "3 nodes missing assigned owners", severity: "warning", color: "var(--status-warning)" },
+                    ].map((issue, i) => (
+                      <div key={i} style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 14px",
+                        background: "var(--bg3)",
+                        border: "1px solid var(--border)",
+                        borderRadius: 8,
+                      }}>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: issue.color, flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, color: "var(--t2)", flex: 1 }}>{issue.text}</span>
+                        <span style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: 10,
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                          padding: "2px 8px",
+                          borderRadius: 4,
+                          color: issue.color,
+                          background: issue.severity === "critical" ? "rgba(239,68,68,0.1)" : "rgba(245,158,11,0.1)",
+                        }}>{issue.severity}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ====================== F9: INTEGRATIONS ====================== */}
+      <section className="lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div style={{ textAlign: "center" }}>
+              <p className="lp-eyebrow">INTEGRATIONS</p>
+              <h2 className="lp-section-title">Connected to your workflow.</h2>
+              <p className="lp-section-subtitle" style={{ margin: "0 auto" }}>
+                Get notified when maps change. Trigger updates from external systems. Keep everyone in the loop.
+              </p>
+            </div>
+          </Reveal>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginTop: 48 }}>
+            {[
+              {
+                name: "Slack",
+                desc: "Get notified in any channel when maps are updated, comments are added, or health scores change.",
+                example: "#platform-team: Sarah added 3 nodes to Checkout Flow map",
+                color: "var(--node-process)",
+              },
+              {
+                name: "Microsoft Teams",
+                desc: "Same powerful notifications, delivered to your Teams channels. Configure per-map or per-workspace.",
+                example: "Platform Team: Map health dropped to 72/100",
+                color: "var(--node-system)",
+              },
+              {
+                name: "Webhooks",
+                desc: "Push map events to any endpoint. Build custom automations, trigger CI/CD, or sync with internal tools.",
+                example: "POST https://api.example.com/hooks/swaymaps",
+                color: "var(--node-vendor)",
+              },
+            ].map((integration) => (
+              <Reveal key={integration.name}>
+                <div style={{
+                  background: "var(--bg2)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 14,
+                  padding: 28,
                   height: "100%",
-                  width: `${(s.count / s.total) * 100}%`,
-                  background: s.color,
-                  borderRadius: 2,
-                }} />
+                  display: "flex",
+                  flexDirection: "column",
+                }}>
+                  <div style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    background: `color-mix(in srgb, ${integration.color} 15%, transparent)`,
+                    border: `1px solid color-mix(in srgb, ${integration.color} 30%, transparent)`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: 16,
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: integration.color,
+                  }}>
+                    {integration.name[0]}
+                  </div>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: "var(--t1)", marginBottom: 6 }}>{integration.name}</div>
+                  <div style={{ fontSize: 14, color: "var(--t2)", lineHeight: 1.5, marginBottom: 16, flex: 1 }}>{integration.desc}</div>
+                  <div style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 11,
+                    color: "var(--t3)",
+                    background: "var(--bg3)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 8,
+                    padding: "10px 12px",
+                    lineHeight: 1.4,
+                  }}>{integration.example}</div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ====================== F10: COMMAND PALETTE ====================== */}
+      <section className="lp-features lp-section">
+        <div className="lp-container">
+          <Reveal>
+            <div className="lp-feature-row">
+              <div className="lp-feature-text">
+                <p className="lp-eyebrow">COMMAND PALETTE</p>
+                <h3 className="lp-feature-title">Navigate at the speed of thought.</h3>
+                <p className="lp-feature-desc">
+                  Press <span style={{ fontFamily: "var(--font-mono)", background: "var(--bg3)", padding: "2px 8px", borderRadius: 4, border: "1px solid var(--border)" }}>{"\u2318"}K</span> to open the command palette. Search nodes, jump to maps, change views, and trigger actions without touching the mouse.
+                </p>
+                <ul className="lp-feature-bullets">
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Fuzzy search across all nodes and maps
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Quick actions: export, share, duplicate
+                  </li>
+                  <li className="lp-feature-bullet">
+                    <span className="lp-feature-bullet-icon"><IconCheck size={10} /></span>
+                    Keyboard-first workflow
+                  </li>
+                </ul>
+              </div>
+              <div className="lp-feature-visual">
+                <div style={{
+                  background: "var(--bg2)",
+                  border: "1px solid var(--border2)",
+                  borderRadius: 14,
+                  overflow: "hidden",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.4)",
+                }}>
+                  {/* Search input */}
+                  <div style={{
+                    padding: "14px 18px",
+                    borderBottom: "1px solid var(--border)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2" strokeLinecap="round">
+                      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <span style={{ fontSize: 14, color: "var(--t2)" }}>auth service...</span>
+                    <span style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--t3)", background: "var(--bg3)", padding: "2px 8px", borderRadius: 4, border: "1px solid var(--border)" }}>ESC</span>
+                  </div>
+                  {/* Results */}
+                  <div style={{ padding: "8px 0" }}>
+                    {[
+                      { name: "Auth Service", type: "PROCESS", color: "var(--node-process)", map: "Checkout Flow" },
+                      { name: "Auth Database", type: "DATABASE", color: "var(--node-db)", map: "Checkout Flow" },
+                      { name: "Auth v2 Migration", type: "GENERIC", color: "#14b8a6", map: "Q2 Roadmap" },
+                    ].map((r, i) => (
+                      <div key={r.name} style={{
+                        padding: "10px 18px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        background: i === 0 ? "var(--bg3)" : "transparent",
+                        cursor: "pointer",
+                      }}>
+                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: r.color, flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--t1)", flex: 1 }}>{r.name}</span>
+                        <span style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: 10,
+                          fontWeight: 600,
+                          textTransform: "uppercase",
+                          padding: "2px 8px",
+                          borderRadius: 4,
+                          background: "var(--bg4)",
+                          border: "1px solid var(--border)",
+                          color: "var(--t3)",
+                        }}>{r.type}</span>
+                        <span style={{ fontSize: 11, color: "var(--t3)" }}>{r.map}</span>
+                      </div>
+                    ))}
+                    <div style={{ height: 1, background: "var(--border)", margin: "4px 18px" }} />
+                    {[
+                      { label: "Export as PNG", shortcut: "\u2318\u21E7E" },
+                      { label: "Share map", shortcut: "\u2318\u21E7S" },
+                    ].map((action) => (
+                      <div key={action.label} style={{
+                        padding: "10px 18px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
+                      }}>
+                        <span style={{ fontSize: 13, color: "var(--t2)" }}>{action.label}</span>
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--t3)" }}>{action.shortcut}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          ))}
+          </Reveal>
         </div>
-      </div>
+      </section>
 
-      {/* Issues list */}
-      <div style={{
-        marginTop: 20,
-        paddingTop: 16,
-        borderTop: "1px solid #1a2340",
-        display: "flex",
-        flexDirection: "column",
-        gap: 8,
-      }}>
-        {[
-          { icon: "!", label: "Redis has no failover path", severity: "warning", color: "#f59e0b" },
-          { icon: "!", label: "Legacy Auth is an orphaned node", severity: "warning", color: "#f59e0b" },
-        ].map((issue, i) => (
-          <div key={i} style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "8px 12px",
-            background: `${issue.color}08`,
-            border: `1px solid ${issue.color}20`,
-            borderRadius: 8,
-            fontSize: "0.78rem",
-            color: "#e4e9f4",
-          }}>
-            <span style={{
-              width: 22,
-              height: 22,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: `${issue.color}20`,
-              color: issue.color,
-              borderRadius: 5,
-              fontSize: "0.7rem",
-              fontWeight: 800,
-              flexShrink: 0,
-            }}>{issue.icon}</span>
-            {issue.label}
-            <span style={{
-              marginLeft: "auto",
-              fontSize: "0.62rem",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              color: issue.color,
-              fontFamily: "var(--mono)",
-            }}>{issue.severity}</span>
-          </div>
-        ))}
-      </div>
-    </VisualCard>
-  );
-}
-
-/* ─── 8. Import & Export ─── */
-function ImportExportVisual() {
-  return (
-    <VisualCard>
-      {/* Import sources */}
-      <div style={{
-        fontSize: "0.68rem",
-        fontWeight: 700,
-        color: "#4a5a7a",
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-        marginBottom: 10,
-        fontFamily: "var(--mono)",
-      }}>Import From</div>
-      <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
-        {importSources.map((s) => (
-          <div key={s.name} style={{
-            flex: 1,
-            padding: "14px 10px",
-            background: "#0b1120",
-            border: "1px solid #1a2340",
-            borderRadius: 8,
-            textAlign: "center",
-          }}>
-            <div style={{
-              width: 32,
-              height: 32,
-              margin: "0 auto 8px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(0,194,255,0.08)",
-              color: "#00c2ff",
-              borderRadius: 7,
-              fontSize: "0.7rem",
-              fontWeight: 800,
-              fontFamily: "var(--mono)",
-            }}>{s.abbr}</div>
-            <div style={{ fontSize: "0.7rem", fontWeight: 600, color: "#8091b3" }}>{s.name}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Arrow */}
-      <div style={{
-        textAlign: "center",
-        color: "#253060",
-        fontSize: "1.2rem",
-        marginBottom: 20,
-      }}>
-        &#x2195;
-      </div>
-
-      {/* Export formats */}
-      <div style={{
-        fontSize: "0.68rem",
-        fontWeight: 700,
-        color: "#4a5a7a",
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-        marginBottom: 10,
-        fontFamily: "var(--mono)",
-      }}>Export To</div>
-      <div style={{ display: "flex", gap: 10 }}>
-        {exportFormats.map((f) => (
-          <div key={f.name} style={{
-            flex: 1,
-            padding: "14px 10px",
-            background: "#0b1120",
-            border: "1px solid #1a2340",
-            borderRadius: 8,
-            textAlign: "center",
-          }}>
-            <div style={{
-              width: 32,
-              height: 32,
-              margin: "0 auto 8px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: `${f.color}15`,
-              color: f.color,
-              borderRadius: 7,
-              fontSize: "0.68rem",
-              fontWeight: 800,
-              fontFamily: "var(--mono)",
-            }}>{f.name}</div>
-            <div style={{ fontSize: "0.7rem", fontWeight: 600, color: "#8091b3" }}>{f.name}</div>
-          </div>
-        ))}
-      </div>
-    </VisualCard>
-  );
-}
-
-/* ─── 9. Integrations ─── */
-function IntegrationsVisual() {
-  return (
-    <VisualCard>
-      {/* Notification mockup */}
-      <div style={{
-        background: "#0b1120",
-        border: "1px solid #1a2340",
-        borderRadius: 10,
-        overflow: "hidden",
-      }}>
-        {/* Header */}
-        <div style={{
-          padding: "10px 14px",
-          background: "#161e35",
-          borderBottom: "1px solid #1a2340",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-        }}>
-          <span style={{
-            width: 24,
-            height: 24,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "rgba(99,102,241,0.15)",
-            color: "#6366f1",
-            borderRadius: 5,
-            fontSize: "0.62rem",
-            fontWeight: 800,
-          }}>SL</span>
-          <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#e4e9f4" }}>#platform-alerts</span>
-          <span style={{ fontSize: "0.65rem", color: "#4a5a7a", marginLeft: "auto", fontFamily: "var(--mono)" }}>just now</span>
+      {/* ====================== CTA ====================== */}
+      <section className="lp-cta-section lp-section">
+        <div className="lp-cta-glow" />
+        <div className="lp-container">
+          <Reveal>
+            <h2 className="lp-cta-title">
+              Ready to map<br />
+              <span className="lp-hero-grad">your world?</span>
+            </h2>
+            <p className="lp-cta-sub">
+              Join 500+ teams who use SwayMaps to visualize dependencies, trace impact, and plan with confidence.
+            </p>
+            <div className="lp-cta-buttons">
+              <Link href="/auth/signup" className="lp-btn lp-btn--primary lp-btn--lg">
+                Start Free — No Credit Card <IconArrowRight size={16} />
+              </Link>
+              <Link href="/pricing" className="lp-btn lp-btn--outline-lg">
+                View Pricing
+              </Link>
+            </div>
+          </Reveal>
         </div>
-        {/* Message */}
-        <div style={{ padding: "14px" }}>
-          <div style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: 10,
-          }}>
-            <span style={{
-              width: 28,
-              height: 28,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(0,194,255,0.1)",
-              color: "#00c2ff",
-              borderRadius: 6,
-              fontSize: "0.62rem",
-              fontWeight: 800,
-              flexShrink: 0,
-            }}>SM</span>
+      </section>
+
+      {/* ====================== FOOTER ====================== */}
+      <footer className="lp-footer">
+        <div className="lp-container">
+          <div className="lp-footer-grid">
+            <div className="lp-footer-brand">
+              <Link href="/" className="lp-footer-brand-logo">
+                <span className="lp-nav-logo-icon"><Logo size={20} /></span>
+                SwayMaps
+              </Link>
+              <p className="lp-footer-brand-desc">
+                The visual planning and dependency mapping platform for every team.
+              </p>
+            </div>
             <div>
-              <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#e4e9f4", marginBottom: 4 }}>SwayMaps</div>
-              <div style={{ fontSize: "0.75rem", color: "#8091b3", lineHeight: 1.6 }}>
-                <strong style={{ color: "#e4e9f4" }}>Payment System</strong> map was updated by Sarah.
-                <br />3 nodes added, 2 edges modified.
-              </div>
-              <div style={{
-                marginTop: 10,
-                padding: "8px 12px",
-                background: "#0f1629",
-                border: "1px solid #1a2340",
-                borderRadius: 6,
-                fontSize: "0.72rem",
-                color: "#00c2ff",
-                fontWeight: 600,
-              }}>
-                View changes in SwayMaps &#x2192;
-              </div>
+              <div className="lp-footer-col-title">Product</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/features">Features</Link></li>
+                <li><Link href="/pricing">Pricing</Link></li>
+                <li><Link href="/templates-gallery">Templates</Link></li>
+                <li><Link href="/changelog">Changelog</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="lp-footer-col-title">Resources</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/docs">Docs</Link></li>
+                <li><Link href="/blog">Blog</Link></li>
+                <li><Link href="/use-cases">Use Cases</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="lp-footer-col-title">Company</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/about">About</Link></li>
+                <li><Link href="/contact">Contact</Link></li>
+              </ul>
+            </div>
+            <div>
+              <div className="lp-footer-col-title">Legal</div>
+              <ul className="lp-footer-links">
+                <li><Link href="/legal/terms">Terms</Link></li>
+                <li><Link href="/legal/privacy">Privacy</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="lp-footer-bottom">
+            <span className="lp-footer-copy">&copy; 2026 SwayMaps. All rights reserved.</span>
+            <div className="lp-footer-socials">
+              <a href="https://twitter.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconTwitter /></a>
+              <a href="https://github.com/swaymaps" target="_blank" rel="noopener noreferrer"><IconGitHub /></a>
+              <a href="https://linkedin.com/company/swaymaps" target="_blank" rel="noopener noreferrer"><IconLinkedIn /></a>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Integration badges */}
-      <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-        {[
-          { name: "Slack", abbr: "SL", color: "#6366f1" },
-          { name: "Teams", abbr: "MS", color: "#3b82f6" },
-          { name: "Webhooks", abbr: "WH", color: "#f59e0b" },
-          { name: "API", abbr: "AP", color: "#06b6d4" },
-        ].map((int) => (
-          <div key={int.name} style={{
-            flex: 1,
-            padding: "10px",
-            background: "#0b1120",
-            border: "1px solid #1a2340",
-            borderRadius: 8,
-            textAlign: "center",
-          }}>
-            <div style={{
-              width: 28,
-              height: 28,
-              margin: "0 auto 6px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: `${int.color}15`,
-              color: int.color,
-              borderRadius: 6,
-              fontSize: "0.62rem",
-              fontWeight: 800,
-            }}>{int.abbr}</div>
-            <div style={{ fontSize: "0.68rem", fontWeight: 600, color: "#8091b3" }}>{int.name}</div>
-          </div>
-        ))}
-      </div>
-    </VisualCard>
-  );
-}
-
-/* ─── 10. Power User / Command Palette ─── */
-function PowerUserVisual() {
-  return (
-    <VisualCard>
-      {/* Command palette mockup */}
-      <div style={{
-        background: "#0b1120",
-        border: "1px solid #253060",
-        borderRadius: 10,
-        overflow: "hidden",
-        boxShadow: "0 12px 48px rgba(0,0,0,0.4)",
-      }}>
-        {/* Search bar */}
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "12px 16px",
-          borderBottom: "1px solid #1a2340",
-        }}>
-          <span style={{
-            fontSize: "0.75rem",
-            color: "#4a5a7a",
-            fontFamily: "var(--mono)",
-          }}>&#x2315;</span>
-          <span style={{
-            flex: 1,
-            fontSize: "0.85rem",
-            color: "#8091b3",
-          }}>Search nodes, actions, settings...</span>
-          <span style={{
-            padding: "2px 8px",
-            background: "#161e35",
-            border: "1px solid #1a2340",
-            borderRadius: 4,
-            fontSize: "0.62rem",
-            fontWeight: 700,
-            color: "#4a5a7a",
-            fontFamily: "var(--mono)",
-          }}>ESC</span>
-        </div>
-        {/* Results */}
-        <div style={{ padding: "8px" }}>
-          {[
-            { label: "Go to API Gateway", tag: "Node", color: "#3b82f6" },
-            { label: "Export as PNG", tag: "Action", color: "#22c55e" },
-            { label: "Toggle health overlay", tag: "Setting", color: "#f59e0b" },
-          ].map((r, i) => (
-            <div key={i} style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "10px 12px",
-              borderRadius: 6,
-              background: i === 0 ? "rgba(0,194,255,0.06)" : "transparent",
-              cursor: "pointer",
-            }}>
-              <span style={{
-                fontSize: "0.78rem",
-                fontWeight: 600,
-                color: i === 0 ? "#e4e9f4" : "#8091b3",
-                flex: 1,
-              }}>{r.label}</span>
-              <span style={{
-                padding: "2px 8px",
-                borderRadius: 4,
-                fontSize: "0.58rem",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                background: `${r.color}15`,
-                color: r.color,
-                fontFamily: "var(--mono)",
-              }}>{r.tag}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Keyboard shortcuts */}
-      <div style={{
-        marginTop: 18,
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 8,
-      }}>
-        {shortcuts.map((s) => (
-          <div key={s.action} style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "8px 10px",
-            background: "#0b1120",
-            border: "1px solid #1a2340",
-            borderRadius: 6,
-          }}>
-            <div style={{ display: "flex", gap: 3 }}>
-              {s.keys.map((k) => (
-                <span key={k} style={{
-                  display: "inline-flex",
-                  padding: "2px 7px",
-                  background: "#161e35",
-                  border: "1px solid #1a2340",
-                  borderRadius: 4,
-                  fontFamily: "var(--mono)",
-                  fontSize: "0.62rem",
-                  fontWeight: 700,
-                  color: "#4a5a7a",
-                }}>{k}</span>
-              ))}
-            </div>
-            <span style={{ fontSize: "0.68rem", color: "#8091b3", fontWeight: 500 }}>{s.action}</span>
-          </div>
-        ))}
-      </div>
-    </VisualCard>
+      </footer>
+    </div>
   );
 }
