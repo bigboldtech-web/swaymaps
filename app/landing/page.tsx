@@ -8,16 +8,11 @@ import "./landing.css";
 function LogoMark() {
   return (
     <div className="logo-mark">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M6 6C6 6 10 6 12 12C14 18 18 18 18 18"
-          stroke="white"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <circle cx="6" cy="6" r="2.5" fill="white" />
-        <circle cx="12" cy="12" r="2.5" fill="white" />
-        <circle cx="18" cy="18" r="2.5" fill="white" />
+      <svg viewBox="0 0 40 40" fill="none">
+        <path d="M 28 10 C 12 10, 12 20, 20 20 C 28 20, 28 30, 12 30" stroke="white" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+        <circle cx="28" cy="10" r="3.5" fill="white"/>
+        <circle cx="20" cy="20" r="2.5" fill="white" opacity="0.6"/>
+        <circle cx="12" cy="30" r="3.5" fill="white"/>
       </svg>
     </div>
   );
@@ -328,99 +323,90 @@ export default function LandingPage() {
                   <div className="demo-dots">
                     <span /><span /><span />
                   </div>
-                  <span className="demo-filename">microservices-arch.sway</span>
+                  <span className="demo-filename">Microservice Architecture — SwayMaps</span>
                 </div>
                 <div className="demo-topbar-center">
-                  <span>9 nodes</span>
+                  <span>12 nodes</span>
+                  <span className="sep">·</span>
+                  <span>16 edges</span>
                   <span className="sep">|</span>
-                  <span>11 edges</span>
-                  <span className="sep">|</span>
-                  <span className="demo-saved">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.5L5 9l4.5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    Saved
-                  </span>
+                  <span className="demo-saved">✓ Saved</span>
                 </div>
                 <div className="demo-topbar-right">
-                  <button className="demo-ai-btn">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6.5 5V1.5L2 7h3.5v3.5L10 5H6.5z" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    AI
-                  </button>
-                  <button className="demo-share-btn">Share</button>
+                  <div className="demo-ai-btn">✦ AI Assist</div>
+                  <div className="demo-share-btn">Share</div>
                 </div>
               </div>
 
               <div className="demo-canvas">
                 {/* SVG Edges */}
-                <svg className="demo-edges" viewBox="0 0 1200 420" preserveAspectRatio="none">
-                  {/* Gateway to services */}
-                  <path d="M600,90 C600,130 280,130 280,170" stroke="#3b82f6" />
-                  <path d="M600,90 C600,130 480,130 480,170" stroke="#3b82f6" />
-                  <path d="M600,90 C600,130 700,130 700,170" stroke="#3b82f6" />
-                  <path d="M600,90 C600,130 920,130 920,170" stroke="#3b82f6" />
-                  {/* Services to data */}
-                  <path d="M280,220 C280,260 350,260 350,300" stroke="#8b5cf6" />
-                  <path d="M480,220 C480,260 350,260 350,300" stroke="#3b82f6" />
-                  <path d="M480,220 C480,260 600,260 600,300" stroke="#3b82f6" />
-                  <path d="M700,220 C700,260 600,260 600,300" stroke="#22c55e" />
-                  <path d="M700,220 C700,260 850,260 850,300" stroke="#22c55e" />
-                  <path d="M920,220 C920,260 850,260 850,300" stroke="#f97316" />
-                  {/* Client to Gateway */}
-                  <path d="M600,50 C600,65 600,75 600,90" stroke="#94a3b8" />
+                <svg className="demo-edges" viewBox="0 0 1100 420" preserveAspectRatio="xMidYMid meet">
+                  {/* Web Client to API Gateway */}
+                  <path style={{stroke:"var(--n-api)"}} d="M 550 65 L 550 130"/>
+                  {/* API Gateway to services */}
+                  <path style={{stroke:"var(--n-api)"}} d="M 550 175 C 550 210, 200 210, 200 250"/>
+                  <path style={{stroke:"var(--n-api)"}} d="M 550 175 C 550 210, 400 210, 400 250"/>
+                  <path style={{stroke:"var(--n-system)"}} d="M 550 175 C 550 210, 650 210, 650 250"/>
+                  <path style={{stroke:"var(--n-system)"}} d="M 550 175 C 550 210, 870 210, 870 250"/>
+                  {/* Services to DBs */}
+                  <path style={{stroke:"var(--n-process)"}} d="M 200 295 C 200 330, 170 330, 170 355"/>
+                  <path style={{stroke:"var(--n-db)"}} d="M 400 295 C 400 330, 390 330, 390 355"/>
+                  <path style={{stroke:"var(--n-db)"}} d="M 650 295 C 650 330, 610 330, 610 355"/>
+                  <path style={{stroke:"var(--n-vendor)"}} d="M 870 295 C 870 330, 840 330, 840 355"/>
+                  {/* Cross connections */}
+                  <path style={{stroke:"var(--n-system)",opacity:0.3}} d="M 400 270 C 500 250, 550 250, 650 270"/>
+                  <path style={{stroke:"var(--n-vendor)",opacity:0.3}} d="M 650 295 C 700 330, 780 330, 840 355"/>
                 </svg>
 
-                {/* Nodes */}
-                <div className="dnode" style={{ left: "535px", top: "20px" }}>
-                  <span className="dnode-badge" style={{ background: "#94a3b8" }}>FE</span>
-                  Web Client
-                  <span className="dnode-status" style={{ background: "#22c55e" }} />
+                {/* Nodes — using % positions like the original HTML */}
+                <div className="dnode" style={{ top: "40px", left: "50%", transform: "translateX(-50%)" }}>
+                  Web Client <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
+                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ left: "530px", top: "68px" }}>
-                  <span className="dnode-badge" style={{ background: "#3b82f6" }}>SYS</span>
-                  API Gateway
-                  <span className="dnode-status" style={{ background: "#22c55e" }} />
+                <div className="dnode" style={{ top: "130px", left: "50%", transform: "translateX(-50%)" }}>
+                  API Gateway <span className="dnode-badge" style={{ background: "var(--n-api)" }}>API</span>
+                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ left: "200px", top: "168px" }}>
-                  <span className="dnode-badge" style={{ background: "#8b5cf6" }}>SVC</span>
-                  Auth Service
-                  <span className="dnode-status" style={{ background: "#22c55e" }} />
+                <div className="dnode" style={{ top: "250px", left: "14%" }}>
+                  Auth Service <span className="dnode-badge" style={{ background: "var(--n-process)" }}>PROCESS</span>
+                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ left: "400px", top: "168px" }}>
-                  <span className="dnode-badge" style={{ background: "#3b82f6" }}>SVC</span>
-                  User Service
-                  <span className="dnode-status" style={{ background: "#22c55e" }} />
+                <div className="dnode" style={{ top: "250px", left: "32%" }}>
+                  User Service <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
+                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ left: "620px", top: "168px" }}>
-                  <span className="dnode-badge" style={{ background: "#22c55e" }}>SVC</span>
-                  Order Service
-                  <span className="dnode-status" style={{ background: "#f59e0b" }} />
+                <div className="dnode" style={{ top: "250px", left: "54%" }}>
+                  Order Service <span className="dnode-badge" style={{ background: "var(--n-system)" }}>SYSTEM</span>
+                  <span className="dnode-status" style={{ background: "var(--warning)" }} />
                 </div>
 
-                <div className="dnode" style={{ left: "840px", top: "168px" }}>
-                  <span className="dnode-badge" style={{ background: "#f97316" }}>SVC</span>
-                  Notifications
-                  <span className="dnode-status" style={{ background: "#22c55e" }} />
+                <div className="dnode" style={{ top: "250px", left: "74%" }}>
+                  Notifications <span className="dnode-badge" style={{ background: "var(--n-queue)" }}>QUEUE</span>
+                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ left: "270px", top: "290px" }}>
-                  <span className="dnode-badge" style={{ background: "#f59e0b" }}>DB</span>
-                  PostgreSQL
-                  <span className="dnode-status" style={{ background: "#22c55e" }} />
+                <div className="dnode" style={{ top: "355px", left: "10%" }}>
+                  PostgreSQL <span className="dnode-badge" style={{ background: "var(--n-db)" }}>DB</span>
+                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ left: "520px", top: "290px" }}>
-                  <span className="dnode-badge" style={{ background: "#ef4444" }}>CA</span>
-                  Redis
-                  <span className="dnode-status" style={{ background: "#22c55e" }} />
+                <div className="dnode" style={{ top: "355px", left: "30%" }}>
+                  Redis <span className="dnode-badge" style={{ background: "var(--n-cache)" }}>CACHE</span>
+                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
-                <div className="dnode" style={{ left: "770px", top: "290px" }}>
-                  <span className="dnode-badge" style={{ background: "#06b6d4" }}>QU</span>
-                  Kafka
-                  <span className="dnode-status" style={{ background: "#22c55e" }} />
+                <div className="dnode" style={{ top: "355px", left: "50%" }}>
+                  Orders DB <span className="dnode-badge" style={{ background: "var(--n-db)" }}>DB</span>
+                  <span className="dnode-status" style={{ background: "var(--critical)" }} />
+                </div>
+
+                <div className="dnode" style={{ top: "355px", left: "72%" }}>
+                  Kafka <span className="dnode-badge" style={{ background: "var(--n-vendor)" }}>VENDOR</span>
+                  <span className="dnode-status" style={{ background: "var(--healthy)" }} />
                 </div>
 
                 <div className="demo-fade" />
