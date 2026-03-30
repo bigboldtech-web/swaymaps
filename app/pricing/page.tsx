@@ -203,12 +203,16 @@ export default function PricingPage() {
         <div className="lp-nav-inner">
           <Link href="/" className="lp-nav-logo">
             <span className="lp-nav-logo-icon"><Logo size={20} /></span>
-            SwayMaps
+            <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+              <span>SwayMaps</span>
+              <span style={{ fontSize: ".55rem", fontWeight: 500, color: "var(--t3)", letterSpacing: ".04em", marginTop: "2px" }}>Shows The Way</span>
+            </span>
           </Link>
           <ul className="lp-nav-links">
             <li><Link href="/features">Features</Link></li>
             <li><Link href="/use-cases">Use Cases</Link></li>
             <li><Link href="/pricing">Pricing</Link></li>
+            <li><Link href="/blog">Blog</Link></li>
             <li><Link href="/docs">Docs</Link></li>
           </ul>
           <div className="lp-nav-ctas">
@@ -516,7 +520,7 @@ export default function PricingPage() {
               <ul className="lp-footer-links">
                 <li><Link href="/features">Features</Link></li>
                 <li><Link href="/pricing">Pricing</Link></li>
-                <li><Link href="/templates-gallery">Templates</Link></li>
+                <li><Link href="/use-cases">Use Cases</Link></li>
                 <li><Link href="/changelog">Changelog</Link></li>
               </ul>
             </div>
