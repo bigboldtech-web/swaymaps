@@ -52,6 +52,8 @@ interface DashboardHeaderProps {
   // Presence
   presenceUsers?: PresenceUser[];
   currentUserId?: string;
+  /** Optional slot rendered before the legacy presence avatars (used for Yjs-driven presence). */
+  yjsSlot?: React.ReactNode;
 }
 
 export function DashboardHeader({
@@ -84,6 +86,7 @@ export function DashboardHeader({
   activeMapExists,
   presenceUsers = [],
   currentUserId,
+  yjsSlot,
 }: DashboardHeaderProps) {
   const { theme } = useTheme();
   const isLight = theme === "light";

@@ -232,11 +232,25 @@ model DecodeMap {
   presences     MapPresence[]
   sidekickConvs SidekickConversation[]
   sidekickAttachments SidekickAttachment[]
+  yjsDoc        MapYjsDoc?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
   @@index([workspaceId, folderId])
   @@index([workspaceId, mapType])
+}
+
+/// Latest Yjs document state for a map, used by the WebSocket sync server
+/// (lib/yjs/server.ts). Updated atomically every time the in-memory doc
+/// is debounced-saved (default 5s after last edit).
+model MapYjsDoc {
+  mapId      String   @id
+  map        DecodeMap @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  /// Y.encodeStateAsUpdate output — the full document.
+  state      Bytes
+  /// Monotonically incremented every save. Used for cache busting.
+  version    Int      @default(0)
+  updatedAt  DateTime @updatedAt
 }
 
 model SidekickConversation {

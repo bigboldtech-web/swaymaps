@@ -106,6 +106,26 @@ export function SidekickPanel({
   const [pendingAttachments, setPendingAttachments] = React.useState<AttachmentMeta[]>([]);
   const [uploading, setUploading] = React.useState(false);
   const [isDragOver, setIsDragOver] = React.useState(false);
+  const [serverConfigured, setServerConfigured] = React.useState<boolean | null>(null);
+
+  // Fetch Sidekick configuration status when the panel opens. If the
+  // ANTHROPIC_API_KEY isn't set we render a clear banner instead of letting
+  // the user type a question and hit a 503 on send.
+  React.useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    fetch("/api/ai/sidekick/status")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) setServerConfigured(!!d.configured);
+      })
+      .catch(() => {
+        if (!cancelled) setServerConfigured(true); // optimistic fallback
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLTextAreaElement | null>(null);
@@ -551,6 +571,14 @@ export function SidekickPanel({
               </div>
             </div>
           )}
+          {serverConfigured === false && (
+            <div className="rounded-md border border-warning/30 bg-warning-subtle px-3 py-2 text-xs text-warning">
+              <p className="font-medium">Sidekick is not configured.</p>
+              <p className="mt-0.5 leading-relaxed">
+                Set <code className="font-mono">ANTHROPIC_API_KEY</code> on the server and restart the app to enable graph-aware AI.
+              </p>
+            </div>
+          )}
           {messages.length === 0 && !busy && (
             <Welcome scope={scope} onSuggest={(q) => { setInput(q); setTimeout(() => inputRef.current?.focus(), 0); }} />
           )}
@@ -600,8 +628,12 @@ export function SidekickPanel({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
-            disabled={busy}
-            placeholder="Ask about this map…"
+            disabled={busy || serverConfigured === false}
+            placeholder={
+              serverConfigured === false
+                ? "Sidekick is not configured. See banner above."
+                : "Ask about this map…"
+            }
             rows={2}
             className="block w-full resize-none bg-transparent border-0 px-3 py-2 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-0 max-h-40"
           />
@@ -636,7 +668,7 @@ export function SidekickPanel({
                 Stop
               </Button>
             ) : (
-              <Button variant="primary" size="sm" onClick={send} disabled={!input.trim()} icon={<Send />}>
+              <Button variant="primary" size="sm" onClick={send} disabled={!input.trim() || serverConfigured === false} icon={<Send />}>
                 Send
               </Button>
             )}

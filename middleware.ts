@@ -26,7 +26,10 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/trust") ||
     pathname.startsWith("/security") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon");
+    pathname.startsWith("/favicon") ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
+    pathname === "/manifest.json";
 
   if (isPublicRoute) {
     return NextResponse.next();

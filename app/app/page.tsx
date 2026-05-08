@@ -67,6 +67,7 @@ import { ImportResult } from "../../lib/importers";
 import { CreateMapDialog } from "../../components/maps/CreateMapDialog";
 import { SidekickPanel } from "../../components/ai/SidekickPanel";
 import { SidekickPalette } from "../../components/ai/SidekickPalette";
+import { YjsPresenceBar } from "../../components/yjs/YjsPresenceBar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

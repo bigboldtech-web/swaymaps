@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getJackson } from "@/lib/jackson";
+import { getJackson, JacksonNotConfiguredError } from "@/lib/jackson";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -19,6 +19,9 @@ export async function GET() {
       },
     });
   } catch (e: any) {
+    if (e instanceof JacksonNotConfiguredError) {
+      return NextResponse.json({ error: e.message, reason: e.reason }, { status: 503 });
+    }
     return NextResponse.json(
       { error: e?.message ?? "Metadata failed" },
       { status: 500 }

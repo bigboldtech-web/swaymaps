@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:ws": "tsx server.ts",
     "build": "next build",
     "start": "next start",
+    "start:ws": "NODE_ENV=production tsx server.ts",
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -39,6 +41,7 @@
     "framer-motion": "^12.38.0",
     "html-to-image": "^1.11.13",
     "jspdf": "^4.2.0",
+    "lib0": "^0.2.117",
     "lucide-react": "^1.14.0",
     "mysql2": "^3.11.0",
     "next": "14.1.4",
@@ -49,7 +52,10 @@
     "resend": "^6.9.3",
     "sonner": "^2.0.7",
     "stripe": "^20.4.1",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "ws": "^8.20.0",
+    "y-protocols": "^1.0.7",
+    "yjs": "^13.6.30"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
@@ -57,6 +63,7 @@
     "@types/node": "20.11.30",
     "@types/react": "18.2.66",
     "@types/react-dom": "18.2.22",
+    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "10.4.18",
     "eslint": "9.39.1",
@@ -65,6 +72,7 @@
     "postcss": "8.4.36",
     "prisma": "^5.22.0",
     "tailwindcss": "3.4.3",
+    "tsx": "^4.21.0",
     "typescript": "5.4.2",
     "vitest": "^4.0.18"
   }

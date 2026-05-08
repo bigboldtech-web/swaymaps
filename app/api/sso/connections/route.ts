@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getJackson } from "@/lib/jackson";
+import { getJackson, JacksonNotConfiguredError } from "@/lib/jackson";
 import { requirePerm, PermissionDeniedError } from "@/lib/rbac";
 import { logActivity } from "@/lib/activityLog";
 
@@ -150,6 +150,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ connection: conn }, { status: 201 });
   } catch (e: any) {
+    if (e instanceof JacksonNotConfiguredError) {
+      return NextResponse.json({ error: e.message, reason: e.reason }, { status: 503 });
+    }
     return NextResponse.json(
       { error: e?.message ?? "Failed to create connection" },
       { status: e?.statusCode ?? 500 }

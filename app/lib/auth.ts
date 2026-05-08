@@ -4,6 +4,11 @@ import type { NextAuthOptions } from "next-auth";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { prisma } from "../../lib/prisma";
+import { ensureRequiredEnv } from "../../lib/env";
+
+// Validate environment at module load. Crashes the process in production if
+// required vars are missing — beats discovering it via a 500 on first signin.
+ensureRequiredEnv();
 
 const providers: any[] = [
   Credentials({
