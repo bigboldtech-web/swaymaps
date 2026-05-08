@@ -418,14 +418,22 @@ export function SidekickPanel({
   };
 
   const acceptProposal = async (toolUseId: string, proposalInput: any) => {
+    // Map / node scope: target the current map. Workspace scope: the agent
+    // includes map_id on the proposal itself (validateProposal enforces this);
+    // we let the apply route resolve it from there.
+    const bodyMapId =
+      scope.kind === "workspace"
+        ? proposalInput?.map_id
+        : scope.mapId;
+    if (!bodyMapId) {
+      toast.error("This proposal is missing a target map id. Ask the Sidekick to re-propose.");
+      return;
+    }
     const res = await fetch("/api/ai/sidekick/apply", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        // Apply targets the map the proposal originated on. Workspace-scope
-        // proposals shouldn't normally happen (the agent works through map ids),
-        // but if they do, the proposal carries the map id in its operations.
-        mapId: scope.kind === "workspace" ? proposalInput.mapId ?? "" : scope.mapId,
+        mapId: bodyMapId,
         proposal: proposalInput,
       }),
     });
@@ -775,6 +783,7 @@ function ToolCallChip({
   output?: any;
   isError?: boolean;
 }) {
+  const [open, setOpen] = React.useState(false);
   const summary = (() => {
     if (!input) return "running…";
     if (name === "find_dependencies") return `from ${input.node_id ?? "?"} (${input.direction ?? "both"})`;
@@ -787,14 +796,77 @@ function ToolCallChip({
     if (name === "generate_runbook") return `${(input.node_ids?.length ?? 0)} node(s)`;
     return "";
   })();
+
+  const errorDetail = isError ? extractErrorDetail(output) : null;
+
   return (
-    <div className={cn("inline-flex items-center gap-1.5 text-[11px]", isError ? "text-danger" : "text-fg-subtle")}>
-      <Wrench className="h-3 w-3" />
-      <span className="font-mono">{name}</span>
-      {summary && <span className="opacity-70">· {summary}</span>}
-      {output === undefined && !isError && <Loader2 className="h-3 w-3 animate-spin" />}
+    <div className="flex flex-col gap-1 max-w-[92%]">
+      <button
+        type="button"
+        onClick={() => isError && setOpen((v) => !v)}
+        className={cn(
+          "inline-flex items-center gap-1.5 text-[11px] text-left",
+          isError ? "text-danger cursor-pointer hover:underline" : "text-fg-subtle cursor-default"
+        )}
+      >
+        <Wrench className="h-3 w-3" />
+        <span className="font-mono">{name}</span>
+        {summary && <span className="opacity-70">· {summary}</span>}
+        {output === undefined && !isError && <Loader2 className="h-3 w-3 animate-spin" />}
+        {isError && errorDetail && (
+          <span className="opacity-90">· {errorDetail.short}</span>
+        )}
+      </button>
+      {isError && open && errorDetail && (
+        <pre className="text-[10px] font-mono text-fg-muted whitespace-pre-wrap rounded-sm border border-danger/30 bg-danger-subtle p-2 max-h-48 overflow-y-auto">
+          {errorDetail.full}
+        </pre>
+      )}
     </div>
   );
+}
+
+/**
+ * Best-effort extraction of a human-readable error message from a tool result.
+ * Handles:
+ *   - Local tool errors: { error: string }
+ *   - MCP tool results: array of { type: "text", text: ... } blocks (Anthropic shape)
+ *   - Plain strings or anything else stringified.
+ */
+function extractErrorDetail(output: unknown): { short: string; full: string } | null {
+  if (output == null) return null;
+  let text: string;
+  if (typeof output === "string") {
+    text = output;
+  } else if (typeof output === "object") {
+    const o = output as any;
+    if (typeof o.error === "string") text = o.error;
+    else if (Array.isArray(o)) {
+      // MCP-style content array
+      text = o
+        .map((b: any) => (typeof b === "string" ? b : b?.text ?? JSON.stringify(b)))
+        .filter(Boolean)
+        .join("\n");
+    } else {
+      try {
+        text = JSON.stringify(output, null, 2);
+      } catch {
+        text = String(output);
+      }
+    }
+  } else {
+    text = String(output);
+  }
+
+  // Heuristics for short label — pick a useful first sentence/code.
+  let short = text.slice(0, 120);
+  const code = text.match(/\b(401|403|404|408|429|500|502|503|504)\b/);
+  if (code) short = `HTTP ${code[1]}`;
+  else {
+    const firstLine = text.split("\n")[0]?.trim();
+    if (firstLine) short = firstLine.slice(0, 80);
+  }
+  return { short, full: text };
 }
 
 function ProposalCard({
@@ -804,7 +876,7 @@ function ProposalCard({
   onAccept,
 }: {
   toolUseId: string;
-  proposal: { summary?: string; rationale?: string; operations: any[] };
+  proposal: { summary?: string; rationale?: string; operations: any[]; map_id?: string };
   applied: boolean;
   onAccept: () => Promise<void>;
 }) {
@@ -833,6 +905,14 @@ function ProposalCard({
         <span className="text-xs font-semibold uppercase tracking-wide text-accent">
           Proposed change
         </span>
+        {proposal.map_id && (
+          <span
+            className="text-[10px] text-fg-subtle font-mono truncate max-w-[140px]"
+            title={`Target map: ${proposal.map_id}`}
+          >
+            → {proposal.map_id}
+          </span>
+        )}
       </div>
       {proposal.summary && (
         <p className="mt-1.5 text-sm font-medium text-fg">{proposal.summary}</p>

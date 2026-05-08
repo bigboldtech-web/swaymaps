@@ -31,6 +31,7 @@ import type {
 } from "@anthropic-ai/sdk/resources/messages";
 import { SIDEKICK_TOOLS, runTool, loadGraph } from "./tools";
 import { prisma } from "@/lib/prisma";
+import { decrypt } from "@/lib/crypto";
 
 const MODEL = "claude-opus-4-7";
 const MAX_TOKENS = 16000;
@@ -94,7 +95,7 @@ const PERSONA_BASE =
 Operating principles:
 - Be concise. Lead with the answer, then back it up.
 - Use tools to look things up. Do not guess node names or ids — use search_nodes (or search_nodes_across_workspace for cross-map) to resolve names.
-- When the user asks for a change to a map (add/update/remove a node or edge), use propose_change. NEVER claim you've changed a map — propose_change returns a previewable patch the user accepts in the UI.
+- When the user asks for a change to a map (add/update/remove a node or edge), use propose_change. NEVER claim you've changed a map — propose_change returns a previewable patch the user accepts in the UI. In WORKSPACE scope you MUST include map_id on the propose_change input (use search_workspace_maps first to identify the right map). In MAP/NODE scope you may omit it.
 - For runbooks or documentation, use generate_runbook. For everything else, answer in plain prose.
 - If the user attaches an image or PDF (e.g. an architecture diagram, screenshot, or document), study it carefully and use it as context. Common follow-ups: extract the systems shown and propose them as new nodes via propose_change, or compare what's in the diagram against the existing graph.
 - Permission tools enforce access in the implementation — they only return content the user can read. Never invent results.
@@ -332,12 +333,30 @@ async function loadMcpServers(workspaceId: string | null): Promise<McpServerConf
   const rows = await prisma.mcpServer.findMany({
     where: { workspaceId, enabled: true },
   });
-  return rows.map((r) => ({
-    type: "url" as const,
-    name: r.name,
-    url: r.url,
-    ...(r.authToken ? { authorization_token: r.authToken } : {}),
-  }));
+  const out: McpServerConfig[] = [];
+  for (const r of rows) {
+    let token: string | null = null;
+    if (r.authToken) {
+      try {
+        token = decrypt(r.authToken);
+      } catch (e) {
+        // If decryption fails (key rotated, corrupt envelope), skip the server
+        // rather than calling MCP with a bad token. Surface a console warning
+        // for the operator; UI surfaces the missing-tools effect.
+        console.error(
+          `[sidekick] MCP server ${r.id} (${r.name}): failed to decrypt authToken (${(e as any)?.message ?? "unknown"}). Skipping.`
+        );
+        continue;
+      }
+    }
+    out.push({
+      type: "url",
+      name: r.name,
+      url: r.url,
+      ...(token ? { authorization_token: token } : {}),
+    });
+  }
+  return out;
 }
 
 /* ──────────────────────────────────────────────────────────

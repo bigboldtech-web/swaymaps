@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requirePerm, PermissionDeniedError } from "@/lib/rbac";
+import { encrypt, encryptionAvailable } from "@/lib/crypto";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -85,6 +86,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "url is not a valid URL" }, { status: 400 });
   }
 
+  // Encrypt the auth token before persisting. Refuse to write a plaintext
+  // token if encryption isn't configured — silently degrading to plaintext is
+  // the kind of footgun that ends up on a postmortem.
+  let encryptedAuthToken: string | null = null;
+  if (authToken) {
+    if (!encryptionAvailable()) {
+      return NextResponse.json(
+        {
+          error:
+            "MCP_ENCRYPTION_KEY is not configured on the server. Refusing to store the token in plaintext. Generate a key (32 random bytes, hex-encoded) and set MCP_ENCRYPTION_KEY before adding tokens.",
+        },
+        { status: 503 }
+      );
+    }
+    try {
+      encryptedAuthToken = encrypt(String(authToken));
+    } catch (e: any) {
+      return NextResponse.json(
+        { error: e?.message ?? "Failed to encrypt auth token" },
+        { status: 500 }
+      );
+    }
+  }
+
   try {
     const created = await prisma.mcpServer.create({
       data: {
@@ -92,7 +117,7 @@ export async function POST(req: Request) {
         name: cleanName,
         label: String(label).trim().slice(0, 80),
         url: String(url).trim(),
-        authToken: authToken ? String(authToken) : null,
+        authToken: encryptedAuthToken,
         enabled: enabled !== false,
         createdById: userId,
       },

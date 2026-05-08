@@ -173,10 +173,15 @@ export const SIDEKICK_TOOLS: Tool[] = [
   {
     name: "propose_change",
     description:
-      "Propose a previewable patch to the map. Use this when the user asks you to add, modify, or remove nodes/edges. The patch is returned as a tool result — it is NOT applied automatically. The user reviews it and accepts/rejects in the UI.",
+      "Propose a previewable patch to a map. Use this when the user asks you to add, modify, or remove nodes/edges. The patch is returned as a tool result — it is NOT applied automatically. The user reviews it and accepts/rejects in the UI.",
     input_schema: {
       type: "object",
       properties: {
+        map_id: {
+          type: "string",
+          description:
+            "REQUIRED when the chat scope is 'workspace' — the id of the map this patch should target. For 'map' or 'node' scope you may omit this and the current map is used.",
+        },
         summary: {
           type: "string",
           description: "One-line human-readable summary of the change. Shown to the user.",
@@ -339,7 +344,24 @@ export async function runTool(
   input: any,
   ctx: ToolContext
 ): Promise<unknown> {
-  const { nodes, edges } = await loadGraph(ctx.mapId);
+  // Workspace-scope tools and propose_change can run without a current map.
+  // Single-map tools (find_dependencies, search_nodes, etc.) need one and
+  // get a clear error if dispatched in workspace scope by mistake.
+  const requiresCurrentMap = !["search_workspace_maps", "search_nodes_across_workspace", "propose_change"].includes(name);
+  if (requiresCurrentMap && !ctx.mapId) {
+    return {
+      error:
+        `Tool '${name}' needs a current map. This chat is workspace-scoped — use search_workspace_maps to identify a map first, then ask the user to drill into that map for further analysis.`,
+    };
+  }
+
+  let nodes: NodeRow[] = [];
+  let edges: EdgeRow[] = [];
+  if (ctx.mapId) {
+    const g = await loadGraph(ctx.mapId);
+    nodes = g.nodes;
+    edges = g.edges;
+  }
   const nodesById = new Map(nodes.map((n) => [n.id, n]));
 
   switch (name) {
@@ -362,7 +384,9 @@ export async function runTool(
     case "propose_change":
       // Validation only — don't apply. The patch is preserved verbatim
       // in the tool_result so the UI can render and apply it on accept.
-      return validateProposal(nodesById, input);
+      // Workspace scope: input.map_id MUST be present and the user must have
+      // permission to read that map (we validate against its actual nodes).
+      return await validateProposalAsync(ctx, input);
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
@@ -712,7 +736,52 @@ function runGenerateRunbook(
   return { markdown: sections.join("\n\n") };
 }
 
-function validateProposal(nodesById: Map<string, NodeRow>, input: any) {
+async function validateProposalAsync(ctx: ToolContext, input: any) {
+  // Resolve the target map: explicit input.map_id wins; otherwise current scope's map.
+  const targetMapId = (input.map_id as string | undefined) ?? ctx.mapId ?? "";
+  if (!targetMapId) {
+    return {
+      summary: input.summary,
+      rationale: input.rationale,
+      operations: input.operations ?? [],
+      valid: false,
+      issues: [
+        "propose_change requires map_id when the chat scope is 'workspace'. Identify the target map via search_workspace_maps first.",
+      ],
+    };
+  }
+
+  // Workspace-scope changes need permission verification on the target map.
+  // Same-map changes already passed VIEW at the route layer, but we re-check
+  // EDIT here because apply will reject anyway and a clear validator error
+  // surfaces faster.
+  const perm = await resolveMapPermission(ctx.userId, targetMapId);
+  if (!perm) {
+    return {
+      summary: input.summary,
+      rationale: input.rationale,
+      operations: input.operations ?? [],
+      valid: false,
+      issues: [`No access to map ${targetMapId}. Pick a map you can read.`],
+    };
+  }
+
+  // Load the target map's nodes for the validation pass.
+  let targetNodes: NodeRow[] = [];
+  try {
+    const g = await loadGraph(targetMapId);
+    targetNodes = g.nodes;
+  } catch (e: any) {
+    return {
+      summary: input.summary,
+      rationale: input.rationale,
+      operations: input.operations ?? [],
+      valid: false,
+      issues: [`Could not load map ${targetMapId}: ${e?.message ?? "unknown"}`],
+    };
+  }
+  const nodesById = new Map(targetNodes.map((n) => [n.id, n]));
+
   const ops = (input.operations ?? []) as any[];
   const tempIds = new Set<string>();
   const issues: string[] = [];
@@ -726,15 +795,15 @@ function validateProposal(nodesById: Map<string, NodeRow>, input: any) {
       case "update_node":
       case "remove_node":
         if (!op.node_id) issues.push(`${op.op} missing node_id`);
-        else if (!nodesById.has(op.node_id)) issues.push(`${op.op}: node ${op.node_id} not found`);
+        else if (!nodesById.has(op.node_id)) issues.push(`${op.op}: node ${op.node_id} not found in target map`);
         break;
       case "add_edge":
         if (!op.source || !op.target) issues.push("add_edge missing source/target");
         else {
           const sourceOk = nodesById.has(op.source) || tempIds.has(op.source);
           const targetOk = nodesById.has(op.target) || tempIds.has(op.target);
-          if (!sourceOk) issues.push(`add_edge: source ${op.source} not found`);
-          if (!targetOk) issues.push(`add_edge: target ${op.target} not found`);
+          if (!sourceOk) issues.push(`add_edge: source ${op.source} not found in target map`);
+          if (!targetOk) issues.push(`add_edge: target ${op.target} not found in target map`);
         }
         break;
       case "remove_edge":
@@ -746,6 +815,7 @@ function validateProposal(nodesById: Map<string, NodeRow>, input: any) {
   }
 
   return {
+    map_id: targetMapId,
     summary: input.summary,
     rationale: input.rationale,
     operations: ops,
