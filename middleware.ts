@@ -25,6 +25,10 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/changelog") ||
     pathname.startsWith("/trust") ||
     pathname.startsWith("/security") ||
+    pathname.startsWith("/roadmap") ||
+    pathname.startsWith("/integrations") ||
+    pathname.startsWith("/customers") ||
+    pathname.startsWith("/compare") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname === "/sitemap.xml" ||

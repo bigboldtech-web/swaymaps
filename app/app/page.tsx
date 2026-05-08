@@ -2231,6 +2231,15 @@ function PageContent() {
           activeMapExists={!!activeMap}
           presenceUsers={presenceUsers}
           currentUserId={currentUserId ?? undefined}
+          yjsSlot={
+            activeMap && !shareMode ? (
+              <YjsPresenceBar
+                mapId={activeMap.id}
+                enabled={!shareMode}
+                selfName={currentUser?.name ?? "You"}
+              />
+            ) : null
+          }
         />
 
         <main className="flex flex-1 overflow-hidden">

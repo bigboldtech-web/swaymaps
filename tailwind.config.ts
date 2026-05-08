@@ -72,6 +72,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
+        display: ["var(--font-display)"],
+        eyebrow: ["var(--font-eyebrow)"],
         mono: ["var(--font-mono)"],
       },
       fontSize: {

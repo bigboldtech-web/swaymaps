@@ -2,12 +2,26 @@ import "./globals.css";
 import type { Metadata } from "next";
 import React from "react";
 import { Providers } from "./providers";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, Sometype_Mono } from "next/font/google";
 
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const sometypeMono = Sometype_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-eyebrow",
   display: "swap",
 });
 
@@ -63,7 +77,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="light" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('swaymaps-theme');var d=document.documentElement;if(t==='dark'){d.classList.add('dark');d.classList.remove('light');}else{d.classList.add('light');d.classList.remove('dark');}}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body className={`${inter.variable} ${jakarta.variable} ${sometypeMono.variable} font-sans antialiased`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -48,7 +48,19 @@
 
   /* Typography */
   --font-sans: var(--font-inter), 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-display, var(--font-inter)), 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-eyebrow: var(--font-eyebrow, ui-monospace), 'Sometype Mono', ui-monospace, monospace;
   --font-mono: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace;
+
+  /* Brand gradients (used sparingly: hero accents, logo mark, badges) */
+  --gradient-warm: linear-gradient(135deg, #FF02F0 0%, #FC6D2D 100%);
+  --gradient-cool: linear-gradient(135deg, #6647F0 0%, #0091FF 100%);
+  --gradient-warm-soft: linear-gradient(135deg, rgba(255, 2, 240, 0.08) 0%, rgba(252, 109, 45, 0.08) 100%);
+  --gradient-cool-soft: linear-gradient(135deg, rgba(102, 71, 240, 0.08) 0%, rgba(0, 145, 255, 0.08) 100%);
+  --gradient-warm-stop-1: #FF02F0;
+  --gradient-warm-stop-2: #FC6D2D;
+  --gradient-cool-stop-1: #6647F0;
+  --gradient-cool-stop-2: #0091FF;
 
   /* Radius */
   --radius-xs: 4px;

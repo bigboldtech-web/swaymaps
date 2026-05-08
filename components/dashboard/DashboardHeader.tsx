@@ -154,6 +154,12 @@ export function DashboardHeader({
           hasSelection={hasSelection}
           shareMode={shareMode}
         />
+        {yjsSlot && (
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="w-px h-4 bg-border" />
+            {yjsSlot}
+          </div>
+        )}
         {presenceUsers.length > 0 && (
           <div className="hidden sm:flex items-center gap-2">
             <div className="w-px h-4 bg-border" />
