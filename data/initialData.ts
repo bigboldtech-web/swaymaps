@@ -182,8 +182,8 @@ export const initialWorkspaces: Workspace[] = [
     name: "Ops Team",
     ownerUserId: "user-1",
     members: [
-      { userId: "user-1", role: "owner" },
-      { userId: "user-2", role: "editor" }
+      { userId: "user-1", role: "OWNER" },
+      { userId: "user-2", role: "EDITOR" }
     ]
   }
 ];

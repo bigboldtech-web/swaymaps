@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       name,
       ownerId: userId as string,
       members: {
-        create: { userId: userId as string, role: "owner" }
+        create: { userId: userId as string, role: "OWNER" }
       }
     },
     include: { members: true }

@@ -64,6 +64,7 @@ const TemplateBrowser = React.lazy(() => import("../../components/TemplateBrowse
 import { usePresence } from "../../hooks/usePresence";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { ImportResult } from "../../lib/importers";
+import { CreateMapDialog } from "../../components/maps/CreateMapDialog";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -91,6 +92,7 @@ function PageContent() {
     return window.localStorage.getItem("decode-workspace-id");
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
@@ -532,8 +534,8 @@ function PageContent() {
   }, [isFreePlan, disabledMapIds, activeMapId, allowedMapId]);
 
   const currentRole = useMemo(() => {
-    if (!currentWorkspace || !currentUserId) return "viewer";
-    return currentWorkspace.members.find((m) => m.userId === currentUserId)?.role ?? "viewer";
+    if (!currentWorkspace || !currentUserId) return "VIEWER";
+    return currentWorkspace.members.find((m) => m.userId === currentUserId)?.role ?? "VIEWER";
   }, [currentWorkspace, currentUserId]);
 
   const userWorkspaces = useMemo(
@@ -1044,7 +1046,7 @@ function PageContent() {
 
   const addNodeWithKind = (chosenKind: NodeKind) => {
     if (!activeMap) {
-      if (currentRole === "viewer" || currentRole === "editor") {
+      if (currentRole === "VIEWER" || currentRole === "EDITOR" || currentRole === "GUEST") {
         setToast("Only owners/admins can create maps in this workspace.");
         return;
       }
@@ -1128,7 +1130,7 @@ function PageContent() {
   const ensurePublicShare = async (): Promise<string | null> => {
     if (!activeMap) return null;
     if (activeMap.publicShareId) return activeMap.publicShareId;
-    if (currentRole === "viewer" || currentRole === "editor") {
+    if (currentRole === "VIEWER" || currentRole === "EDITOR" || currentRole === "GUEST") {
       setToast("Only owners/admins can enable public view.");
       return null;
     }
@@ -1166,7 +1168,7 @@ function PageContent() {
       setToast("No public link to disable.");
       return;
     }
-    if (currentRole === "viewer" || currentRole === "editor") {
+    if (currentRole === "VIEWER" || currentRole === "EDITOR" || currentRole === "GUEST") {
       setToast("Only owners/admins can disable public view.");
       return;
     }
@@ -1206,7 +1208,7 @@ function PageContent() {
   };
 
   const createMapFromAiPlan = async (plan: AiBrainstormPlan, prompt: string, mapName?: string) => {
-    if (currentRole === "viewer" || currentRole === "editor") {
+    if (currentRole === "VIEWER" || currentRole === "EDITOR" || currentRole === "GUEST") {
       setToast("Only owners/admins can create maps in this workspace.");
       throw new Error("Only owners/admins can create maps in this workspace.");
     }
@@ -1276,7 +1278,7 @@ function PageContent() {
 
   const applyAiPlanToExisting = async (plan: AiBrainstormPlan) => {
     if (!activeMap) throw new Error("Open a board to add ideas.");
-    if (currentRole === "viewer") {
+    if (currentRole === "VIEWER" || currentRole === "GUEST") {
       throw new Error("You need edit access to add AI ideas to this board.");
     }
     const existingTitles = new Map<string, string>();
@@ -1815,49 +1817,16 @@ function PageContent() {
       setToast("View-only share. Sign in to edit.");
       return;
     }
-    if (currentRole === "viewer" || currentRole === "editor") {
+    if (currentRole === "VIEWER" || currentRole === "EDITOR" || currentRole === "GUEST") {
       setToast("Only owners/admins can create maps in this workspace.");
       return;
     }
-    const ownerId = ((session as any)?.user?.id as string | undefined) ?? currentUserId ?? users[0]?.id;
     if (mapCreationBlocked) {
       setToast("Free plan allows 3 maps. Upgrade to create more.");
       setShowUpgrade(true);
       return;
     }
-
-    setInputDialog({
-      open: true,
-      title: "New board",
-      placeholder: "Board name",
-      onSubmit: async (name) => {
-        const res = await fetch("/api/maps", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, ownerUserId: ownerId ?? undefined, workspaceId })
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          setToast(data.error ?? "Could not create map. Please try again.");
-          return;
-        }
-        const map = await res.json();
-        setMapSummaries((prev) => [
-          {
-            id: map.id,
-            name: map.name,
-            nodeCount: 0,
-            ownerName: users.find((u) => u.id === ownerId)?.name,
-            ownerUserId: ownerId ?? undefined,
-            publicShareId: map.publicShareId ?? null,
-            workspaceId: workspaceId ?? map.workspaceId
-          },
-          ...prev
-        ]);
-        setActiveMapId(map.id);
-        setToast("Map created");
-      }
-    });
+    setShowCreateDialog(true);
   };
 
   const handleDeleteMap = async (id: string) => {
@@ -1865,7 +1834,7 @@ function PageContent() {
       setToast("View-only share. Sign in to edit.");
       return;
     }
-    if (currentRole === "viewer" || currentRole === "editor") {
+    if (currentRole === "VIEWER" || currentRole === "EDITOR" || currentRole === "GUEST") {
       setToast("Only owners/admins can delete maps.");
       return;
     }
@@ -2094,12 +2063,20 @@ function PageContent() {
   }
 
   return (
-    <div className={`flex min-h-screen relative ${isLight ? "bg-[#f1f3f8] text-slate-800" : "bg-[#050b15] text-slate-100"}`}>
+    <div className="flex min-h-screen relative bg-bg text-fg">
       {sidebarOpen ? (
         <Sidebar
           maps={mapsForWorkspace}
           activeMapId={activeMapId}
-          onSelectMap={(id) => setActiveMapId(id)}
+          onSelectMap={(id) => {
+            const target = mapsForWorkspace.find((m) => m.id === id);
+            const mapType = (target as any)?.mapType ?? "DEPENDENCY";
+            if (mapType !== "DEPENDENCY") {
+              router.push(`/app/map/${id}`);
+              return;
+            }
+            setActiveMapId(id);
+          }}
           onCreateMap={shareMode ? () => setToast("View-only share. Sign in to edit.") : handleCreateMap}
           onDeleteMap={shareMode ? () => setToast("View-only share. Sign in to edit.") : handleDeleteMap}
           onClose={() => setSidebarOpen(false)}
@@ -2206,10 +2183,10 @@ function PageContent() {
         />
 
         <main className="flex flex-1 overflow-hidden">
-          <section className={`relative flex-1 ${isLight ? "bg-[#edf0f7]" : "bg-[#050b15]"}`}>
-            <div className="h-full w-full p-4">
+          <section className="relative flex-1 bg-bg-subtle">
+            <div className="h-full w-full p-3">
               <div
-                className={`relative h-full overflow-hidden rounded-xl border shadow ${isLight ? "border-slate-200/60 bg-[#edf0f7]" : "border-slate-800/60 bg-[#0b1422]"}`}
+                className="relative h-full overflow-hidden rounded-md border border-border bg-bg-subtle"
                 onContextMenu={(e) => {
                   if (shareMode) return;
                   e.preventDefault();
@@ -2436,6 +2413,31 @@ function PageContent() {
           const fn = inputDialog.onSubmit;
           setInputDialog({ open: false, title: "" });
           fn?.(val);
+        }}
+      />
+      <CreateMapDialog
+        open={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        workspaceId={workspaceId ?? null}
+        onCreated={(map) => {
+          setShowCreateDialog(false);
+          // Dependency maps stay in this editor; other types route to the format-specific editor.
+          if (map.mapType === "DEPENDENCY") {
+            setMapSummaries((prev) => [
+              {
+                id: map.id,
+                name: map.name,
+                nodeCount: 0,
+                workspaceId: workspaceId ?? undefined,
+                publicShareId: null,
+              },
+              ...prev,
+            ]);
+            setActiveMapId(map.id);
+            setToast("Map created");
+          } else {
+            router.push(`/app/map/${map.id}`);
+          }
         }}
       />
       <ConfirmDialog

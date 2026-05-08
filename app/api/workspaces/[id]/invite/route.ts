@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../lib/auth";
 import { prisma } from "../../../../../lib/prisma";
-import { WorkspaceRole } from "../../../../../types/map";
 import crypto from "crypto";
 import { logActivity } from "../../../../../lib/activityLog";
 import { notify } from "../../../../../lib/notify";
+import { roleFromUi } from "../../../../../lib/roleCompat";
 
 interface Params {
   params: { id: string };
@@ -19,10 +19,11 @@ export async function POST(req: Request, { params }: Params) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { email, role } = body as { email?: string; role?: WorkspaceRole };
-  if (!email || !role) {
+  const { email, role: roleInput } = body as { email?: string; role?: string };
+  if (!email || !roleInput) {
     return NextResponse.json({ error: "Email and role are required." }, { status: 400 });
   }
+  const role = roleFromUi(roleInput);
 
   const workspace = await prisma.workspace.findUnique({
     where: { id: params.id },
@@ -30,8 +31,8 @@ export async function POST(req: Request, { params }: Params) {
   });
   if (!workspace) return NextResponse.json({ error: "Workspace not found" }, { status: 404 });
 
-  const callerRole = workspace.members.find((m) => m.userId === userId)?.role ?? "viewer";
-  if (callerRole !== "owner" && callerRole !== "admin") {
+  const callerRole = workspace.members.find((m) => m.userId === userId)?.role ?? "VIEWER";
+  if (callerRole !== "OWNER" && callerRole !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -40,9 +41,8 @@ export async function POST(req: Request, { params }: Params) {
   if (inviter?.plan === "pro") {
     return NextResponse.json({ error: "Pro plan is single-user. Upgrade to Team to invite members." }, { status: 403 });
   }
-  const effectiveRole =
-    inviter?.plan === "free" ? ("viewer" as WorkspaceRole) : (role as WorkspaceRole);
-  if (inviter?.plan === "free" && role !== "viewer") {
+  const effectiveRole = inviter?.plan === "free" ? "VIEWER" : role;
+  if (inviter?.plan === "free" && role !== "VIEWER") {
     return NextResponse.json({ error: "Free plan can only invite viewers." }, { status: 403 });
   }
 

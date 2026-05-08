@@ -43,8 +43,8 @@ export async function PUT(req: Request, { params }: Params) {
       return NextResponse.json({ error: "Map not found" }, { status: 404 });
     }
 
-    const role = map.workspace?.members.find((m) => m.userId === userId)?.role ?? "viewer";
-    if (role === "viewer") {
+    const role = map.workspace?.members.find((m) => m.userId === userId)?.role ?? "VIEWER";
+    if (role === "VIEWER" || role === "GUEST") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

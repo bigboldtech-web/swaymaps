@@ -11,7 +11,7 @@ interface InviteModalProps {
 
 export function InviteModal({ onInvite, onClose }: InviteModalProps) {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<WorkspaceRole>("editor");
+  const [role, setRole] = useState<WorkspaceRole>("EDITOR");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
@@ -67,9 +67,9 @@ export function InviteModal({ onInvite, onClose }: InviteModalProps) {
               value={role}
               onChange={(e) => setRole(e.target.value as WorkspaceRole)}
             >
-              <option value="admin">Admin</option>
-              <option value="editor">Editor</option>
-              <option value="viewer">Viewer</option>
+              <option value="ADMIN">Admin</option>
+              <option value="EDITOR">Editor</option>
+              <option value="VIEWER">Viewer</option>
             </select>
           </div>
           {error && <div className={`text-sm ${isLight ? "text-rose-600" : "text-rose-400"}`}>{error}</div>}

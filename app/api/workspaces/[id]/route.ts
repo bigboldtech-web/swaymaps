@@ -23,8 +23,8 @@ export async function PUT(req: Request, { params }: Params) {
     include: { members: true }
   });
   if (!ws) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  const role = ws.members.find((m) => m.userId === userId)?.role ?? "viewer";
-  if (role !== "owner" && role !== "admin") {
+  const role = ws.members.find((m) => m.userId === userId)?.role ?? "VIEWER";
+  if (role !== "OWNER" && role !== "ADMIN") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

@@ -102,7 +102,7 @@ export interface User {
   plan?: "free" | "pro" | "team";
 }
 
-export type WorkspaceRole = "owner" | "admin" | "editor" | "viewer";
+export type WorkspaceRole = "OWNER" | "ADMIN" | "EDITOR" | "VIEWER" | "GUEST";
 
 export interface WorkspaceMember {
   userId: string;

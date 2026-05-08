@@ -79,10 +79,10 @@ export function MembersModal({
                     value={m.role}
                     onChange={(e) => onChangeRole(m.userId, e.target.value as WorkspaceRole)}
                   >
-                    <option value="owner">Owner</option>
-                    <option value="admin">Admin</option>
-                    <option value="editor">Editor</option>
-                    <option value="viewer">Viewer</option>
+                    <option value="OWNER">Owner</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="EDITOR">Editor</option>
+                    <option value="VIEWER">Viewer</option>
                   </select>
                   <button
                     className="rounded-lg border border-rose-500/40 px-2 py-1 text-xs font-semibold text-rose-400 transition hover:bg-rose-500/10"

@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../lib/auth";
 import { prisma } from "../../../../../lib/prisma";
-import { WorkspaceRole } from "../../../../../types/map";
 import { logActivity } from "../../../../../lib/activityLog";
 import { notify } from "../../../../../lib/notify";
+import { roleFromUi } from "../../../../../lib/roleCompat";
 
 interface Params {
   params: { id: string };
@@ -24,8 +24,8 @@ async function authorize(params: Params, sessionUserId?: string) {
   if (!workspace) {
     return { error: NextResponse.json({ error: "Workspace not found" }, { status: 404 }) };
   }
-  const callerRole = workspace.members.find((m) => m.userId === sessionUserId)?.role ?? "viewer";
-  if (callerRole !== "owner" && callerRole !== "admin") {
+  const callerRole = workspace.members.find((m) => m.userId === sessionUserId)?.role ?? "VIEWER";
+  if (callerRole !== "OWNER" && callerRole !== "ADMIN") {
     return { error: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
   return { workspace, callerRole };
@@ -39,12 +39,13 @@ export async function PUT(req: Request, params: Params) {
   const { workspace } = auth;
 
   const body = await req.json().catch(() => ({}));
-  const { userId, role } = body as { userId?: string; role?: WorkspaceRole };
-  if (!userId || !role) {
+  const { userId, role: roleInput } = body as { userId?: string; role?: string };
+  if (!userId || !roleInput) {
     return NextResponse.json({ error: "userId and role are required" }, { status: 400 });
   }
+  const role = roleFromUi(roleInput);
 
-  if (userId === workspace.ownerId && role !== "owner") {
+  if (userId === workspace.ownerId && role !== "OWNER") {
     return NextResponse.json({ error: "Cannot change the owner role" }, { status: 400 });
   }
 

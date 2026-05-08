@@ -20,7 +20,7 @@ export async function GET(req: Request) {
   const member = await prisma.workspaceMember.findUnique({
     where: { userId_workspaceId: { userId, workspaceId } },
   });
-  if (!member || !["owner", "admin"].includes(member.role)) {
+  if (!member || !["OWNER", "ADMIN"].includes(member.role)) {
     return NextResponse.json({ error: "Admin access required" }, { status: 403 });
   }
 

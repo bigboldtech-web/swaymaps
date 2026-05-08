@@ -7,6 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+  GUEST
+}
+
+enum FolderPermission {
+  VIEW
+  EDIT
+  ADMIN
+}
+
+enum MapType {
+  DEPENDENCY
+  WHITEBOARD
+  MINDMAP
+  FLOWCHART
+  KANBAN
+  ORGCHART
+  PRODUCTFLOW
+}
+
 model User {
   id             String         @id @default(cuid())
   name           String
@@ -30,6 +54,8 @@ model User {
   activities     Activity[]
   presences      MapPresence[]
   apiKeys        ApiKey[]
+  folderAcls     FolderACL[]
+  groups         Group[]        @relation("GroupMembers")
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
@@ -42,37 +68,126 @@ model Workspace {
   members    WorkspaceMember[]
   invites    WorkspaceInvite[]
   maps       DecodeMap[]
+  folders      Folder[]
+  groups       Group[]
   activities   Activity[]
   apiKeys      ApiKey[]
   integrations Integration[]
+  ssoConnections SSOConnection[]
+  scimTokens     SCIMToken[]
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
 }
 
-model WorkspaceMember {
-  id          String     @id @default(cuid())
-  user        User       @relation(fields: [userId], references: [id])
-  userId      String
-  workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+model SSOConnection {
+  id             String     @id @default(cuid())
+  workspace      Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId    String
+  type           String     // 'saml' | 'oidc'
+  name           String
+  jacksonTenant  String     // = workspaceId
+  jacksonProduct String     @default("swaymaps")
+  metadata       String?    @db.Text
+  defaultRole    WorkspaceRole @default(EDITOR)
+  enforced       Boolean    @default(false)
+  domains        String[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([workspaceId])
+  @@index([jacksonTenant])
+}
+
+model SCIMToken {
+  id           String     @id @default(cuid())
+  workspace    Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId  String
+  tokenHash    String     @unique
+  tokenPrefix  String
+  name         String
+  defaultRole  WorkspaceRole @default(EDITOR)
+  lastUsedAt   DateTime?
+  createdAt    DateTime   @default(now())
+
+  @@index([workspaceId])
+}
+
+model Folder {
+  id          String       @id @default(cuid())
+  name        String
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId String
-  role        String
+  parent      Folder?      @relation("FolderTree", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId    String?
+  children    Folder[]     @relation("FolderTree")
+  maps        DecodeMap[]
+  acls        FolderACL[]
+  position    String
+  icon        String?
+  color       String?
+  createdById String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([workspaceId, parentId])
+  @@index([workspaceId, parentId, position])
+}
+
+model FolderACL {
+  id          String           @id @default(cuid())
+  folder      Folder           @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  folderId    String
+  user        User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String?
+  group       Group?           @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     String?
+  permission  FolderPermission
+  createdAt   DateTime         @default(now())
+
+  @@unique([folderId, userId])
+  @@unique([folderId, groupId])
+  @@index([folderId])
+}
+
+model Group {
+  id           String      @id @default(cuid())
+  workspace    Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId  String
+  name         String
+  externalId   String?
+  members      User[]      @relation("GroupMembers")
+  acls         FolderACL[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@unique([workspaceId, externalId])
+  @@index([workspaceId])
+}
+
+model WorkspaceMember {
+  id          String         @id @default(cuid())
+  user        User           @relation(fields: [userId], references: [id])
+  userId      String
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+  role        WorkspaceRole  @default(EDITOR)
 
   @@unique([userId, workspaceId])
 }
 
 model WorkspaceInvite {
-  id               String     @id @default(cuid())
-  token            String     @unique
+  id               String         @id @default(cuid())
+  token            String         @unique
   email            String
-  workspace        Workspace  @relation(fields: [workspaceId], references: [id])
+  workspace        Workspace      @relation(fields: [workspaceId], references: [id])
   workspaceId      String
-  role             String
+  role             WorkspaceRole  @default(EDITOR)
   inviterUserId    String?
   acceptedByUserId String?
   expiresAt        DateTime
   acceptedAt       DateTime?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
 model Subscription {
@@ -95,12 +210,17 @@ model DecodeMap {
   id            String       @id @default(cuid())
   name          String
   description   String?
+  mapType       MapType      @default(DEPENDENCY)
+  canvasState   String?      @db.Text
   isTemplate    Boolean      @default(false)
   publicShareId String?      @unique
   owner         User?        @relation("MapOwner", fields: [ownerId], references: [id])
   ownerId       String?
   workspace     Workspace?   @relation(fields: [workspaceId], references: [id])
   workspaceId   String?
+  folder        Folder?      @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  folderId      String?
+  position      String?
   nodes         MapNode[]
   edges         MapEdge[]
   notes         Note[]
@@ -108,6 +228,9 @@ model DecodeMap {
   presences     MapPresence[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+
+  @@index([workspaceId, folderId])
+  @@index([workspaceId, mapType])
 }
 
 model MapNode {

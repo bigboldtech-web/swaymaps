@@ -20,7 +20,7 @@ async function authorize(mapId: string, userId: string | undefined) {
   if (!map) return false;
   if (map.ownerId === userId) return true;
   const role = map.workspace?.members.find((m) => m.userId === userId)?.role;
-  return role === "owner" || role === "admin";
+  return role === "OWNER" || role === "ADMIN";
 }
 
 export async function POST(_req: Request, { params }: Params) {

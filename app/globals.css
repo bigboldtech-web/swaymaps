@@ -2,335 +2,265 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Base ─── */
-:root {
-  --font-decode: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+/* ──────────────────────────────────────────────────────────
+   Design Tokens — Linear/Vercel-grade enterprise system
+   Source of truth for app + marketing. Tailwind reads from here.
+   ────────────────────────────────────────────────────────── */
+
+:root, html.light {
+  /* Surfaces */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #fafafa;
+  --color-bg-muted: #f4f4f5;
+  --color-panel: #ffffff;
+  --color-panel-hover: #fafafa;
+  --color-overlay: rgba(9, 9, 11, 0.40);
+
+  /* Borders */
+  --color-border: #e4e4e7;
+  --color-border-strong: #d4d4d8;
+  --color-border-focus: #2563eb;
+
+  /* Foreground */
+  --color-fg: #09090b;
+  --color-fg-muted: #52525b;
+  --color-fg-subtle: #71717a;
+  --color-fg-disabled: #a1a1aa;
+  --color-fg-inverted: #ffffff;
+
+  /* Accent — single brand blue */
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-active: #1e40af;
+  --color-accent-fg: #ffffff;
+  --color-accent-subtle: #eff6ff;
+  --color-accent-subtle-hover: #dbeafe;
+
+  /* Status — for state, not chrome */
+  --color-success: #16a34a;
+  --color-success-subtle: #f0fdf4;
+  --color-warning: #d97706;
+  --color-warning-subtle: #fffbeb;
+  --color-danger: #dc2626;
+  --color-danger-subtle: #fef2f2;
+  --color-info: #0284c7;
+  --color-info-subtle: #f0f9ff;
+
+  /* Typography */
+  --font-sans: var(--font-inter), 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace;
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows — subtle, no color tint */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 24px 48px rgba(0, 0, 0, 0.12);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 240ms;
 }
 
-/* Dark theme (default) */
 html.dark {
-  color-scheme: dark;
-}
-html.dark body {
-  font-family: var(--font-decode);
-  background-color: #030712;
-  color: #f1f5f9;
+  --color-bg: #0a0a0a;
+  --color-bg-subtle: #0f0f0f;
+  --color-bg-muted: #18181b;
+  --color-panel: #0f0f0f;
+  --color-panel-hover: #18181b;
+  --color-overlay: rgba(0, 0, 0, 0.60);
+
+  --color-border: #1f1f23;
+  --color-border-strong: #27272a;
+  --color-border-focus: #3b82f6;
+
+  --color-fg: #fafafa;
+  --color-fg-muted: #a1a1aa;
+  --color-fg-subtle: #71717a;
+  --color-fg-disabled: #52525b;
+  --color-fg-inverted: #09090b;
+
+  --color-accent: #3b82f6;
+  --color-accent-hover: #60a5fa;
+  --color-accent-active: #2563eb;
+  --color-accent-fg: #ffffff;
+  --color-accent-subtle: rgba(59, 130, 246, 0.10);
+  --color-accent-subtle-hover: rgba(59, 130, 246, 0.16);
+
+  --color-success: #22c55e;
+  --color-success-subtle: rgba(34, 197, 94, 0.10);
+  --color-warning: #f59e0b;
+  --color-warning-subtle: rgba(245, 158, 11, 0.10);
+  --color-danger: #ef4444;
+  --color-danger-subtle: rgba(239, 68, 68, 0.10);
+  --color-info: #06b6d4;
+  --color-info-subtle: rgba(6, 182, 212, 0.10);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.40), 0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.40), 0 2px 4px rgba(0, 0, 0, 0.30);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.50), 0 4px 8px rgba(0, 0, 0, 0.30);
+  --shadow-overlay: 0 24px 48px rgba(0, 0, 0, 0.60);
 }
 
-/* Light theme */
-html.light {
-  color-scheme: light;
-}
-html.light body {
-  font-family: var(--font-decode);
-  background-color: #f1f3f8;
-  color: #1e293b;
-}
+/* ──────────────────────────────────────────────────────────
+   Base
+   ────────────────────────────────────────────────────────── */
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-/* ─── Smooth Defaults ─── */
 html {
-  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* GPU-accelerated transitions for interactive elements */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+
+/* Headings — Inter at 600 max, no 700+ */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-fg);
+}
+
 button, a, input, select, textarea,
 [role="button"], [tabindex] {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ─── Custom Scrollbar (Dark) ─── */
-html.dark ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ──────────────────────────────────────────────────────────
+   Scrollbars — thin, neutral
+   ────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
-html.dark ::-webkit-scrollbar-track {
-  background: transparent;
-}
-html.dark ::-webkit-scrollbar-thumb {
-  background: rgba(51, 65, 85, 0.5);
-  border-radius: 3px;
-}
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(71, 85, 105, 0.7);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-fg-disabled);
+  background-clip: content-box;
 }
 
-/* ─── Custom Scrollbar (Light) ─── */
-html.light ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-html.light ::-webkit-scrollbar-track {
-  background: transparent;
-}
-html.light ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 3px;
-}
-html.light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.6);
-}
+/* ──────────────────────────────────────────────────────────
+   Focus — single accessible ring
+   ────────────────────────────────────────────────────────── */
 
-/* ─── Glass Utilities ─── */
-@layer utilities {
-  .glass-panel {
-    background: rgba(11, 20, 34, 0.70);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(51, 65, 85, 0.40);
-  }
-  .glass-panel-solid {
-    background: rgba(11, 20, 34, 0.90);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border: 1px solid rgba(51, 65, 85, 0.50);
-  }
-  .glass-border {
-    border: 1px solid rgba(51, 65, 85, 0.40);
-  }
-  .glass-glow {
-    box-shadow: 0 0 20px rgba(26, 128, 213, 0.15);
-  }
-  .glass-glow-lg {
-    box-shadow: 0 0 40px rgba(26, 128, 213, 0.20);
-  }
-  .gradient-text {
-    background: linear-gradient(135deg, #ffffff, #bae6fd, #c7d2fe);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .gradient-border {
-    position: relative;
-  }
-  .gradient-border::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(26,128,213,0.3), rgba(41,165,229,0.3));
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    -webkit-mask-composite: xor;
-    pointer-events: none;
-  }
+*:focus { outline: none; }
+*:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
+:focus:not(:focus-visible) { outline: none; }
 
-/* ─── Light Mode Glass ─── */
-html.light .glass-panel {
-  background: rgba(241, 243, 248, 0.80);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(203, 213, 225, 0.50);
-}
-html.light .glass-panel-solid {
-  background: rgba(245, 247, 251, 0.97);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(203, 213, 225, 0.35);
-}
-html.light .glass-border {
-  border: 1px solid rgba(203, 213, 225, 0.50);
-}
-html.light .shadow-glass {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(203, 213, 225, 0.3) !important;
-}
-html.light .shadow-2xl {
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
-}
-html.light .gradient-text {
-  background: linear-gradient(135deg, #0f172a, #0369a1, #4338ca);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+/* ──────────────────────────────────────────────────────────
+   ReactFlow — minimal chrome
+   ────────────────────────────────────────────────────────── */
 
-/* ─── ReactFlow Dark Overrides ─── */
-.react-flow__background {
-  background-color: #030712 !important;
-}
+.react-flow__background { background-color: var(--color-bg-subtle) !important; }
+
 .react-flow__minimap {
-  background: rgba(11, 20, 34, 0.90) !important;
-  border-radius: 12px;
-  border: 1px solid rgba(51, 65, 85, 0.40) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background: var(--color-panel) !important;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border) !important;
+  box-shadow: var(--shadow-sm);
 }
+
 .react-flow__controls {
-  background: rgba(11, 20, 34, 0.90) !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(51, 65, 85, 0.40) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  background: var(--color-panel) !important;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 .react-flow__controls button {
   background: transparent !important;
-  color: #94a3b8 !important;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.30) !important;
-  fill: #94a3b8 !important;
+  color: var(--color-fg-muted) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  fill: var(--color-fg-muted) !important;
+  width: 28px !important;
+  height: 28px !important;
 }
 .react-flow__controls button:hover {
-  background: rgba(51, 65, 85, 0.30) !important;
-  color: #f1f5f9 !important;
-  fill: #f1f5f9 !important;
+  background: var(--color-bg-muted) !important;
+  color: var(--color-fg) !important;
+  fill: var(--color-fg) !important;
 }
-.react-flow__controls button:last-child {
-  border-bottom: none !important;
-}
-.react-flow__controls svg {
-  fill: currentColor !important;
-}
-.react-flow__attribution {
-  display: none !important;
-}
+.react-flow__controls button:last-child { border-bottom: none !important; }
+.react-flow__controls svg { fill: currentColor !important; }
+.react-flow__attribution { display: none !important; }
 
-/* ─── Light Mode ReactFlow Overrides ─── */
-html.light .react-flow__background {
-  background-color: #edf0f7 !important;
-}
-html.light .react-flow__minimap {
-  background: rgba(241, 243, 248, 0.95) !important;
-  border: 1px solid rgba(203, 213, 225, 0.50) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-}
-html.light .react-flow__controls {
-  background: rgba(241, 243, 248, 0.95) !important;
-  border: 1px solid rgba(203, 213, 225, 0.50) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-}
-html.light .react-flow__controls button {
-  background: transparent !important;
-  color: #475569 !important;
-  border-bottom: 1px solid rgba(203, 213, 225, 0.35) !important;
-  fill: #475569 !important;
-}
-html.light .react-flow__controls button:hover {
-  background: rgba(226, 232, 240, 0.60) !important;
-  color: #0f172a !important;
-  fill: #0f172a !important;
-}
-html.light .react-flow__selection,
-html.light .react-flow__nodesselection-rect {
-  background: rgba(26, 128, 213, 0.06) !important;
-  border: 1px solid rgba(26, 128, 213, 0.25) !important;
-}
-html.light .react-flow__node.dragging .decode-node {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12), 0 0 0 2px rgba(26, 128, 213, 0.3) !important;
-}
-
-/* ─── Moving glow on edges ─── */
-.edge-glow-move {
-  animation: edge-glow-move 4s linear infinite;
-}
-@keyframes edge-glow-move {
-  to {
-    stroke-dashoffset: -608;
-  }
-}
-
-/* ─── Edge Animations ─── */
-.react-flow__edge-path {
-  transition: stroke-width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              stroke 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.react-flow__edge:hover .react-flow__edge-path {
-  stroke-width: 3 !important;
-  filter: drop-shadow(0 0 6px rgba(26, 128, 213, 0.35));
-}
-.react-flow__connection-path {
-  animation: connection-dash 0.5s linear infinite;
-  stroke-linecap: round;
-}
-@keyframes connection-dash {
-  to { stroke-dashoffset: -24; }
-}
-@keyframes edgeFlow {
-  to { stroke-dashoffset: -28; }
-}
-
-/* ─── Flowing Orb Glow ─── */
-.react-flow__edge circle {
-  filter: blur(0.5px);
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* ─── Node Interactions ─── */
-.react-flow__node {
-  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform, box-shadow;
-}
-.react-flow__node.dragging .decode-node {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 2px rgba(26, 128, 213, 0.35) !important;
-  transform: scale(1.03) !important;
-  transition: box-shadow 0.15s ease-out, transform 0.15s ease-out !important;
-}
-.react-flow__node:not(.dragging) .decode-node {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* ─── Selection ─── */
 .react-flow__nodesselection-rect,
 .react-flow__selection {
-  background: rgba(26, 128, 213, 0.08) !important;
-  border: 1px solid rgba(26, 128, 213, 0.3) !important;
-  border-radius: 8px;
+  background: var(--color-accent-subtle) !important;
+  border: 1px solid var(--color-accent) !important;
+  border-radius: var(--radius-sm);
 }
 
-/* ─── Smooth Handle Transitions ─── */
 .react-flow__handle {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: width, height, opacity, background-color;
+  transition: all var(--dur-fast) var(--ease-out);
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-panel);
 }
 
-/* ─── Smooth Minimap & Controls ─── */
-.react-flow__minimap,
-.react-flow__controls {
-  transition: opacity 0.3s ease;
+.react-flow__edge-path {
+  stroke: var(--color-fg-muted);
+  transition: stroke var(--dur-base) var(--ease-out),
+              stroke-width var(--dur-base) var(--ease-out);
 }
-.react-flow__controls button {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--color-accent) !important;
+  stroke-width: 2 !important;
 }
-.react-flow__controls button:active {
-  transform: scale(0.92);
-}
-
-/* ─── Accessibility ─── */
-*:focus-visible {
-  outline: 2px solid rgba(26, 128, 213, 0.6);
-  outline-offset: 2px;
-  border-radius: 4px;
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--color-accent) !important;
+  stroke-width: 2 !important;
 }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid rgba(26, 128, 213, 0.6);
-  outline-offset: 2px;
+/* ──────────────────────────────────────────────────────────
+   Utilities — minimal, semantic
+   ────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  .border-hairline { border-width: 1px; border-color: var(--color-border); }
 }
 
-/* Remove focus ring for mouse clicks */
-:focus:not(:focus-visible) {
-  outline: none;
-}
+/* ──────────────────────────────────────────────────────────
+   Reduced motion
+   ────────────────────────────────────────────────────────── */
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -338,48 +268,32 @@ textarea:focus-visible {
   }
 }
 
-/* ─── Mobile Utilities ─── */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
+/* ──────────────────────────────────────────────────────────
+   Legacy compatibility shims
+   Keep these until the codemod retires every usage.
+   They now resolve to the new hairline aesthetic.
+   ────────────────────────────────────────────────────────── */
 
-/* ─── Smooth Interactive Feedback ─── */
 @layer utilities {
-  .btn-press:active {
-    transform: scale(0.97);
-    transition: transform 0.1s ease;
+  .glass-panel,
+  .glass-panel-solid {
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
-  .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-  }
-  .smooth-colors {
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  .glass-border { border: 1px solid var(--color-border); }
+  .glass-glow,
+  .glass-glow-lg { box-shadow: var(--shadow-sm); }
+  .gradient-text {
+    background: none;
+    -webkit-background-clip: initial;
+    -webkit-text-fill-color: initial;
+    background-clip: initial;
+    color: var(--color-fg);
   }
 }
 
-/* ─── Smooth Page Load ─── */
-@keyframes pageEnter {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-main, [data-animate-in] {
-  animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* ─── Glass Panel Transitions ─── */
-.glass-panel, .glass-panel-solid {
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
-
-/* Skip to content (screen reader) */
 .sr-only {
   position: absolute;
   width: 1px;

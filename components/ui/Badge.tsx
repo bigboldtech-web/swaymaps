@@ -1,30 +1,42 @@
 "use client";
 
-import React from "react";
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/cn";
 
-type BadgeVariant = "default" | "sky" | "emerald" | "amber" | "rose" | "indigo" | "violet";
+const badgeVariants = cva(
+  "inline-flex items-center rounded-xs border px-1.5 h-[18px] text-[11px] font-medium leading-none",
+  {
+    variants: {
+      variant: {
+        default: "bg-bg-muted text-fg-muted border-border",
+        sky: "bg-accent-subtle text-accent border-accent/20",
+        indigo: "bg-accent-subtle text-accent border-accent/20",
+        emerald: "bg-success-subtle text-success border-success/20",
+        amber: "bg-warning-subtle text-warning border-warning/20",
+        rose: "bg-danger-subtle text-danger border-danger/20",
+        violet: "bg-accent-subtle text-accent border-accent/20",
+        outline: "bg-transparent text-fg-muted border-border",
+      },
+      size: {
+        sm: "h-[16px] px-1 text-[10px]",
+        md: "h-[18px] px-1.5 text-[11px]",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "md",
+    },
+  }
+);
 
-interface BadgeProps {
-  children: React.ReactNode;
-  variant?: BadgeVariant;
-  className?: string;
-}
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLSpanElement>,
+    VariantProps<typeof badgeVariants> {}
 
-const variantClasses: Record<BadgeVariant, string> = {
-  default: "bg-slate-800/60 text-slate-300 border-slate-700/50",
-  sky: "bg-brand-500/10 text-brand-300 border-brand-500/20",
-  emerald: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-  amber: "bg-amber-500/10 text-amber-300 border-amber-500/20",
-  rose: "bg-rose-500/10 text-rose-300 border-rose-500/20",
-  indigo: "bg-brand-500/10 text-brand-300 border-brand-500/20",
-  violet: "bg-violet-500/10 text-violet-300 border-violet-500/20",
-};
-
-export function Badge({ children, variant = "default", className = "" }: BadgeProps) {
+export function Badge({ children, variant, size, className, ...props }: BadgeProps) {
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${variantClasses[variant]} ${className}`}
-    >
+    <span className={cn(badgeVariants({ variant, size }), className)} {...props}>
       {children}
     </span>
   );

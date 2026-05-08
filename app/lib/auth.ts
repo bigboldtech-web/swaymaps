@@ -41,6 +41,37 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
   }));
 }
 
+// SSO via BoxyHQ Jackson — exposes a local OAuth 2.0 endpoint that wraps SAML.
+// Wire it as a generic OAuth provider so NextAuth treats SSO sign-in like any IdP.
+const baseUrl =
+  process.env.NEXTAUTH_URL || process.env.APP_URL || "http://localhost:3000";
+providers.push({
+  id: "boxyhq-saml",
+  name: "SSO",
+  type: "oauth",
+  version: "2.0",
+  checks: ["pkce", "state"],
+  authorization: {
+    url: `${baseUrl}/api/sso/authorize`,
+    params: { scope: "openid email profile" },
+  },
+  token: `${baseUrl}/api/sso/token`,
+  userinfo: `${baseUrl}/api/sso/userinfo`,
+  client: {
+    // Jackson uses a sentinel client_id "dummy" because tenant/product live in the URL params.
+    id: "dummy",
+    secret: "dummy",
+  },
+  clientId: "dummy",
+  clientSecret: "dummy",
+  idToken: false,
+  profile: (p: any) => ({
+    id: p.id ?? p.sub,
+    email: p.email,
+    name: p.name || p.email?.split("@")[0],
+  }),
+} as any);
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET!,
   adapter: PrismaAdapter(prisma),

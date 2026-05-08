@@ -43,6 +43,9 @@ export async function GET() {
       ownerUserId: map.ownerId ?? undefined,
       ownerName: map.owner?.name ?? "Unknown",
       workspaceId: map.workspaceId ?? undefined,
+      folderId: (map as any).folderId ?? null,
+      position: (map as any).position ?? null,
+      mapType: (map as any).mapType ?? "DEPENDENCY",
       nodeCount: map._count.nodes,
       edgeCount: map._count.edges,
       createdAt: map.createdAt,
@@ -65,7 +68,7 @@ export async function GET() {
           members: {
             create: {
               userId: userId as string,
-              role: "owner"
+              role: "OWNER"
             }
           }
         },
@@ -93,10 +96,15 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { name, description = "", workspaceId } = body ?? {};
+  const { name, description = "", workspaceId, mapType, folderId } = body ?? {};
   if (!name || typeof name !== "string") {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
+  const VALID_TYPES = [
+    "DEPENDENCY", "WHITEBOARD", "MINDMAP", "FLOWCHART",
+    "KANBAN", "ORGCHART", "PRODUCTFLOW",
+  ];
+  const resolvedType = VALID_TYPES.includes(mapType) ? mapType : "DEPENDENCY";
 
   try {
     const creatorId = userId as string;
@@ -135,7 +143,9 @@ export async function POST(req: Request) {
         name,
         description,
         ownerId: creatorId,
-        workspaceId: targetWorkspaceId
+        workspaceId: targetWorkspaceId,
+        mapType: resolvedType,
+        folderId: folderId ?? null,
       }
     });
 
