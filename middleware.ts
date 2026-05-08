@@ -23,6 +23,8 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/about") ||
     pathname.startsWith("/contact") ||
     pathname.startsWith("/changelog") ||
+    pathname.startsWith("/trust") ||
+    pathname.startsWith("/security") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon");
 
