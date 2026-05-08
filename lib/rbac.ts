@@ -34,6 +34,7 @@ export const PERMISSIONS = {
   "sso.configure":             ["OWNER", "ADMIN"],
   "sso.read":                  ["OWNER", "ADMIN"],
   "scim.tokens.manage":        ["OWNER", "ADMIN"],
+  "mcp.servers.manage":        ["OWNER", "ADMIN"],
 
   // API keys & integrations
   "apikeys.manage":            ["OWNER", "ADMIN"],

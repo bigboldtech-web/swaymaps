@@ -56,6 +56,8 @@ model User {
   apiKeys        ApiKey[]
   folderAcls     FolderACL[]
   groups         Group[]        @relation("GroupMembers")
+  sidekickConvs  SidekickConversation[]
+  sidekickAttachments SidekickAttachment[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
@@ -75,6 +77,8 @@ model Workspace {
   integrations Integration[]
   ssoConnections SSOConnection[]
   scimTokens     SCIMToken[]
+  mcpServers     McpServer[]
+  sidekickConvs  SidekickConversation[] @relation("WorkspaceSidekickConvs")
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
 }
@@ -226,11 +230,89 @@ model DecodeMap {
   notes         Note[]
   versions      MapVersion[]
   presences     MapPresence[]
+  sidekickConvs SidekickConversation[]
+  sidekickAttachments SidekickAttachment[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
   @@index([workspaceId, folderId])
   @@index([workspaceId, mapType])
+}
+
+model SidekickConversation {
+  id          String              @id @default(cuid())
+  map         DecodeMap?          @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  mapId       String?
+  workspace   Workspace?          @relation("WorkspaceSidekickConvs", fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String?
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  /// "MAP" | "WORKSPACE" | "NODE"
+  scopeKind   String              @default("MAP")
+  /// For NODE scope: the focused node id within `mapId`. Null otherwise.
+  focusNodeId String?
+  title       String?
+  messages    SidekickMessage[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([mapId, userId, updatedAt])
+  @@index([workspaceId, userId, updatedAt])
+}
+
+enum SidekickRole {
+  USER
+  ASSISTANT
+}
+
+enum SidekickAttachmentKind {
+  IMAGE
+  PDF
+}
+
+model McpServer {
+  id          String   @id @default(cuid())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String
+  name        String
+  label       String
+  url         String
+  authToken   String?  @db.Text
+  enabled     Boolean  @default(true)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, enabled])
+}
+
+model SidekickAttachment {
+  id         String                 @id @default(cuid())
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  map        DecodeMap              @relation(fields: [mapId], references: [id], onDelete: Cascade)
+  mapId      String
+  kind       SidekickAttachmentKind
+  filename   String?
+  mediaType  String
+  data       String                 @db.Text
+  sizeBytes  Int
+  createdAt  DateTime               @default(now())
+
+  @@index([userId, mapId, createdAt])
+}
+
+model SidekickMessage {
+  id             String               @id @default(cuid())
+  conversation   SidekickConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  role           SidekickRole
+  content        String               @db.Text
+  usage          String?              @db.Text
+  createdAt      DateTime             @default(now())
+
+  @@index([conversationId, createdAt])
 }
 
 model MapNode {

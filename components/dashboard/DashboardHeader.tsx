@@ -46,6 +46,7 @@ interface DashboardHeaderProps {
   // Actions
   aiEnabled: boolean;
   onAiAssist: () => void;
+  onSidekick?: () => void;
   onShare: () => void;
   activeMapExists: boolean;
   // Presence
@@ -78,6 +79,7 @@ export function DashboardHeader({
   onFocusNode,
   aiEnabled,
   onAiAssist,
+  onSidekick,
   onShare,
   activeMapExists,
   presenceUsers = [],
@@ -197,6 +199,21 @@ export function DashboardHeader({
           <svg className="h-3 w-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
           <span className="hidden sm:inline">Assist</span>
         </button>
+        {onSidekick && (
+          <button
+            className={`flex items-center gap-1.5 rounded-sm px-2.5 h-7 text-xs font-medium transition-colors ${
+              activeMapExists
+                ? "bg-accent text-accent-fg hover:bg-accent-hover"
+                : "bg-bg-muted text-fg-disabled cursor-not-allowed"
+            }`}
+            onClick={onSidekick}
+            disabled={!activeMapExists}
+            title="Sidekick · ⌘J"
+          >
+            <svg className="h-3 w-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /></svg>
+            <span className="hidden sm:inline">Sidekick</span>
+          </button>
+        )}
         {!shareMode && <NotificationCenter />}
         <button
           className={`flex items-center gap-1.5 rounded-sm h-7 px-2.5 text-xs font-medium transition-colors ${

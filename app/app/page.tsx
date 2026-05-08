@@ -65,6 +65,8 @@ import { usePresence } from "../../hooks/usePresence";
 import { useLiveSync } from "../../hooks/useLiveSync";
 import { ImportResult } from "../../lib/importers";
 import { CreateMapDialog } from "../../components/maps/CreateMapDialog";
+import { SidekickPanel } from "../../components/ai/SidekickPanel";
+import { SidekickPalette } from "../../components/ai/SidekickPalette";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -93,6 +95,15 @@ function PageContent() {
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showSidekick, setShowSidekick] = useState(false);
+  const [showSidekickPalette, setShowSidekickPalette] = useState(false);
+  const [sidekickQuery, setSidekickQuery] = useState<string | undefined>(undefined);
+  const [sidekickScope, setSidekickScope] = useState<
+    | { kind: "map"; mapId: string }
+    | { kind: "node"; mapId: string; nodeId: string; nodeTitle?: string }
+    | { kind: "workspace"; workspaceId: string; workspaceName?: string }
+    | null
+  >(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showInvite, setShowInvite] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
@@ -437,31 +448,35 @@ function PageContent() {
     }
   }, [session, workspaces, workspaceId, shareMode]);
 
+  const reloadActiveMap = useCallback(async () => {
+    if (!activeMapId || shareMode) return;
+    try {
+      const res = await fetch(`/api/maps/${activeMapId}/full`);
+      if (!res.ok) throw new Error("Full map fetch failed");
+      const data = await res.json();
+      const map: DecodeMap = {
+        ...data.map,
+        notes: (data.map.notes ?? []).map(withCommentArray)
+      };
+      setActiveMap(map);
+      setShareAccess(map.publicShareId ? "public" : "restricted");
+      setNodes(toFlowNodes(map.nodes, handleUpdateMeta));
+      setEdges(toFlowEdges(map.edges));
+    } catch (err) {
+      console.error("Failed to load map:", err);
+      setActiveMap(null);
+      setNodes([]);
+      setEdges([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMapId, shareMode]);
+
   useEffect(() => {
     if (!activeMapId || shareMode) return;
-    const loadMap = async () => {
-      try {
-        const res = await fetch(`/api/maps/${activeMapId}/full`);
-        if (!res.ok) throw new Error("Full map fetch failed");
-        const data = await res.json();
-        const map: DecodeMap = {
-          ...data.map,
-          notes: (data.map.notes ?? []).map(withCommentArray)
-        };
-        setActiveMap(map);
-        setShareAccess(map.publicShareId ? "public" : "restricted");
-        setNodes(toFlowNodes(map.nodes, handleUpdateMeta));
-        setEdges(toFlowEdges(map.edges));
-        setSelectedNodeId(null);
-        setSelectedEdgeId(null);
-      } catch (err) {
-        console.error("Failed to load map:", err);
-        setActiveMap(null);
-        setNodes([]);
-        setEdges([]);
-      }
-    };
-    loadMap();
+    reloadActiveMap().then(() => {
+      setSelectedNodeId(null);
+      setSelectedEdgeId(null);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMapId, shareMode]);
 
@@ -1726,6 +1741,36 @@ function PageContent() {
     onShortcutsHelp: () => setShowShortcutsHelp((v) => !v),
   });
 
+  // Cmd/Ctrl-J → map-Sidekick palette
+  // Cmd/Ctrl-Shift-J → workspace-Sidekick (skip palette, open panel directly)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const isJ = e.key === "j" || e.key === "J";
+      if ((e.metaKey || e.ctrlKey) && isJ) {
+        if (shareMode) return;
+        if (e.shiftKey) {
+          if (!workspaceId) return;
+          e.preventDefault();
+          setSidekickQuery(undefined);
+          setSidekickScope({
+            kind: "workspace",
+            workspaceId,
+            workspaceName: currentWorkspace?.name,
+          });
+          setShowSidekick(true);
+          return;
+        }
+        if (!activeMap) return;
+        e.preventDefault();
+        setSidekickQuery(undefined);
+        setSidekickScope({ kind: "map", mapId: activeMap.id });
+        setShowSidekickPalette(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [shareMode, activeMap, workspaceId, currentWorkspace]);
+
 
   const handleCreateNodeAt = (
     position: { x: number; y: number },
@@ -2176,6 +2221,11 @@ function PageContent() {
             if (!aiEnabled) { setToast("AI is disabled. Enable it in Settings."); return; }
             setShowAiAssistant(true);
           }}
+          onSidekick={shareMode ? undefined : () => {
+            setSidekickQuery(undefined);
+            if (activeMap) setSidekickScope({ kind: "map", mapId: activeMap.id });
+            setShowSidekick(true);
+          }}
           onShare={() => activeMap && setShowShareModal(true)}
           activeMapExists={!!activeMap}
           presenceUsers={presenceUsers}
@@ -2256,6 +2306,27 @@ function PageContent() {
                   onClick: handleDuplicateNode,
                   disabled: !selectedNodeId,
                 },
+                ...(selectedNodeId && activeMap
+                  ? [
+                      { label: "", onClick: () => {}, divider: true },
+                      {
+                        label: "Ask Sidekick about this node",
+                        shortcut: "",
+                        onClick: () => {
+                          const node = activeMap.nodes.find((n) => n.id === selectedNodeId);
+                          setSidekickQuery(undefined);
+                          setSidekickScope({
+                            kind: "node",
+                            mapId: activeMap.id,
+                            nodeId: selectedNodeId,
+                            nodeTitle: node?.title,
+                          });
+                          setShowSidekick(true);
+                          setContextMenu(null);
+                        },
+                      },
+                    ]
+                  : []),
                 { label: "", onClick: () => {}, divider: true },
                 {
                   label: "Search Nodes",
@@ -2440,6 +2511,33 @@ function PageContent() {
           }
         }}
       />
+      <SidekickPalette
+        open={showSidekickPalette}
+        onClose={() => setShowSidekickPalette(false)}
+        onSubmit={(query) => {
+          setShowSidekickPalette(false);
+          setSidekickQuery(query);
+          if (!sidekickScope && activeMap) {
+            setSidekickScope({ kind: "map", mapId: activeMap.id });
+          }
+          setShowSidekick(true);
+        }}
+      />
+      {(sidekickScope ?? (activeMap ? { kind: "map" as const, mapId: activeMap.id } : null)) && (
+        <SidekickPanel
+          scope={sidekickScope ?? { kind: "map", mapId: activeMap!.id }}
+          open={showSidekick}
+          initialQuery={sidekickQuery}
+          onClose={() => {
+            setShowSidekick(false);
+            setSidekickQuery(undefined);
+          }}
+          onMapMutated={() => {
+            reloadActiveMap();
+            setToast("Map updated by Sidekick");
+          }}
+        />
+      )}
       <ConfirmDialog
         open={confirmDialog.open}
         title={confirmDialog.title}
